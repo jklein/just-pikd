@@ -775,5 +775,114 @@
             "phpcs",
             "standards"
         ]
+    },
+    {
+        "name": "aura/installer-default",
+        "version": "1.0.0",
+        "version_normalized": "1.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/auraphp/installer-default.git",
+            "reference": "52f8de3670cc1ef45a916f40f732937436d028c8"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/auraphp/installer-default/zipball/52f8de3670cc1ef45a916f40f732937436d028c8",
+            "reference": "52f8de3670cc1ef45a916f40f732937436d028c8",
+            "shasum": ""
+        },
+        "time": "2012-11-26 21:35:57",
+        "type": "composer-installer",
+        "extra": {
+            "class": "Aura\\Composer\\DefaultInstaller"
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Aura\\Composer\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-2-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Paul M. Jones",
+                "email": "pmjones88@gmail.com",
+                "homepage": "http://paul-m-jones.com"
+            }
+        ],
+        "description": "Installs Aura packages using the Composer defaults.",
+        "keywords": [
+            "aura",
+            "installer"
+        ]
+    },
+    {
+        "name": "aura/input",
+        "version": "1.1.0",
+        "version_normalized": "1.1.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/auraphp/Aura.Input.git",
+            "reference": "1b0fc65315f4bb01b4432f045262c0ce49a062ea"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/auraphp/Aura.Input/zipball/1b0fc65315f4bb01b4432f045262c0ce49a062ea",
+            "reference": "1b0fc65315f4bb01b4432f045262c0ce49a062ea",
+            "shasum": ""
+        },
+        "require": {
+            "aura/installer-default": ">=1.0.0",
+            "php": ">=5.4.0"
+        },
+        "time": "2013-09-17 00:00:00",
+        "type": "aura-package",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Aura\\Input": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-2-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Paul M. Jones",
+                "email": "pmjones88@gmail.com",
+                "homepage": "http://paul-m-jones.com"
+            },
+            {
+                "name": "Hari KT",
+                "email": "kthari85@gmail.com",
+                "homepage": "http://harikt.com"
+            },
+            {
+                "name": "Akihito Koriyama",
+                "email": "akihito.koriyama@gmail.com",
+                "homepage": "https://github.com/koriym",
+                "role": "Lead"
+            },
+            {
+                "name": "Aura.Input Contributors",
+                "homepage": "https://github.com/auraphp/Aura.Input/contributors"
+            },
+            {
+                "name": "Daniel Haaker",
+                "email": "d.haaker@gmail.com"
+            }
+        ],
+        "description": "This package contains tools to describe and filter user inputs from an HTML form, including sub-forms/sub-fieldsets, fieldset collections, an interface for injecting custom filter systems, and CSRF protection. Note that this package does not include output functionality, although the \"hints\" provided by the Form object can be used with any presentation system to generate an HTML form.",
+        "homepage": "http://auraphp.com/Aura.Input",
+        "keywords": [
+            "field",
+            "form",
+            "html",
+            "input"
+        ]
     }
 ]

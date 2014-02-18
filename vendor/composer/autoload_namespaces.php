@@ -15,4 +15,6 @@ return array(
     'Monolog' => array($vendorDir . '/monolog/monolog/src'),
     'Guzzle\\Tests' => array($vendorDir . '/guzzle/guzzle/tests'),
     'Guzzle' => array($vendorDir . '/guzzle/guzzle/src'),
+    'Aura\\Input' => array($vendorDir . '/aura/input/src'),
+    'Aura\\Composer\\' => array($vendorDir . '/aura/installer-default/src'),
 );
