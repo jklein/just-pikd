@@ -1,0 +1,17 @@
+{
+    "require": {
+        "monolog/monolog":           "1.2.*",
+        "swiftmailer/swiftmailer":   "5.0.*",
+        "slim/slim":                 "2.4.*",
+        "mustache/mustache":         "2.5.*",
+        "guzzle/guzzle":             "3.8.*",
+        "phpmd/phpmd" :              "1.5.*",
+        "sebastian/hhvm-wrapper":    "2.0.*",
+        "squizlabs/php_codesniffer": "1.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pikd\\": "src/"
+        }
+    }
+}

@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+define('__HHVM_PHAR__', 'phar://___PHAR___');
+
+spl_autoload_register(
+  function ($class)
+  {
+      static $classes = NULL;
+
+      if ($classes === NULL) {
+          $classes = array(
+            ___CLASSLIST___
+          );
+      }
+
+      $class = strtolower($class);
+
+      if (isset($classes[$class])) {
+          require 'phar://___PHAR___' . $classes[$class];
+      }
+  }
+);
+
+Phar::mapPhar('___PHAR___');
+
+$application = new SebastianBergmann\HHVM\CLI\Application;
+$application->run();
+
+__HALT_COMPILER();
