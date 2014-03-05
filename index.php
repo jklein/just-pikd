@@ -10,7 +10,7 @@ $view->parserOptions = array(
     'debug' => true,
 );
 
-$app->get('/', function ($name) use ($app) {
+$app->get('/', function () use ($app) {
     //$controller = new \Pikd\Controller\Base();
 
     $app->render('index.html', ['name' => 'Jonathan']);
