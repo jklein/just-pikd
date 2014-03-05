@@ -2,7 +2,7 @@
 require '../app/vendor/autoload.php';
 
 $app = new \Slim\Slim([
-    'view' => new \Slim\Views\Twig()
+    'view' => new \Slim\Views\Twig(),
 ]);
 
 $view = $app->view();
