@@ -11,9 +11,9 @@ $view->parserOptions = array(
 );
 
 $app->get('/', function () use ($app) {
-    //$controller = new \Pikd\Controller\Base();
+    $controller = new \Pikd\Controller\Base();
 
-    $app->render('index.html', ['name' => 'Jonathan']);
+    $app->render('index.html', $controller->template_vars);
 });
 
 $app->run();

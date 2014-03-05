@@ -3,7 +3,11 @@
 namespace Pikd\Controller;
 
 class Base {
-    public function render() {
-        echo 'hello controller';
+    public $template_vars;
+
+    public function __construct() {
+        $this->template_vars = [
+            'name' => 'Jonathan',
+        ];
     }
 }
