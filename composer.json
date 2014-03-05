@@ -3,6 +3,7 @@
         "monolog/monolog":           "1.2.*",
         "swiftmailer/swiftmailer":   "5.0.*",
         "slim/slim":                 "2.4.*",
+        "slim/views":                "0.1.*",
         "mustache/mustache":         "2.5.*",
         "guzzle/guzzle":             "3.8.*",
         "phpmd/phpmd" :              "1.5.*",
