@@ -40,6 +40,7 @@
  */
 
 namespace TheSeer\fDOM {
+    use TheSeer\fDOM\CSS\Translator;
 
     /**
      * fDOMDocument extension to PHP's DOMDocument.
@@ -85,10 +86,10 @@ namespace TheSeer\fDOM {
             libxml_use_internal_errors(TRUE);
             $rc = parent::__construct($version, $encoding);
 
-            $this->registerNodeClass('\DOMDocument', get_called_class());
-            $this->registerNodeClass('\DOMNode', 'TheSeer\fDOM\fDOMNode');
-            $this->registerNodeClass('\DOMElement', 'TheSeer\fDOM\fDOMElement');
-            $this->registerNodeClass('\DOMDocumentFragment', 'TheSeer\fDOM\fDOMDocumentFragment');
+            $this->registerNodeClass('DOMDocument', get_called_class());
+            $this->registerNodeClass('DOMNode', 'TheSeer\fDOM\fDOMNode');
+            $this->registerNodeClass('DOMElement', 'TheSeer\fDOM\fDOMElement');
+            $this->registerNodeClass('DOMDocumentFragment', 'TheSeer\fDOM\fDOMDocumentFragment');
 
             return $rc;
         }
@@ -377,6 +378,24 @@ namespace TheSeer\fDOM {
                 $this->getDOMXPath();
             }
             return $this->xp->prepare($xpath, $valueMap);
+        }
+
+        /**
+         * Use a CSS Level 3 Selector string to query select nodes
+         *
+         * @param string   $selector A CSS Level 3 Selector string
+         * @param \DOMNode $ctx
+         * @param bool     $registerNodeNS
+         *
+         * @return \DOMNodeList
+         */
+        public function select($selector, \DOMNode $ctx = NULL, $registerNodeNS = TRUE) {
+            $translator = new Translator();
+            $xpath = $translator->translate($selector);
+            if ($ctx != NULL) {
+                $xpath = '.' . $xpath;
+            }
+            return $this->query($xpath, $ctx, $registerNodeNS);
         }
 
         /**

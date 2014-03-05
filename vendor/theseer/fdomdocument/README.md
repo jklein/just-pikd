@@ -5,6 +5,9 @@ The classes contained within this repository extend the standard DOM to use exce
 all occasions of errors instead of PHP warnings or notices. They also add various custom methods
 and shortcuts for convenience and to simplify the usage of DOM.
 
+[![Build Status](https://travis-ci.org/theseer/fDOMDocument.png)](https://travis-ci.org/theseer/fDOMDocument)
+
+
 Requirements
 ------------
 
@@ -21,7 +24,7 @@ As fDOMDocument is a library and does not provide any cli tools, you can only ad
 
     {
         "require": {
-            "theseer/fdomdocument": "1.4.2"
+            "theseer/fdomdocument": "1.5.0"
         }
     }
 
@@ -67,6 +70,12 @@ Usage Samples
 
 Changelog
 ---------
+#####Release 1.5.0
+* Added <code>select</code> to <code>fDOMDocument</code>,<code>fDOMElement</code> and <code>fDOMNode</code> to support
+  CSS Selectors in favor of XPath only to find nodes
+
+* Added <code>query</code> and <code>queryOne</code> forwardes to <code>fDOMNode</code>
+
 #####Release 1.4.3
 * Added <code>saveXML</code> and <code>saveHTML</code> to <code>fDOMNode</code> and <code>fDOMElement</code> as a
   shortcut to calling those methods on the ownerDocument

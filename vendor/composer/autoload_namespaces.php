@@ -6,9 +6,11 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Twig_' => array($vendorDir . '/twig/twig/lib'),
     'Symfony\\Component\\Finder\\' => array($vendorDir . '/symfony/finder'),
     'Symfony\\Component\\EventDispatcher\\' => array($vendorDir . '/symfony/event-dispatcher'),
     'Symfony\\Component\\Console\\' => array($vendorDir . '/symfony/console'),
+    'Slim\\Views' => array($vendorDir . '/slim/views'),
     'Slim' => array($vendorDir . '/slim/slim'),
     'PHP_' => array($vendorDir . '/pdepend/pdepend/src/main/php'),
     'Mustache' => array($vendorDir . '/mustache/mustache/src'),
