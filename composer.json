@@ -10,7 +10,7 @@
         "sebastian/hhvm-wrapper":    "2.0.*",
         "squizlabs/php_codesniffer": "1.*",
         "aura/input":                "1.1.*",
-        "twig/twig": "1.*"
+        "twig/twig":                 "1.*"
     },
     "autoload": {
         "psr-4": {

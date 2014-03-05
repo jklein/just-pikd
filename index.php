@@ -1,12 +1,19 @@
 <?php
 require 'vendor/autoload.php';
 
-$app = new \Slim\Slim();
+$app = new \Slim\Slim([
+    'view' => new \Slim\Views\Twig()
+]);
 
-$app->get('/hello/:name', function ($name) {
-    $controller = new \Pikd\Controller\Base();
+$view = $app->view();
+$view->parserOptions = array(
+    'debug' => true,
+);
 
-    $controller->render();
+$app->get('/', function ($name) use ($app) {
+    //$controller = new \Pikd\Controller\Base();
+
+    $app->render('index.html', ['name' => 'Jonathan']);
 });
 
 $app->run();
