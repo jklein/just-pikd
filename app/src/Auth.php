@@ -6,6 +6,64 @@ class Auth {
 
     public static function register($params) {
         $valid = false;
+        $messages = self::validateFormParams($params);
+
+        if (empty($messages)) {
+            $user_data = array(
+                'first_name' => $params['first_name'],
+                'last_name'  => $params['last_name'],
+                'email'      => $params['email'],
+                'password'   => password_hash($params['password'], PASSWORD_BCRYPT),
+                'created_at' => time(),
+                'last_login' => time(),
+            );
+
+            $result = self::createUser(\Pikd\Persistence::get_database_object(), $user_data);
+            if ($result) {
+                $valid = true;
+                $messages[] = 'Successfully registered!';
+            } else {
+                $messages[] = 'A user with that email address already exists!';
+            }
+        }
+
+        return array(
+            'valid'     => $valid,
+            'messages'  => $messages,
+        );
+    }
+
+    public static function update($params) {
+        $valid = false;
+        $messages = self::validateFormParams($params);
+
+        if (empty($messages)) {
+            $user_data = array(
+                'id' => $_SESSION['id'],
+                'first_name' => $params['first_name'],
+                'last_name'  => $params['last_name'],
+                'email'      => $params['email'],
+                'password'   => password_hash($params['password'], PASSWORD_BCRYPT),
+                'last_login' => time(),
+            );
+
+            $result = self::updateUser(\Pikd\Persistence::get_database_object(), $user_data);
+            if ($result) {
+                $valid = true;
+                $messages[] = 'Successfully updated your information!';
+                $_SESSION = array_merge($_SESSION, $user_data);
+            } else {
+                $messages[] = 'There is no user with that email address!';
+            }
+        }
+
+        return array(
+            'valid'     => $valid,
+            'messages'  => $messages,
+        );
+    }
+
+    private static function validateFormParams($params) {
         $messages = array();
 
         if (!v::string()->notEmpty()->email()->validate($params['email'])) {
@@ -28,29 +86,7 @@ class Auth {
             $messages[] = 'First and last name are required';
         }
 
-        if (empty($messages)) {
-            $user_data = array(
-                'first_name' => $params['first_name'],
-                'last_name'  => $params['last_name'],
-                'email'      => $params['email'],
-                'password'   => password_hash($params['password'], PASSWORD_BCRYPT),
-                'created_at' => time(),
-                'last_login' => time(),
-            );
-
-            //$result = self::createUser(\Pikd\Persistence::get_database_object(), $user_data);
-            if ($result) {
-                $valid = true;
-                $messages[] = 'Successfully registered!';
-            } else {
-                $messages[] = 'A user with that email address already exists!';
-            }
-        }
-
-        return array(
-            'valid'     => $valid,
-            'messages'  => $messages,
-        );
+        return $messages;
     }
 
     public static function createUser($dbcon, $user_data) {
@@ -59,7 +95,17 @@ class Auth {
         if (!empty($user)) {
             return false;
         } else {
-            return Persistence::insert('tuneup_user', $user_data, $dbcon);
+            return Persistence::insert('Pikd_user', $user_data, $dbcon);
+        }
+    }
+
+    private static function updateUser($dbcon, $user_data) {
+        // First see if a user exists with this email address:
+        $user = Persistence::get_user($dbcon, $user_data['email']);
+        if (empty($user)) {
+            return false;
+        } else {
+            return Persistence::update('Pikd_user', $user_data, $dbcon);
         }
     }
 
