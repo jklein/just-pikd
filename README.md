@@ -15,5 +15,10 @@ Development Setup:
 4. In the git working copy, type `vagrant up` to start the VM. The first time you do this it will take longer since it needs to download the VM image.
 5. localhost:8080 on the host machine will be forwarded to the VM's port 80, so hit localhost:8080 in a web browser to validate that things got set up properly.
 6. You can ssh to the VM using `vagrant ssh` as well.
-7. Edit code via the mapped shared directory `/usr/share/nginx/html`
-8. To make changes to the server's confguration, edit the chef cookbooks in the `cookbooks/` directory, and run `vagrant provision` to automatically run chef-solo against the running VM
+7. Your git working copy is automatically mapped to `/usr/share/nginx/html` as a shared directory, so you should be able to edit code and see the changes right away.
+
+Changing Development server configuration:
+-------------
+1. Small changes can be tested via `vagrant ssh` (the user has sudo access)
+2. To do it properly, edit the chef cookbooks in the `cookbooks/` directory, and if you need to add a cookbook edit the Vagrantfile as well (we should add roles for this later and an environment flag).
+3. Run `vagrant provision` to automatically run chef-solo against the running VM. You usually need to `vagrant reload` to sync changes to the cookbooks first.
