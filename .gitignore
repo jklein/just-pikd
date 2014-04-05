@@ -3,3 +3,4 @@ composer.phar
 *.sublime-workspace
 *.sublime-project
 app/vendor
+htdocs/build
