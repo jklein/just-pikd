@@ -1,0 +1,1 @@
+Site images, like sprites and marketing images.  NOT product images
