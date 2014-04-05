@@ -6,6 +6,7 @@ $app = new \Slim\Slim([
 ]);
 
 $view = $app->view();
+$view->setTemplatesDirectory('/usr/share/nginx/html/app/templates');
 $view->parserOptions = array(
     'debug' => true,
 );
