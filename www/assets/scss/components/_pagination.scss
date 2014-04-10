@@ -1,0 +1,56 @@
+// Pagination
+.pagination {
+  margin: 0;
+  font-size: 15px;
+  font-family: $secondary-font;
+  font-weight: 700;
+  @extend %color-secondary-color;
+
+  .active {
+    @extend %color-primary-color;
+    background-color: $default-color;
+    box-shadow: none;
+  }
+
+  > li {
+    > a {
+      @extend %color-secondary-color;
+      padding: 7px 14px;
+      box-shadow: 0 1px 2px $light-color;
+      border-radius: 2px;
+
+      &:hover {
+        @extend %color-primary-color;
+        background-color: $default-color;
+      }
+    }
+
+    &:first-child,
+    &:last-child {
+      > a {
+        border-bottom-right-radius: 2px;
+        border-bottom-left-radius: 2px;
+        border-top-right-radius: 2px;
+        border-top-left-radius: 2px;
+      }
+    }
+  }
+
+  .pagination--nav {
+    @extend %background-primary-color;
+    margin: 0 20px;
+    border: 2px solid $primary-color;
+    padding: 6px 10px;
+    color: $lighter-color;
+
+    &:hover {
+      @extend %color-primary-color;
+      background-color: $lighter-color;
+    }
+  }
+
+  .glyphicon-chevron-right,
+  .glyphicon-chevron-left {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,40 @@
+// Breadcrumbs
+.breadcrumbs {
+  @extend %background-secondary-color;
+  background-image: image-url("pattern_dark.png");
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.no-margin {
+  margin-bottom: 0;
+}
+
+.breadcrumb {
+  padding: 11px 0 10px 0;
+  color: $text-color;
+  margin: 0;
+  background: none;
+  border-radius: 0;
+
+  > li + li:before {
+    content: "\e080";
+    color: $dark-color;
+    font-family: "Glyphicons Halflings";
+    font-size: 8px;
+  }
+
+  a {
+    color: $dark-color;
+
+    &:hover {
+      color: $default-color;
+      text-decoration: none;
+    }
+  }
+
+  .active {
+    color: $default-color;
+    font-weight: 600;
+  }
+}

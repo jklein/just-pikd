@@ -1,0 +1,31 @@
+// 404
+.page-not-found {
+  text-align: center;
+  padding: 60px 0 0 0; 
+
+  @media (min-width: $screen-sm-min) {
+    padding: 0 0 60px 0;
+  }
+
+  .page-not-found__text {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .page-not-found__link {
+    @extend %color-primary-color;
+
+    &:hover {
+      color: darken($primary-color, 10);
+      text-decoration: none;
+    }
+  }
+
+  .page-not-found__background {
+    @extend %background-primary-color;
+    width: 217px;
+    height: 222px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+}
