@@ -8,34 +8,38 @@ var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 
+// Set some paths
+var assets_dir = 'www/assets';
+var build_dir = 'www/assets/build';
+
 // Lint Task
 gulp.task('lint', function() {
-    return gulp.src('www/assets/js/*.js')
+    return gulp.src(assets_dir + '/js/*.js')
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
 });
 
 // Compile Our Sass
 gulp.task('sass', function() {
-    return gulp.src('www/assets/scss/*.scss')
+    return gulp.src(assets_dir + '/scss/*.scss')
         .pipe(sass())
-        .pipe(gulp.dest('www/assets/build/css'));
+        .pipe(gulp.dest(build_dir + '/css'));
 });
 
 // Concatenate & Minify JS
 gulp.task('scripts', function() {
-    return gulp.src('www/assets/js/*.js')
+    return gulp.src(assets_dir + '/js/*.js')
         .pipe(concat('all.js'))
-        .pipe(gulp.dest('www/assets/build/js'))
+        .pipe(gulp.dest(build_dir + '/js'))
         .pipe(rename('all.min.js'))
         .pipe(uglify())
-        .pipe(gulp.dest('www/assets/build/js'));
+        .pipe(gulp.dest(build_dir + '/js'));
 });
 
 // Watch Files For Changes
 gulp.task('watch', function() {
-    gulp.watch('www/assets/js/*.js', ['lint', 'scripts']);
-    gulp.watch('www/assets/scss/*.scss', ['sass']);
+    gulp.watch(assets_dir + '/js/*.js', ['lint', 'scripts']);
+    gulp.watch(assets_dir + '/scss/*.scss', ['sass']);
 });
 
 // Default Task
