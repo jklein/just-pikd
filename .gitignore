@@ -2,4 +2,5 @@ composer.phar
 .vagrant
 *.sublime-workspace
 app/vendor
-htdocs/build
+node_modules
+www/assets/build
