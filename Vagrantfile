@@ -37,6 +37,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
      chef.add_recipe "postgresql"
      chef.add_recipe "postgresql::server"
      chef.add_recipe "postgresql::contrib"
+     chef.add_recipe "php"
      chef.add_recipe "jp_app"
      chef.json = {
        :postgresql =>  {
