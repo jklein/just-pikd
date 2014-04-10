@@ -1,0 +1,21 @@
+{
+  "name": "just-pikd",
+  "version": "0.0.1",
+  "description": "Just Pikd =========",
+  "dependencies": {
+    "gulp": "~3.6.0"
+  },
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jklein/just-pikd.git"
+  },
+  "homepage": "https://github.com/jklein/just-pikd",
+  "devDependencies": {
+    "gulp-rename": "~1.2.0",
+    "gulp-concat": "~2.2.0",
+    "gulp-uglify": "~0.2.1",
+    "gulp-jshint": "~1.5.3",
+    "gulp-sass": "~0.7.1"
+  }
+}
