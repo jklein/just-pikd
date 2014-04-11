@@ -3,6 +3,6 @@ var livereload = require('gulp-livereload');
 
 module.exports = function(){
     gulp.watch('www/assets/js/**/*', ['browserify']);
-    gulp.watch('www/scss/**', ['compass']);
+    gulp.watch('www/assets/scss/**', ['compass']);
     livereload();
 };
