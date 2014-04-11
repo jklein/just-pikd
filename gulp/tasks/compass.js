@@ -4,15 +4,11 @@ var livereload = require('gulp-livereload');
 var notify     = require('gulp-notify');
 var path       = require('path');
 
-// Set some paths
-var assets_dir = 'www/assets';
-var build_dir = 'www/assets/build';
-
 module.exports = function() {
-    return gulp.src(assets_dir + '/scss/*.scss')
+    return gulp.src('www/assets/scss/*.scss')
         .pipe(compass({
             config_file: 'config.rb',
-            css: 'www/assets/build/css',
+            css: 'www/build/css',
             sass: 'www/assets/scss'
         }))
         .on('error', notify.onError({
