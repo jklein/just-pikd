@@ -7,8 +7,9 @@ var path       = require('path');
 module.exports = function() {
     return gulp.src('www/assets/scss/*.scss')
         .pipe(compass({
-            config_file: 'config.rb',
             css: 'www/build/css',
+            image: 'www/assets/images',
+            relative: true,
             sass: 'www/assets/scss'
         }))
         .on('error', notify.onError({
