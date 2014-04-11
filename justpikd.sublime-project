@@ -5,7 +5,9 @@
 			"folder_exclude_patterns":
 			[
 				".vagrant",
-				"vendor"
+				"vendor",
+				".sass-cache",
+				"node_modules"
 			],
 			"path": "/Users/jklein/development/just-pikd"
 		}
