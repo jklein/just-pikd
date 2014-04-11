@@ -3,5 +3,5 @@ composer.phar
 *.sublime-workspace
 app/vendor
 node_modules
-www/assets/build
+www/build
 .sass-cache
