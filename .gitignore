@@ -4,3 +4,4 @@ composer.phar
 app/vendor
 node_modules
 www/assets/build
+.sass-cache

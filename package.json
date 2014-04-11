@@ -16,6 +16,10 @@
     "gulp-concat": "~2.2.0",
     "gulp-uglify": "~0.2.1",
     "gulp-jshint": "~1.5.3",
-    "gulp-sass": "~0.7.1"
+    "gulp-sass": "~0.7.1",
+    "gulp-compass": "~1.1.8",
+    "gulp-livereload": "~1.2.0",
+    "gulp-notify": "~1.2.5",
+    "notify-send": "~0.1.2"
   }
 }
