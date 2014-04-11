@@ -20,6 +20,7 @@
     "gulp-compass": "~1.1.8",
     "gulp-livereload": "~1.2.0",
     "gulp-notify": "~1.2.5",
-    "notify-send": "~0.1.2"
+    "notify-send": "~0.1.2",
+    "gulp-minify-css": "~0.3.1"
   }
 }

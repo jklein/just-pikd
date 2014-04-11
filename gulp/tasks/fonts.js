@@ -1,6 +1,6 @@
-var gulp       = require('gulp');
+var gulp = require('gulp');
 
 module.exports = function(){
-    gulp.src('www/assets/scss/sass-bootstrap/fonts/*')
-    .pipe(gulp.dest('www/build/css/sass-bootstrap/fonts/'));
+    return gulp.src('www/assets/scss/sass-bootstrap/fonts/*')
+                .pipe(gulp.dest('www/build/css/sass-bootstrap/fonts/'));
 };

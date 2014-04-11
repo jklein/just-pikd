@@ -1,8 +1,8 @@
-var compass    = require('gulp-compass');
 var gulp       = require('gulp');
-var livereload = require('gulp-livereload');
 var notify     = require('gulp-notify');
+var compass    = require('gulp-compass');
 var path       = require('path');
+
 
 module.exports = function() {
     return gulp.src('www/assets/scss/*.scss')
