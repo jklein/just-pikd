@@ -10,12 +10,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "opscode-ubuntu-1204"
+  config.vm.box = "opscode-ubuntu-12.04-chef11"
 
-  # The url from where the 'config.vm.box' box will be fetched if it
-  # doesn't already exist on the user's system.
-  config.vm.box_url = "https://opscode-vm.s3.amazonaws.com/vagrant/boxes/opscode-ubuntu-12.04.box"
-
+  config.vm.box_url = "https://opscode-vm.s3.amazonaws.com/vagrant/opscode_ubuntu-12.04_chef-11.2.0.box" # from https://github.com/opscode/bento
   # Fix DNS on the VM, because it is totally busted otherwise
   # http://askubuntu.com/questions/238040/how-do-i-fix-name-service-for-vagrant-client
   config.vm.provider "virtualbox" do |v|
@@ -38,9 +35,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
      chef.add_recipe "postgresql::server"
      chef.add_recipe "postgresql::contrib"
      chef.add_recipe "php"
+     chef.add_recipe "ohai"
+     chef.add_recipe "nginx::source"
      chef.add_recipe "jp_app"
      chef.json = {
-       :postgresql =>  {
+      :nginx => {
+        :version => "1.4.7"
+      },
+      :postgresql =>  {
          :version => "9.3",
          :enable_pgdg_apt => "true",
          :config => {
