@@ -4,12 +4,12 @@ var gulp = require('./gulp')([
     'minify',
     'fonts',
     'browserify',
+    'rename',
     //'jshint',
     //'concat',
     //'uglify',
-    //'rename',
     'watch'
 ]);
 
-gulp.task('build', ['compass', 'minify', 'fonts', 'browserify']);
+gulp.task('build', ['compass', 'minify', 'fonts', 'browserify', 'rename']);
 gulp.task('default', ['build', 'watch']);
