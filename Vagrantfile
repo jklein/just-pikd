@@ -37,6 +37,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.add_recipe "php"
     chef.add_recipe "ohai"
     chef.add_recipe "nginx::source"
+    chef.add_recipe "rabbitmq"
     chef.add_recipe "jp_app"
     chef.json = {
       :nginx => {
@@ -81,10 +82,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
      #chef.roles_path = "roles"
      #chef.add_role("dev")
   end
-  #commenting out these things for now, we should do all of these via chef instead
-  #config.vm.provision "shell", inline: "sudo service iptables stop"
-  #config.vm.provision "shell", inline: "sudo service nginx start"
-  #config.vm.provision "shell", inline: "sudo service php-fpm start"
-  #config.vm.provision "shell", inline: "sudo service mysql start"
+  config.vm.provision "shell", inline: "sudo service nginx start"
+  config.vm.provision "shell", inline: "sudo service php-fpm start"
+  config.vm.provision "shell", inline: "sudo service postgresql start"
+  config.vm.provision "shell", inline: "sudo service rabbitmq-server start"
   config.vm.synced_folder ".", "/usr/share/nginx/html"
 end
