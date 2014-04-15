@@ -16,7 +16,7 @@ $app->map('/register', function() use ($app) {
             'repeat_password'   => $app->request()->post('repeat_password'),
         );
 
-        $registration = \TuneUp\Auth::register($form_data);
+        $registration = \Pikd\Auth::register($form_data);
 
         if ($registration['valid']) {
             $app->flash('success', $registration['messages']);
@@ -34,8 +34,7 @@ $app->map('/register', function() use ($app) {
         );
     }
 
-    $page_data['content'] = "register";
-    $app->render('page.php', $page_data);
+    $app->render('register.twig', $page_data);
 })->via('GET', 'POST');
 
 $app->map('/login', function() use ($app) {
@@ -93,10 +92,7 @@ $app->map('/account', function() use ($app) {
         }
     }
 
-    $dbcon = \Pikd\Persistence::get_database_object();
-    $page_data['user'] = \Pikd\Persistence::get_user($dbcon, $_SESSION['email']);
+    //$page_data['user'] = \Pikd\Persistence::get_user($dbcon, $_SESSION['email']);
 
-    $page_data['post_url'] = "/account";
-    $page_data['content'] = "register";
-    $app->render('page.php', $page_data);
+    $app->render('account.twig', $page_data);
 })->via('GET', 'POST');
