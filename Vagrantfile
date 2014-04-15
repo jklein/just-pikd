@@ -35,6 +35,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.add_recipe "postgresql::server"
     chef.add_recipe "postgresql::contrib"
     chef.add_recipe "php"
+    chef.add_recipe "php::module_memcached"
     chef.add_recipe "ohai"
     chef.add_recipe "nginx::source"
     chef.add_recipe "rabbitmq"
