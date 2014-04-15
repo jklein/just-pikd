@@ -6,7 +6,7 @@ $app = new \Slim\Slim([
 ]);
 
 $view = $app->view();
-$view->setTemplatesDirectory('/usr/share/nginx/html/just-pikd/app/templates');
+$view->setTemplatesDirectory(__DIR__ . '/../app/templates');
 $view->parserOptions = array(
     'debug' => true,
 );
