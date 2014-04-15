@@ -17,4 +17,6 @@ $app->get('/', function () use ($app) {
     $app->render('index.twig', $controller->template_vars);
 });
 
+require '../app/routes/auth.php';
+
 $app->run();

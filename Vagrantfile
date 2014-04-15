@@ -71,7 +71,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           :default_charset                 => "utf-8",
           :default_mimetype                => "text/html",
           :default_socket_timeout          => 60,
-          :error_reporting                 => "E_ALL",
           :zend_extension                  => "opcache.so",
           :"opcache.memory_consumption"    => 512,
           :"opcache.max_accelerated_files" => 50000,
