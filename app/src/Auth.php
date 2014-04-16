@@ -1,5 +1,6 @@
 <?php
 namespace Pikd;
+
 use Respect\Validation\Validator as v;
 
 class Auth {
