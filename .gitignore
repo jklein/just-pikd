@@ -5,3 +5,4 @@ app/vendor
 node_modules
 www/build
 .sass-cache
+.DS_Store
