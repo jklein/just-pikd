@@ -1,5 +1,5 @@
 <?php
-// This will need to change, just an example
+// TODO: This will need to change, just an example
 
 $app->map('/register', function() use ($app) {
     $page_data['page_title'] = sprintf("%s | TuneUp", 'Create an Account');
