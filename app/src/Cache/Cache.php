@@ -17,7 +17,7 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Pikd;
+namespace Pikd\Cache;
 
 /**
  * Interface for cache drivers.
@@ -51,7 +51,7 @@ interface Cache
      *
      * @return mixed The cached data or FALSE, if no cache entry exists for the given id.
      */
-    public function fetch($id);
+    public function get($id);
 
     /**
      * Tests if an entry exists in the cache.
@@ -72,7 +72,7 @@ interface Cache
      *
      * @return boolean TRUE if the entry was successfully stored in the cache, FALSE otherwise.
      */
-    public function save($id, $data, $lifeTime = 0);
+    public function set($id, $data, $lifeTime = 0);
 
     /**
      * Deletes a cache entry.

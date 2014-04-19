@@ -17,7 +17,7 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Pikd;
+namespace Pikd\Cache;
 
 /**
  * Base class for cache provider implementations.
@@ -31,7 +31,7 @@ namespace Pikd;
  */
 abstract class CacheProvider implements Cache
 {
-    const DOCTRINE_NAMESPACE_CACHEKEY = 'DoctrineNamespaceCacheKey[%s]';
+    const NAMESPACE_CACHEKEY = 'PikdNamespaceCacheKey[%s]';
 
     /**
      * The namespace to prefix all cache ids with.
@@ -73,7 +73,7 @@ abstract class CacheProvider implements Cache
     /**
      * {@inheritdoc}
      */
-    public function fetch($id)
+    public function get($id)
     {
         return $this->doFetch($this->getNamespacedId($id));
     }
@@ -89,7 +89,7 @@ abstract class CacheProvider implements Cache
     /**
      * {@inheritdoc}
      */
-    public function save($id, $data, $lifeTime = 0)
+    public function set($id, $data, $lifeTime = 0)
     {
         return $this->doSave($this->getNamespacedId($id), $data, $lifeTime);
     }
@@ -156,7 +156,7 @@ abstract class CacheProvider implements Cache
      */
     private function getNamespaceCacheKey()
     {
-        return sprintf(self::DOCTRINE_NAMESPACE_CACHEKEY, $this->namespace);
+        return sprintf(self::NAMESPACE_CACHEKEY, $this->namespace);
     }
 
     /**

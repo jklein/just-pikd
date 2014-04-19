@@ -17,9 +17,7 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Pikd;
-
-use \Memcached;
+namespace Pikd\Cache;
 
 /**
  * Memcached cache provider.
@@ -32,12 +30,22 @@ use \Memcached;
  * @author Roman Borschel <roman@code-factory.org>
  * @author David Abdemoulaie <dave@hobodave.com>
  */
-class MemcachedCache extends CacheProvider
+class Memcached extends CacheProvider
 {
     /**
      * @var Memcached|null
      */
     private $memcached;
+
+    public function __construct() {
+        $m = new \Memcached;
+        $m->setOption(\Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
+        if (!count($m->getServerList())) {
+            $m->addServer('localhost', 11211);
+        }
+
+        $this->setMemcached($m);
+    }
 
     /**
      * Sets the memcache instance to use.
@@ -46,7 +54,7 @@ class MemcachedCache extends CacheProvider
      *
      * @return void
      */
-    public function setMemcached(Memcached $memcached)
+    public function setMemcached(\Memcached $memcached)
     {
         $this->memcached = $memcached;
     }
