@@ -40,7 +40,7 @@ class Auth {
 
         if (empty($messages)) {
             $user_data = array(
-                'id' => $_SESSION['id'],
+                'id'         => $_SESSION['id'],
                 'first_name' => $params['first_name'],
                 'last_name'  => $params['last_name'],
                 'email'      => $params['email'],
