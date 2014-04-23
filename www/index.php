@@ -46,6 +46,14 @@ $app->get('/memcached_test', function () use ($app) {
 
 });
 
+
+$app->get('/show_users', function () use ($app) {
+    $conn = \Pikd\DB::getConnection('customer');
+    $result = $conn->query('SELECT * from customers');
+    \Pikd\Util::debug($result);
+});
+
+
 require '../app/routes/auth.php';
 
 $app->run();
