@@ -8,6 +8,8 @@ $app = new \Slim\Slim([
     'view' => new \Slim\Views\Twig(),
 ]);
 
+$app->connections = \Pikd\DB::getConnections();
+
 $view = $app->view();
 $view->setTemplatesDirectory(__DIR__ . '/../app/templates');
 $view->parserOptions = array(
@@ -48,9 +50,9 @@ $app->get('/memcached_test', function () use ($app) {
 
 
 $app->get('/show_users', function () use ($app) {
-    $conn = \Pikd\DB::getConnection('customer');
-    $result = $conn->query('SELECT * from customers');
-    \Pikd\Util::debug($result);
+    $conn = $app->connections->getRead('customer');
+    $results = $conn->fetchAll('SELECT * from customers');
+    \Pikd\Util::debug($results);
 });
 
 

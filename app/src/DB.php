@@ -9,34 +9,30 @@
 
 namespace Pikd;
 
+use Aura\Sql\ExtendedPdo;
+use Aura\Sql\ConnectionLocator;
+
 class DB {
-    private static $connections = [];
-    private $connection;
 
-    public static function getConnection($dbname) {
-        if (empty(self::$connections[$dbname])) {
-            $host = 'localhost';
-            $user = 'postgres';
-            $pw = 'justpikd';
-            self::$connections[$dbname] = new DB($host, $dbname, $user, $pw);
-        }
-        return self::$connections[$dbname];
-    }
+    public static function getConnections() {
+        $connections = new ConnectionLocator;
 
-    private function __construct($host, $dbname, $username, $pw) {
-        $this->connection = new \PDO("pgsql:dbname=$dbname;host=$host", $username, $pw);
-    }
+        $connections->setDefault(function () {
+            return new ExtendedPdo(
+                'pgsql:host=localhost;dbname=product',
+                'postgres',
+                'justpikd'
+            );
+        });
 
-    public function query($sql_string) {
-        $ret = [];
+        $connections->setRead('customer', function () {
+            return new ExtendedPdo(
+                'pgsql:host=localhost;dbname=customer',
+                'postgres',
+                'justpikd'
+            );
+        });
 
-        $stmt = $this->connection->prepare($sql_string);
-        $stmt->execute();
-
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $ret[] = $row;
-        }
-
-        return $ret;
+        return $connections;
     }
 }

@@ -10,6 +10,7 @@
         "sebastian/hhvm-wrapper":    "2.0.*",
         "squizlabs/php_codesniffer": "1.*",
         "aura/input":                "1.1.*",
+        "aura/sql":                  "2.*",
         "respect/validation":        "0.5.*",
         "twig/twig":                 "1.*"
     },
