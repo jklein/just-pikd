@@ -1,26 +1,21 @@
 <?php
-// TODO: This will need to change, just an example
-
 $app->map('/register', function() use ($app) {
-    $page_data['page_title'] = sprintf("%s | TuneUp", 'Create an Account');
-    $page_data['content_title'] = 'Create an Account';
+    $db_conn = $app->connections->getWrite('customer');
 
+    $page_data['title'] = 'Create an Account';
     $page_data['post_url'] = "/register";
 
     if ($app->request()->isPost()) {
         $form_data = array(
-            'first_name'        => filter_var($app->request()->post('first_name'), FILTER_SANITIZE_STRING),
-            'last_name'         => filter_var($app->request()->post('last_name'), FILTER_SANITIZE_STRING),
             'email'             => filter_var($app->request()->post('email'), FILTER_VALIDATE_EMAIL),
             'password'          => $app->request()->post('password'),
-            'repeat_password'   => $app->request()->post('repeat_password'),
         );
 
-        $registration = \Pikd\Auth::register($form_data);
+        $registration = \Pikd\Auth::register($db_conn, $form_data);
 
         if ($registration['valid']) {
             $app->flash('success', $registration['messages']);
-            $app->redirect('/login');
+            $app->redirect('/account');
         } else {
             $app->flashNow('danger', $registration['messages']);
         }
@@ -37,29 +32,23 @@ $app->map('/register', function() use ($app) {
     $app->render('register.twig', $page_data);
 })->via('GET', 'POST');
 
-$app->map('/login', function() use ($app) {
-    $page_data['page_title'] = sprintf("%s | Pikd", 'Login');
+$app->post('/login', function() use ($app) {
+    $db_conn = $app->connections->getWrite('customer');
 
-    if ($app->request()->isPost()) {
-        $params = array(
-            'email'     => filter_var($app->request()->post('email'), FILTER_VALIDATE_EMAIL),
-            'password'  => $app->request()->post('password'),
-        );
+    $params = array(
+        'email'     => filter_var($app->request()->post('email'), FILTER_VALIDATE_EMAIL),
+        'password'  => $app->request()->post('password'),
+    );
 
-        $dbcon = \Pikd\Persistence::get_database_object();
-        $login = \Pikd\Auth::authenticate($dbcon, $params['email'], $params['password']);
-        if ($login['valid']) {
-            $app->flash('success', $login['messages']);
-            $app->redirect('/');
-        } else {
-            $app->flashNow('danger', $login['messages']);
-        }
+    $login = \Pikd\Auth::authenticate($db_conn, $params['email'], $params['password']);
+    if ($login['valid']) {
+        $app->flash('success', $login['messages']);
+        $app->redirect('/');
+    } else {
+        $app->flash('danger', $login['messages']);
+        $app->redirect('/');
     }
-
-    $page_data['post_url'] = "/login";
-    $page_data['content'] = "login";
-    $app->render('page.php', $page_data);
-})->via('GET', 'POST');
+});
 
 $app->get('/logout', function() use ($app) {
     $_SESSION = array();
@@ -70,29 +59,37 @@ $app->get('/logout', function() use ($app) {
 });
 
 $app->map('/account', function() use ($app) {
-    $page_data['page_title'] = sprintf("%s | Pikd", 'Account');
-    $page_data['content_title'] = 'Edit Your Information';
+    $db_conn = $app->connections->getWrite('customer');
+
+    $page_data['title'] = sprintf("%s | Pikd", 'Account');
 
     if ($app->request()->isPost()) {
-        $form_data = array(
-            'first_name'        => filter_var($app->request()->post('first_name'), FILTER_SANITIZE_STRING),
-            'last_name'         => filter_var($app->request()->post('last_name'), FILTER_SANITIZE_STRING),
-            'email'             => filter_var($app->request()->post('email'), FILTER_VALIDATE_EMAIL),
-            'password'          => $app->request()->post('password'),
-            'repeat_password'   => $app->request()->post('repeat_password'),
-        );
-
-        $update = \Pikd\Auth::update($form_data);
+        // They could be updating information about themself, or they could be
+        // changing their password
+        if ($app->request()->post('change_password')) {
+            $form_data = array(
+                'old_password'    => $app->request()->post('old_password'),
+                'new_password'    => $app->request()->post('new_password'),
+                'repeat_password' => $app->request()->post('repeat_password'),
+            );
+            $update = \Pikd\Auth::updatePassword($form_data);
+        } else {
+            $form_data = array(
+                'first_name' => filter_var($app->request()->post('first_name'), FILTER_SANITIZE_STRING),
+                'last_name'  => filter_var($app->request()->post('last_name'), FILTER_SANITIZE_STRING),
+                'email'      => filter_var($app->request()->post('email'), FILTER_VALIDATE_EMAIL),
+            );
+            $update = \Pikd\Auth::updateInfo($form_data);
+        }
 
         if ($update['valid']) {
-            $app->flash('success', $update['messages']);
-            $app->redirect('/account');
+            $app->flashNow('success', $update['messages']);
         } else {
             $app->flashNow('danger', $update['messages']);
         }
     }
 
-    //$page_data['user'] = \Pikd\Persistence::get_user($dbcon, $_SESSION['email']);
+    $page_data['user'] = \Pikd\Model\User::getUser($db_conn, $_SESSION['email']);
 
     $app->render('account.twig', $page_data);
 })->via('GET', 'POST');

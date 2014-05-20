@@ -18,4 +18,11 @@ class Util {
         }
         echo '</pre>';
     }
+
+    public static function timestamp($date = null) {
+        if ($date === null) {
+            $date = time();
+        }
+        return date('Y-m-d h:i:s', $date);
+    }
 }

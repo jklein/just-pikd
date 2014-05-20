@@ -33,6 +33,14 @@ class DB {
             );
         });
 
+        $connections->setWrite('customer', function () {
+            return new ExtendedPdo(
+                'pgsql:host=localhost;dbname=customer',
+                'postgres',
+                'justpikd'
+            );
+        });
+
         return $connections;
     }
 }

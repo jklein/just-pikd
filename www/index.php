@@ -24,9 +24,11 @@ $view->parserExtensions = array(
 $app->get('/', function () use ($app) {
     $controller = new \Pikd\Controller\Base();
 
-    $app->flashNow('info', ['test', 'test 2']);
-    $app->flashNow('warning', 'test warning');
-    $app->flashNow('danger', ['test danger', 'test danger 2']);
+    //$app->flashNow('info', ['test', 'test 2']);
+    //$app->flashNow('warning', 'test warning');
+    //$app->flashNow('danger', ['test danger', 'test danger 2']);
+    \Pikd\Util::debug($_SESSION);
+
     $app->render('index.twig', $controller->template_vars);
 });
 

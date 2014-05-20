@@ -5,21 +5,20 @@ use Respect\Validation\Validator as v;
 
 class Auth {
 
-    public static function register($params) {
+    public static function register($db_conn, $params) {
         $valid = false;
         $messages = self::validateFormParams($params);
 
         if (empty($messages)) {
             $user_data = array(
-                'first_name' => $params['first_name'],
-                'last_name'  => $params['last_name'],
                 'email'      => $params['email'],
                 'password'   => password_hash($params['password'], PASSWORD_BCRYPT),
-                'created_at' => time(),
-                'last_login' => time(),
+                'created_at' => \Pikd\Util::timestamp(),
+                'updated_at' => \Pikd\Util::timestamp(),
+                'last_login' => \Pikd\Util::timestamp(),
             );
 
-            $result = self::createUser(\Pikd\Persistence::get_database_object(), $user_data);
+            $result = self::createUser($db_conn, $user_data);
             if ($result) {
                 $valid = true;
                 $messages[] = 'Successfully registered!';
@@ -34,9 +33,9 @@ class Auth {
         );
     }
 
-    public static function update($params) {
+    public static function updatePassword($params) {
         $valid = false;
-        $messages = self::validateFormParams($params);
+        $messages = self::validateUpdatePassword($params);
 
         if (empty($messages)) {
             $user_data = array(
@@ -64,6 +63,28 @@ class Auth {
         );
     }
 
+    private static function validateUpdatePassword($params) {
+        $messages = array();
+
+        if (!v::string()->notEmpty()->validate($params['old_password'])) {
+            $messages[] = 'You must provide your current password';
+        }
+
+        if (!v::string()->notEmpty()->validate($params['new_password'])) {
+            $messages[] = 'A new password is required';
+        }
+
+        if (!v::string()->notEmpty()->validate($params['repeat_password'])) {
+            $messages[] = 'A repeat password is required';
+        }
+
+        if (!v::equals($params['new_password'])->validate($params['repeat_password'])) {
+            $messages[] = 'Passwords must match';
+        }
+
+        return $messages;
+    }
+
     private static function validateFormParams($params) {
         $messages = array();
 
@@ -75,28 +96,24 @@ class Auth {
             $messages[] = 'Password is required';
         }
 
-        if (v::string()->notEmpty()->validate($params['password'])
-            !== v::string()->notEmpty()->validate($params['repeat_password'])
-        ) {
-            $messages[] = 'Passwords must match';
-        }
 
-        if (!v::string()->notEmpty()->validate($params['first_name'])
-            || !v::string()->notEmpty()->validate($params['last_name'])
-        ) {
-            $messages[] = 'First and last name are required';
-        }
 
         return $messages;
     }
 
-    public static function createUser($dbcon, $user_data) {
+    public static function createUser($db_conn, $user_data) {
         // First see if a user exists with this email address:
-        $user = Persistence::get_user($dbcon, $user_data['email']);
+        $user = \Pikd\Model\User::getUser($db_conn, $user_data['email']);
         if (!empty($user)) {
             return false;
         } else {
-            return Persistence::insert('Pikd_user', $user_data, $dbcon);
+            $result = \Pikd\Model\User::createUser($db_conn, $user_data);
+
+            if ($result) { // User is created, log them in
+                return self::authenticate($db_conn, $user_data['email'], $user_data['password']);
+            } else {
+                return false;
+            }
         }
     }
 
@@ -112,7 +129,7 @@ class Auth {
 
     public static function authenticate($dbcon, $email, $password) {
         $valid = false;
-        $messages = array();
+        $messages = [];
 
         if (!v::string()->notEmpty()->email()->validate($email)) {
             $messages[] = 'A valid email is required';
@@ -124,7 +141,8 @@ class Auth {
 
         if (empty($messages)) {
             // We have valid input, check the password
-            $user = Persistence::get_user($dbcon, $email);
+            $user = \Pikd\Model\User::getUser($dbcon, $email);
+            \Pikd\Util::debug($user);
             if (password_verify($password, $user['password'])) {
                 $valid = true;
                 $_SESSION = array_merge($_SESSION, $user);
@@ -134,9 +152,9 @@ class Auth {
             }
         }
 
-        return array(
+        return [
             'valid'     => $valid,
             'messages'  => $messages,
-        );
+        ];
     }
 }
