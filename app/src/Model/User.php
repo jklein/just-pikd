@@ -31,4 +31,14 @@ class User {
 
         return $db_conn->perform($sql, $user_data);
     }
+
+    public static function updateInfo() {
+
+    }
+
+    public static function updatePassword($db_conn, $user_data) {
+        $sql = 'UPDATE customers set password = :new_password where email = :email';
+
+        return $db_conn->perform($sql, $user_data);
+    }
 }

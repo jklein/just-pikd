@@ -33,24 +33,23 @@ class Auth {
         );
     }
 
-    public static function updatePassword($params) {
+    public static function updatePassword($db_conn, $params) {
         $valid = false;
         $messages = self::validateUpdatePassword($params);
 
         if (empty($messages)) {
             $user_data = array(
-                'id'         => $_SESSION['id'],
-                'first_name' => $params['first_name'],
-                'last_name'  => $params['last_name'],
-                'email'      => $params['email'],
-                'password'   => password_hash($params['password'], PASSWORD_BCRYPT),
-                'last_login' => time(),
+                'customer_id'  => $_SESSION['customer_id'],
+                'email'        => $_SESSION['email'],
+                'new_password' => password_hash($params['new_password'], PASSWORD_BCRYPT),
+                'last_login'   => \Pikd\Util::timestamp(),
+                'updated_at'   => \Pikd\Util::timestamp(),
             );
 
-            $result = self::updateUser(\Pikd\Persistence::get_database_object(), $user_data);
+            $result = self::updateUser($db_conn, $user_data);
             if ($result) {
                 $valid = true;
-                $messages[] = 'Successfully updated your information!';
+                $messages[] = 'Successfully updated your password!';
                 $_SESSION = array_merge($_SESSION, $user_data);
             } else {
                 $messages[] = 'There is no user with that email address!';
@@ -117,17 +116,17 @@ class Auth {
         }
     }
 
-    private static function updateUser($dbcon, $user_data) {
+    private static function updateUser($db_conn, $user_data) {
         // First see if a user exists with this email address:
-        $user = Persistence::get_user($dbcon, $user_data['email']);
+        $user = \Pikd\Model\User::getUser($db_conn, $user_data['email']);
         if (empty($user)) {
             return false;
         } else {
-            return Persistence::update('Pikd_user', $user_data, $dbcon);
+            return \Pikd\Model\User::updatePassword($db_conn, $user_data);
         }
     }
 
-    public static function authenticate($dbcon, $email, $password) {
+    public static function authenticate($db_conn, $email, $password) {
         $valid = false;
         $messages = [];
 
@@ -141,7 +140,7 @@ class Auth {
 
         if (empty($messages)) {
             // We have valid input, check the password
-            $user = \Pikd\Model\User::getUser($dbcon, $email);
+            $user = \Pikd\Model\User::getUser($db_conn, $email);
             \Pikd\Util::debug($user);
             if (password_verify($password, $user['password'])) {
                 $valid = true;

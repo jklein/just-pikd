@@ -59,6 +59,7 @@ $app->get('/logout', function() use ($app) {
 });
 
 $app->map('/account', function() use ($app) {
+    \Pikd\Util::debug($_SESSION);
     $db_conn = $app->connections->getWrite('customer');
 
     $page_data['title'] = sprintf("%s | Pikd", 'Account');
@@ -72,14 +73,14 @@ $app->map('/account', function() use ($app) {
                 'new_password'    => $app->request()->post('new_password'),
                 'repeat_password' => $app->request()->post('repeat_password'),
             );
-            $update = \Pikd\Auth::updatePassword($form_data);
+            $update = \Pikd\Auth::updatePassword($db_conn, $form_data);
         } else {
             $form_data = array(
                 'first_name' => filter_var($app->request()->post('first_name'), FILTER_SANITIZE_STRING),
                 'last_name'  => filter_var($app->request()->post('last_name'), FILTER_SANITIZE_STRING),
                 'email'      => filter_var($app->request()->post('email'), FILTER_VALIDATE_EMAIL),
             );
-            $update = \Pikd\Auth::updateInfo($form_data);
+            $update = \Pikd\Auth::updateInfo($db_conn, $form_data);
         }
 
         if ($update['valid']) {
