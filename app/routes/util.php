@@ -1,5 +1,5 @@
 <?php
-$app->get('/memcached_test', function () use ($app) {
+$app->get('/util/memcached_test', function () use ($app) {
     $memcached = new \Pikd\Cache\Memcached();
 
     $tmp_object = new stdClass;
@@ -17,7 +17,7 @@ $app->get('/memcached_test', function () use ($app) {
 });
 
 
-$app->get('/show_users', function () use ($app) {
+$app->get('/util/show_users', function () use ($app) {
     $conn = $app->connections->getRead('customer');
     $results = $conn->fetchAll('SELECT * from customers');
     \Pikd\Util::debug($results);

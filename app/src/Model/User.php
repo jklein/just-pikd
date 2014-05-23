@@ -3,7 +3,14 @@
 namespace Pikd\Model;
 
 class User {
-    public static function getUser($db_conn, $email) {
+    private $connection;
+    private $data = [];
+    private $email;
+
+    public function __construct($db_conn, $email) {
+        $this->connection = $db_conn;
+        $this->email = $email;
+
         $sql = 'SELECT customer_id,
                     email,
                     password,
@@ -20,25 +27,54 @@ class User {
                     updated_at from customers
                     where email = :email';
 
-        $result = $db_conn->fetchOne($sql, ['email' => $email]);
+        $result = $this->connection->fetchOne($sql, ['email' => $email]);
 
-        return $result;
+        if ($result !== false) { // No user found
+            $this->data = $result;
+        } else {
+            return $result;
+        }
     }
 
     public static function createUser($db_conn, $user_data) {
-        $sql = 'INSERT INTO customers (email, password, created_at, updated_at, last_login) VALUES
+        $sql = 'SELECT * from customers where email = :email';
+        $result = $db_conn->fetchOne($sql, ['email' => $user_data['email']]);
+
+        if ($result === false) {
+            $sql = 'INSERT INTO customers (email, password, created_at, updated_at, last_login) VALUES
                     (:email, :password, :created_at, :updated_at, :last_login)';
-
-        return $db_conn->perform($sql, $user_data);
+            return $db_conn->perform($sql, $user_data);
+        } else {
+            return false;
+        }
     }
 
-    public static function updateInfo() {
+    public function save($data) {
+        $fields_to_update = [];
+        foreach ($data as $key => $value) {
+            $fields_to_update[] = $key . ' = ' . ':' . $key;
+        }
+
+        $sql = 'UPDATE customers set '  . implode(',', $fields_to_update)
+                . ' WHERE email = :email';
+
+        $data = array_merge($data, [
+            'email'      => $this->email,
+            'updated_at' => \Pikd\Util::timestamp()
+        ]);
+
+        $result = $this->connection->perform($sql, $data);
+        if ($result) {
+            $_SESSION = array_merge($_SESSION, $data);
+            $this->data = array_merge($this->data, $data);
+            return true;
+        } else {
+            return false;
+        }
 
     }
 
-    public static function updatePassword($db_conn, $user_data) {
-        $sql = 'UPDATE customers set password = :new_password where email = :email';
-
-        return $db_conn->perform($sql, $user_data);
+    public function getUserData() {
+        return $this->data;
     }
 }

@@ -1,46 +1,33 @@
 <?php
-$app->map('/register', function() use ($app) {
+$app->post('/register', function() use ($app) {
+    $form_data = array(
+        'email'    => filter_var($app->request()->post('email'), FILTER_VALIDATE_EMAIL),
+        'password' => $app->request()->post('password'),
+    );
+
     $db_conn = $app->connections->getWrite('customer');
+    $auth = new \Pikd\Controller\Auth($db_conn);
+    $registration = $auth->register($form_data);
 
-    $page_data['title'] = 'Create an Account';
-    $page_data['post_url'] = "/register";
-
-    if ($app->request()->isPost()) {
-        $form_data = array(
-            'email'             => filter_var($app->request()->post('email'), FILTER_VALIDATE_EMAIL),
-            'password'          => $app->request()->post('password'),
-        );
-
-        $registration = \Pikd\Auth::register($db_conn, $form_data);
-
-        if ($registration['valid']) {
-            $app->flash('success', $registration['messages']);
-            $app->redirect('/account');
-        } else {
-            $app->flashNow('danger', $registration['messages']);
-        }
-        $page_data['user'] = $form_data;
+    if ($registration['valid']) {
+        $app->flash('success', $registration['messages']);
+        $app->redirect('/account');
     } else {
-        $page_data['user'] = array(
-            'first_name' => '',
-            'last_name'  => '',
-            'email'      => '',
-            'password'   => '',
-        );
+        $app->flash('danger', $registration['messages']);
+        $app->redirect('/');
     }
-
-    $app->render('register.twig', $page_data);
-})->via('GET', 'POST');
+});
 
 $app->post('/login', function() use ($app) {
     $db_conn = $app->connections->getWrite('customer');
+    $auth = new \Pikd\Controller\Auth($db_conn);
 
     $params = array(
         'email'     => filter_var($app->request()->post('email'), FILTER_VALIDATE_EMAIL),
         'password'  => $app->request()->post('password'),
     );
 
-    $login = \Pikd\Auth::authenticate($db_conn, $params['email'], $params['password']);
+    $login = $auth->authenticate($params['email'], $params['password']);
     if ($login['valid']) {
         $app->flash('success', $login['messages']);
         $app->redirect('/');
@@ -59,12 +46,16 @@ $app->get('/logout', function() use ($app) {
 });
 
 $app->map('/account', function() use ($app) {
-    \Pikd\Util::debug($_SESSION);
-    $db_conn = $app->connections->getWrite('customer');
-
     $page_data['title'] = sprintf("%s | Pikd", 'Account');
 
+    // @TODO - Need a login check here
+    // $app->ensureLoggedIn() or something
+
+
     if ($app->request()->isPost()) {
+        $db_conn = $app->connections->getWrite('customer');
+        $auth = new \Pikd\Controller\Auth($db_conn, $app->user);
+
         // They could be updating information about themself, or they could be
         // changing their password
         if ($app->request()->post('change_password')) {
@@ -73,14 +64,14 @@ $app->map('/account', function() use ($app) {
                 'new_password'    => $app->request()->post('new_password'),
                 'repeat_password' => $app->request()->post('repeat_password'),
             );
-            $update = \Pikd\Auth::updatePassword($db_conn, $form_data);
+            $update = $auth->updatePassword($form_data);
         } else {
             $form_data = array(
                 'first_name' => filter_var($app->request()->post('first_name'), FILTER_SANITIZE_STRING),
                 'last_name'  => filter_var($app->request()->post('last_name'), FILTER_SANITIZE_STRING),
                 'email'      => filter_var($app->request()->post('email'), FILTER_VALIDATE_EMAIL),
             );
-            $update = \Pikd\Auth::updateInfo($db_conn, $form_data);
+            $update = $auth->updateInfo($form_data);
         }
 
         if ($update['valid']) {
@@ -90,7 +81,7 @@ $app->map('/account', function() use ($app) {
         }
     }
 
-    $page_data['user'] = \Pikd\Model\User::getUser($db_conn, $_SESSION['email']);
+    $page_data['user'] = $app->user->getUserData();
 
     $app->render('account.twig', $page_data);
 })->via('GET', 'POST');

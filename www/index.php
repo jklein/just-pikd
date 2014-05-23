@@ -8,7 +8,14 @@ $app = new \Slim\Slim([
     'view' => new \Slim\Views\Twig(),
 ]);
 
+// Set globally available data on the app object
 $app->connections = \Pikd\DB::getConnections();
+
+if (!empty($_SESSION['email'])) {
+    $app->user = new \Pikd\Model\User($app->connections->getWrite('customer'), $_SESSION['email']);
+} else {
+    $app->user = null;
+}
 
 $view = $app->view();
 $view->setTemplatesDirectory(__DIR__ . '/../app/templates');
@@ -21,9 +28,13 @@ $view->parserExtensions = array(
     new Twig_Extension_Debug(),
 );
 
+// Set globally available data on the view
+$view->appendData([
+    'logged_in' => !empty($_SESSION['email']),
+]);
+
 $app->get('/', function () use ($app) {
     $controller = new \Pikd\Controller\Base();
-
     $app->render('index.twig', $controller->template_vars);
 });
 
