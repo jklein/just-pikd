@@ -12,6 +12,7 @@
         "aura/input":                "1.1.*",
         "aura/sql":                  "2.*",
         "respect/validation":        "0.5.*",
+        "videlalvaro/php-amqplib":   "2.2.*",
         "twig/twig":                 "1.*"
     },
     "autoload": {
