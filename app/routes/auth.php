@@ -48,9 +48,9 @@ $app->get('/logout', function() use ($app) {
 $app->map('/account', function() use ($app) {
     $page_data['title'] = sprintf("%s | Pikd", 'Account');
 
-    // @TODO - Need a login check here
-    // $app->ensureLoggedIn() or something
-
+    if ($app->user === null) {
+        $app->redirect('/');
+    }
 
     if ($app->request()->isPost()) {
         $db_conn = $app->connections->getWrite('customer');

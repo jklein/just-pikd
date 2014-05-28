@@ -10,6 +10,7 @@ $app = new \Slim\Slim([
 
 // Set globally available data on the app object
 $app->connections = \Pikd\DB::getConnections();
+$app->config = \Pikd\Config::getConfiguration();
 
 if (!empty($_SESSION['email'])) {
     $app->user = new \Pikd\Model\User($app->connections->getWrite('customer'), $_SESSION['email']);
