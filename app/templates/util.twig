@@ -1,0 +1,20 @@
+{% extends "base.twig" %}
+
+{% block title %}Utility Page: Testing Services{% endblock %}
+
+{% block content %}
+    <h1>Memcached</h1>
+    <h4>Storing data in the cache (data will expire in 10 seconds)</h4>
+    <h4>Retrieving data from the cache:</h4>
+    <pre>{{ dump(memcached_value) }}</pre>
+
+    <h1>Database</h1>
+    <h4>A user:</h4>
+    <pre>{{ dump(users) }}</pre>
+
+    <h1>Monolog</h1>
+    <h4>Doing some logging...as long as there are no errors we are good</h4>
+
+    <h1>RabbitMQ</h1>
+    <h4>{{ amqp }}</h4>
+{% endblock %}
