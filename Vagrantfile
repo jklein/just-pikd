@@ -42,9 +42,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.add_recipe "vim"
     chef.add_recipe "jp_app"
     chef.json = {
-      :nginx => {
-        :version => "1.4.7"
-      },
       :postgresql =>  {
         :version => "9.3",
         :enable_pgdg_apt => "true",
