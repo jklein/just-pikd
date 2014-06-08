@@ -30,3 +30,14 @@ Changing Development server configuration:
 1. Small changes can be tested via `vagrant ssh` (the user has sudo access)
 2. To do it properly, edit the chef cookbooks in the `cookbooks/` directory of the just-pikd-chef repo, and if you need to add a cookbook or recipe edit the Vagrantfile in this repo as well (we should add roles for this later and an environment flag).
 3. Run `vagrant provision` to automatically run chef-solo against the running VM. If you are just editing the Vagrantfile this is enough, but if you edit the cookbooks themselves you'll need to reload first to get those changes onto the VM. `vagrant reload --provision` will take care of that.
+
+Updating Database:
+-------------
+1. Feel free to edit the dev database directly as much as you want.
+2. To save changes to the data file, run the pg_dump utility against the
+   database, e.g. `pg_dump -h localhost -U postgres -d product -W -Fc >
+   /usr/share/nginx/html/data/product.dump`
+3. To update the schema files in schema/, run the dump_schema.php file: `php
+   -f /usr/share/nginx/html/schema/dump_schema.php`
+4. commit and push your changes. For now, all dev data is committed directly
+   to Git.
