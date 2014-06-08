@@ -17,10 +17,13 @@ Development Setup:
 5. `sudo npm install -g` to install npm globals like gulp
 6. `npm install` to get all of the dependencies for the project.
 7. `sudo gem update --system` and `sudo gem install compass` to get [compass](http://compass-style.org/).
-8. `gulp` - This will build all JS/CSS and start watching the filesystem for changes.
-9. localhost:8080 on the host machine will be forwarded to the VM's port 80, so hit localhost:8080 in a web browser to validate that things got set up properly.
-10. You can ssh to the VM using `vagrant ssh` as well.
-11. Your git working copy is automatically mapped to `/usr/share/nginx/html` as a shared directory, so you should be able to edit code and see the changes right away.
+8. `curl -sS https://getcomposer.org/installer | php` install composer
+9. `sudo mv composer.phar /usr/local/bin/composer` move composer to a bin directory so you can just run `composer`
+10. `composer install` - This will install all PHP dependencies and generate the autoload file
+11. `gulp` - This will build all JS/CSS and start watching the filesystem for changes.
+12. localhost:8080 on the host machine will be forwarded to the VM's port 80, so hit localhost:8080 in a web browser to validate that things got set up properly.
+13. You can ssh to the VM using `vagrant ssh` as well.
+14. Your git working copy is automatically mapped to `/usr/share/nginx/html` as a shared directory, so you should be able to edit code and see the changes right away.
 
 Changing Development server configuration:
 -------------
