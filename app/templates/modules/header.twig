@@ -22,3 +22,124 @@
     </div>
   </div>
 </div>
+
+
+<header class="header">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-10  col-md-3">
+        <div class="header-logo">
+          <a href="index.html"><img alt="Logo" src="/assets/images/logo.png" width="200" height="90"></a>
+        </div>
+      </div>
+      <div class="col-xs-2  visible-sm  visible-xs">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle  collapsed" data-toggle="collapse" data-target="#collapsible-navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+      </div>
+      <div class="col-xs-12  col-md-7">
+        <nav class="navbar  navbar-default" role="navigation">
+          <!-- Collect the nav links, forms, and other content for toggling -->
+          <div class="collapse  navbar-collapse" id="collapsible-navbar">
+            <ul class="nav  navbar-nav">
+              <li><a href="/browse/produce">Fresh Produce</a></li>
+              <li><a href="/browse/dairy">Dairy</a></li>
+              <li><a href="/browse/meat">Meat</a></li>
+              <li><a href="/browse/bakery">Bakery</a></li>
+              <li><a href="/browse/pantry">Pantry Supplies</a></li>
+              <li class="dropdown">
+                <a href="/browse/all" class="dropdown-toggle">View More<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="/browse/frozen">Frozen Food</a></li>
+                  <li><a href="/browse/drinks">Drinks</a></li>
+                  <li><a href="/browse/baby">Baby</a></li>
+                  <li><a href="/browse/health">Health &amp; Beauty</a></li>
+                  <li><a href="/browse/household">Household</a></li>
+                  <li><a href="/browse/pets">Pet Care</a></li>
+                </ul>
+              </li>
+              <li class="hidden-xs  hidden-sm">
+                <a href="#" class="js--toggle-search-mode"><span class="glyphicon  glyphicon-search  glyphicon-search--nav"></span></a>
+              </li>
+            </ul>
+            <!-- search for mobile devices -->
+            <form action="#" method="post" class="visible-xs  visible-sm  mobile-navbar-form" role="form">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search">
+                <span class="input-group-addon">
+                  <button type="submit" class="mobile-navbar-form__appended-btn"><span class="glyphicon  glyphicon-search  glyphicon-search--nav"></span></button>
+                </span>
+              </div>
+            </form>
+            <div class="mobile-cart  visible-xs  visible-sm  push-down-15">
+              <span class="header-cart__text--price"><span class="header-cart__text">CART</span> $49.35</span>
+              <a href="cart.html" class="header-cart__items">
+                <span class="header-cart__items-num">3</span>
+              </a>
+            </div>
+          </div><!-- /.navbar-collapse -->
+        </nav>
+      </div>
+      <div class="col-xs-12  col-md-2  hidden-sm  hidden-xs">
+        <!-- Cart in header -->
+        <div class="header-cart">
+          <span class="header-cart__text--price"><span class="header-cart__text">CART</span> {{ cart.total }}</span>
+          <a href="#" class="header-cart__items">
+            <span class="header-cart__items-num">{{ cart.items }}</span>
+          </a>
+          <!-- Open cart panel -->
+          <div class="header-cart__open-cart">
+
+            <div class="header-cart__product  clearfix  js--cart-remove-target">
+              <div class="header-cart__product-image">
+                <img alt="Product in the cart" src="{{ product_image }}" width="40" height="50">
+              </div>
+              <div class="header-cart__product-image--hover">
+                <a href="#" class="js--remove-item" data-target=".js--cart-remove-target"><span class="glyphicon  glyphicon-circle  glyphicon-remove"></span></a>
+              </div>
+              <div class="header-cart__product-title">
+                <a class="header-cart__link" href="single-product.html">{{ product_name }}</a>
+                <span class="header-cart__qty">Qty: {{ product_qty }}</span>
+              </div>
+              <div class="header-cart__price">
+                {{ product_price }}
+              </div>
+            </div>
+
+            <hr class="header-cart__divider">
+            <div class="header-cart__subtotal-box">
+              <span class="header-cart__subtotal">CART SUBTOTAL:</span>
+              <span class="header-cart__subtotal-price">{{ cart.total }}</span>
+            </div>
+            <a class="btn btn-darker" href="cart.html">Procced to checkout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Search open pannel-->
+  <div class="search-panel">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-11">
+          <form class="search-panel__form" action="search-results.html">
+            <button type="submit"><span class="glyphicon  glyphicon-search"></span></button>
+            <input type="text" name="s" class="form-control" placeholder="Enter your search keyword">
+          </form>
+        </div>
+        <div class="col-sm-1">
+          <div class="search-panel__close  pull-right">
+            <a href="#" class="js--toggle-search-mode"><span class="glyphicon  glyphicon-circle  glyphicon-remove"></span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
