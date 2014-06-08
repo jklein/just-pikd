@@ -45,12 +45,12 @@
                 <div class="footer-wdgets__heading--line">
                   <h4 class="footer-widgets__heading">Contact Us</h4>
                 </div>
-                <a class="footer__link" href="#">Organique ltd.</a><br>
+                <a class="footer__link" href="#">{{ config.company_name }}</a><br>
                 Tehnološki park 19,<br>
                 1000 Ljubljana, Slovenia<br>
                 <a class="footer__link--small" href="contact-2.html">View Google map <span class="glyphicon glyphicon-chevron-right glyphicon--footer-small"></span></a><br><br>
-                <a class="footer__link" href="#"><span class="glyphicon glyphicon-earphone glyphicon--footer"></span> +386 31 567 537</a><br>
-                <a class="footer__link" href="#"><span class="glyphicon glyphicon-envelope glyphicon--footer"></span> help@justpikd.com</a>
+                <a class="footer__link" href="tel:+{{ config.phone_number }}"><span class="glyphicon glyphicon-earphone glyphicon--footer"></span> +{{ config.phone_number }}</a><br>
+                <a class="footer__link" href="mailto:{{ config.support_email }}"><span class="glyphicon glyphicon-envelope glyphicon--footer"></span> {{ config.support_email }}</a>
               </div>
             </div>
         </div>

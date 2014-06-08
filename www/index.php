@@ -32,6 +32,7 @@ $view->parserExtensions = array(
 // Set globally available data on the view
 $view->appendData([
     'logged_in' => !empty($_SESSION['email']),
+    'config'    => $app->config,
 ]);
 
 $app->get('/', function () use ($app) {
