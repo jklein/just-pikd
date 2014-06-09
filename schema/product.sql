@@ -333,6 +333,45 @@ ALTER SEQUENCE manufacturers_manufacturer_id_seq OWNED BY manufacturers.manufact
 
 
 --
+-- Name: product_images; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE product_images (
+    image_id integer NOT NULL,
+    product_id integer NOT NULL,
+    image_rank integer NOT NULL,
+    mime_type character varying(255),
+    source character varying(500),
+    description character varying(4000),
+    path character varying(500),
+    date_added timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.product_images OWNER TO postgres;
+
+--
+-- Name: product_images_image_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE product_images_image_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.product_images_image_id_seq OWNER TO postgres;
+
+--
+-- Name: product_images_image_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE product_images_image_id_seq OWNED BY product_images.image_id;
+
+
+--
 -- Name: products; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -399,6 +438,13 @@ ALTER TABLE ONLY categories ALTER COLUMN category_id SET DEFAULT nextval('catego
 --
 
 ALTER TABLE ONLY manufacturers ALTER COLUMN manufacturer_id SET DEFAULT nextval('manufacturers_manufacturer_id_seq'::regclass);
+
+
+--
+-- Name: image_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY product_images ALTER COLUMN image_id SET DEFAULT nextval('product_images_image_id_seq'::regclass);
 
 
 --
