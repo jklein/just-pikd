@@ -14,6 +14,7 @@ use Aura\Sql\ConnectionLocator;
 
 class DB {
 
+    // Eventually we should factor out this connection information into a config file
     public static function getConnections() {
         $connections = new ConnectionLocator;
 
@@ -24,6 +25,23 @@ class DB {
                 'justpikd'
             );
         });
+
+        $connections->setRead('product', function () {
+            return new ExtendedPdo(
+                'pgsql:host=localhost;dbname=product',
+                'postgres',
+                'justpikd'
+            );
+        });
+
+        $connections->setWrite('product', function () {
+            return new ExtendedPdo(
+                'pgsql:host=localhost;dbname=product',
+                'postgres',
+                'justpikd'
+            );
+        });
+
 
         $connections->setRead('customer', function () {
             return new ExtendedPdo(

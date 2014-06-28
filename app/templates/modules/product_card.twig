@@ -1,0 +1,35 @@
+<div class="col-xs-6 col-sm-3 product_card" data-price="8.25" data-rating="5">
+    <div class="products__single">
+        <figure class="products__image">
+            <a href="{{ product.link }}">
+                <img alt="#" class="product__image" width="263" height="334" src="/assets/images/dummy/w263/1.jpg">
+            </a>
+            <div class="product-overlay">
+                <a class="product-overlay__more" href="single-product.html">
+                    <span class="glyphicon glyphicon-search"></span>
+                </a>
+                <a class="product-overlay__cart" href="#">
+                    +<span class="glyphicon glyphicon-shopping-cart"></span>
+                </a>
+                <div class="product-overlay__stock">
+                    <span class="in-stock">&bull;</span> <span class="in-stock--text">In stock</span>
+                </div>
+            </div>
+        </figure>
+        <div class="row">
+            <div class="col-xs-9">
+                <h5 class="products__title">
+                    <a class="products__link js--isotope-title" href="{{ product.link }}">{{ product.name }}</a>
+                </h5>
+            </div>
+            <div class="col-xs-3">
+                <div class="products__price">
+                    {{ product.list_cost }}
+                </div>
+            </div>
+        </div>
+        <div class="products__category">
+            {{ product.category }}
+        </div>
+    </div>
+</div>
