@@ -9,10 +9,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # options are documented and commented below. For a complete reference,
   # please see the online documentation at vagrantup.com.
 
-  # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "opscode-ubuntu-12.04-chef11"
+  # Make sure that chef is installed on the VM
+  config.omnibus.chef_version = :latest
 
-  config.vm.box_url = "https://opscode-vm.s3.amazonaws.com/vagrant/opscode_ubuntu-12.04_chef-11.2.0.box" # from https://github.com/opscode/bento
+  # Every Vagrant virtual environment requires a box to build off of.
+  config.vm.box = "opscode-ubuntu-14.04-chef11"
+
+  config.vm.box_url = "http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_ubuntu-14.04_chef-provisionerless.box" # from https://github.com/opscode/bento
+
   # Fix DNS on the VM, because it is totally busted otherwise
   # http://askubuntu.com/questions/238040/how-do-i-fix-name-service-for-vagrant-client
   config.vm.provider "virtualbox" do |v|
