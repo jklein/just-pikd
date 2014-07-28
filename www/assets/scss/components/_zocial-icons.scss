@@ -3,11 +3,11 @@
   font-family: 'zocial';
   font-style: normal;
   font-weight: normal;
-  src: url('../assets/zocial/css/zocial-regular-webfont.eot');
-  src: url('../assets/zocial/css/zocial-regular-webfont.eot?#iefix') format('eot'),
-  url('../assets/zocial/css/zocial-regular-webfont.woff') format('woff'),
-  url('../assets/zocial/css/zocial-regular-webfont.ttf') format('truetype'),
-  url('../assets/zocial/css/zocial-regular-webfont.svg#zocialregular') format('svg');
+  src: url('../fonts/zocial/zocial-regular-webfont.eot');
+  src: url('../fonts/zocial/zocial-regular-webfont.eot?#iefix') format('eot'),
+  url('../fonts/zocial/zocial-regular-webfont.woff') format('woff'),
+  url('../fonts/zocial/zocial-regular-webfont.ttf') format('truetype'),
+  url('../fonts/zocial/zocial-regular-webfont.svg#zocialregular') format('svg');
 }
 [class*="zocial-"]:before {
   font-family: 'zocial', sans-serif;

@@ -3,6 +3,7 @@ var gulp = require('./gulp')([
     'compass',
     'minify',
     'fonts',
+    'zocialfonts',
     'browserify',
     'rename',
     //'jshint',
@@ -11,5 +12,5 @@ var gulp = require('./gulp')([
     'watch'
 ]);
 
-gulp.task('build', ['compass', 'minify', 'fonts', 'browserify', 'rename']);
+gulp.task('build', ['compass', 'minify', 'fonts', 'zocialfonts', 'browserify', 'rename']);
 gulp.task('default', ['build', 'watch']);

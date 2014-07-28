@@ -1,0 +1,18 @@
+<!-- Navigation -->
+<div class="push-down-30">
+    <div class="products-navigation">
+        <div class="products-navigation__title">
+            <h3><span class="light">Related</span> Products</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Products -->
+<div class="push-down-30">
+    <div class="row">
+        <!-- Products -->
+        {% for product in products %}
+            {% include 'modules/product_card.twig' %}
+        {% endfor %}
+    </div>
+</div>

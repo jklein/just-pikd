@@ -1,5 +1,7 @@
 <?php
 
+namespace Pikd;
+
 // An example page that just shows a few products
 $app->get('/products', function() use ($app) {
     $conn = $app->connections->getRead('product');
@@ -10,7 +12,7 @@ $app->get('/products', function() use ($app) {
     foreach ($categories as $category) {
         $template_vars['categories'][] = [
             'name' => $category['category_name'],
-            'link' => \Pikd\Controller\Categories::getLink($category['category_id']),
+            'link' => Controller\Categories::getLink($category['category_id']),
         ];
     }
     
@@ -23,10 +25,29 @@ $app->get('/products', function() use ($app) {
             'name' => ucwords(strtolower($product['name'])),
             'list_cost' => $product['list_cost'],
             'id' => $product['product_id'],
-            'link' => \Pikd\Controller\Products::getLink($product['product_id'], $product['name']),
+            'link' => Controller\Product::getLink($product['product_id'], $product['name']),
             'category' => $product['category_name'],
         ];
     }
 
     $app->render('products.twig', $template_vars);
+});
+
+$app->get('/products/:id(/:product_name)', function($id, $name = '') use ($app) {
+    if (!is_numeric($id)) {
+        $app->redirect('/404');
+    }
+
+    $conn = $app->connections->getRead('product');
+    $product = new Controller\Product($conn, $id);
+
+    if ($product->isActive()) {
+        $template_vars = $product->getTemplateVars();
+        $template_vars['category_name'] = Controller\Categories::getName($conn, $product->category_id);
+        Util::debug($template_vars);
+
+        $app->render('product.twig', $template_vars);
+    } else {
+        $app->redirect('/404');
+    }
 });
