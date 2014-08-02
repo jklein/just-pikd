@@ -12,6 +12,7 @@ $output_folder = '/usr/share/nginx/html/schema';
 $databases = [
     'product',
     'customer',
+    'hr',
 ];
 
 // Dump all databases
