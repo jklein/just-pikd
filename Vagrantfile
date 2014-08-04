@@ -67,7 +67,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       },
       :php => {
         :directives => {
-          :auto_prepend_file               => "/usr/share/nginx/html/app/src/auto_prepend.php",
           :"date.timezone"                 => "America/New_York",
           :default_charset                 => "utf-8",
           :default_mimetype                => "text/html",

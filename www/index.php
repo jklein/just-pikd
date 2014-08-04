@@ -43,5 +43,6 @@ $app->get('/', function () use ($app) {
 require '../app/routes/auth.php';
 require '../app/routes/util.php';
 require '../app/routes/product.php';
+require '../app/routes/cart.php';
 
 $app->run();

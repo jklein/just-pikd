@@ -1,0 +1,61 @@
+{% extends "base.twig" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="woocommerce  push-down-30">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12  push-down-30">
+        <h3>Cart</h3>
+        <hr>
+        <table class="shop-table  shop-cart">
+          <thead>
+            <tr class="cart_table_title">
+              <th class="product-remove"></th>
+              <th class="product-thumbnail"></th>
+              <th class="product-name">Product</th>
+              <th class="product-price">Price</th>
+              <th class="product-quantity">Quantity</th>
+              <th class="product-subtotal">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+              {% for product in cart_products %}
+                  {% include 'modules/cart_product_row.twig' %}
+              {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="col-xs-12 col-sm-6">
+      </div>
+      <div class="col-xs-12 col-sm-6">
+        <!-- Your order - table -->
+        <h3  class="pull-right"><span class="light">Cart</span> Totals</h3>
+        <table class="shop_table  push-down-30">
+          <tfoot>
+            <tr class="cart-subtotal">
+              <th>Cart Subtotal</th>
+              <td><span class="amount">€38</span></td>
+            </tr>
+            <tr class="shipping">
+              <th>Shipping</th>
+              <td>Free Shipping</td>
+            </tr>
+            <tr class="total">
+              <th><strong>Order Total</strong></th>
+              <td>
+                <strong><span class="amount">€38</span></strong>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+    <hr class="divider">
+  </div>
+</div>
+
+
+{% endblock %}

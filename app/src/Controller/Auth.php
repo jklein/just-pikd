@@ -74,13 +74,22 @@ class Auth {
             // We have valid input, check the password
             $user = new \Pikd\Model\User($this->connection, $email);
             $user_data = $user->getUserData();
-            if (password_verify($password, $user_data['password'])) {
-                $valid = true;
-                $_SESSION = array_merge($_SESSION, $user_data);
-                $messages[] = 'You have been logged in successfully!';
-            } elseif (empty($messages)) {
-                $messages[] = 'Incorrect email or password';
+
+            if (empty($user_data)) {
+                // We couldn't find the user
+                $messages[] = 'User not found';
+            } else {
+                $user_data = $user->getUserData();
+                var_dump($user_data);
+                if (password_verify($password, $user_data['password'])) {
+                    $valid = true;
+                    $_SESSION = array_merge($_SESSION, $user_data);
+                    $messages[] = 'You have been logged in successfully!';
+                } elseif (empty($messages)) {
+                    $messages[] = 'Incorrect email or password';
+                }
             }
+
         }
 
         return [

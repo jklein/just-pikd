@@ -28,11 +28,11 @@ class User {
                     where email = :email';
 
         $result = $this->connection->fetchOne($sql, ['email' => $email]);
-
-        if ($result !== false) { // No user found
-            $this->data = $result;
+        if ($result === false) {
+            // No user found
+            $this->data = [];
         } else {
-            return $result;
+            $this->data = $result;
         }
     }
 

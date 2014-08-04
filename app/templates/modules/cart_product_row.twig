@@ -1,0 +1,14 @@
+<tr class="cart_table_item">
+  <td class="product-remove"><span class="glyphicon  glyphicon-remove"></span></td>
+  <td class="product-thumbnail"><img src="{{ product.image_src }}"></td>
+  <td class="product-name"><a href="{{ product.url }}">{{ product.url }}</a></td>
+  <td class="product-price">{{ product.price }}</td>
+  <td class="product-quantity">
+    <div class="quantity  js--quantity">
+      <input type="button" value="-" class="quantity__button  js--minus-one  js--clickable">
+      <input type="text" name="quantity" value="1" class="quantity__input">
+      <input type="button" value="+" class="quantity__button  js--plus-one  js--clickable">
+    </div>
+  </td>
+  <td class="product-subtotal">{{ product.sub_total }}</td>
+</tr>
