@@ -19,20 +19,37 @@ $app->get('/cart', function() use ($app) {
         $app->redirect('/');
     }
 
-    $cart_products = [
-        [
-            'id' => '1234',
-            'name' => 'Test Product 1',
-            'image_src' => '/assets/images/dummy/product-cart.jpg',
-            'url' => '/products/1234',
-            'price' => '$25',
-            'qty' => '1',
-            'sub_total' => '$25',
-        ],
+    $cart = new Controller\Cart($app->user->getUserData()['customer_id']);
+    $cart_products = $cart->getProducts();
 
-    ];
+    $total_price = $cart->getTotalPriceInCents();
 
     $page_data['cart_products'] = $cart_products;
+    $page_data['cart_totals'] = [
+        'display_price' => '$' . $total_price,
+        'numeric_price' => $total_price,
+        'products' => count($cart_products),
+    ];
 
     $app->render('cart.twig', $page_data);
+});
+
+// Checking out
+$app->post('/checkout', function() use ($app) {
+    \Stripe::setApiKey($app->config['stripe']['secret_api_key']);
+
+    // Get the credit card details submitted by the form
+    $token = $app->request()->post('stripeToken');
+
+    // Create the charge on Stripe's servers - this will charge the user's card
+    try {
+        $charge = \Stripe_Charge::create(array(
+          "amount" => $app->request()->post('amount'), // amount in cents, again
+          "currency" => "usd",
+          "card" => $token,
+          "description" => $app->request()->post('stripeEmail'))
+        );
+    } catch(\Stripe_CardError $e) {
+      // The card has been declined
+    }
 });

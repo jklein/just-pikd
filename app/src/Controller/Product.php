@@ -39,7 +39,7 @@ class Product {
     }
 
     // Stub
-    public static function getLink(\Aura\Sql\ExtendedPdo $product_id, $product_name) {
+    public static function getLink($product_id, $product_name) {
         return '/products/' . $product_id . '/' . urlencode($product_name);
     }
 }

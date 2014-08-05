@@ -11,7 +11,7 @@
         <h3>Cart</h3>
         <hr>
         <table class="shop-table  shop-cart">
-          <thead>
+        <thead>
             <tr class="cart_table_title">
               <th class="product-remove"></th>
               <th class="product-thumbnail"></th>
@@ -35,22 +35,25 @@
         <h3  class="pull-right"><span class="light">Cart</span> Totals</h3>
         <table class="shop_table  push-down-30">
           <tfoot>
-            <tr class="cart-subtotal">
-              <th>Cart Subtotal</th>
-              <td><span class="amount">€38</span></td>
-            </tr>
-            <tr class="shipping">
-              <th>Shipping</th>
-              <td>Free Shipping</td>
-            </tr>
             <tr class="total">
               <th><strong>Order Total</strong></th>
               <td>
-                <strong><span class="amount">€38</span></strong>
+                <strong><span class="amount">{{ cart_totals.display_price }}</span></strong>
               </td>
             </tr>
           </tfoot>
         </table>
+        <form action="/checkout" method="post">
+            <input type="hidden" name="amount" value="{{ cart_totals.numeric_price }}">
+            <script
+              src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+              data-key="{{ config.stripe.public_api_key }}"
+              data-amount="{{ cart_totals.numeric_price }}"
+              data-name="{{ config.stripe.site_name }}"
+              data-description="{{ cart_totals.products }} products ({{ cart_totals.display_price }})"
+              data-image="{{ config.stripe.logo }}">
+            </script>
+        </form>
       </div>
     </div>
     <hr class="divider">

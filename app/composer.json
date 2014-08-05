@@ -13,6 +13,7 @@
         "aura/sql":                  "2.*",
         "respect/validation":        "0.5.*",
         "videlalvaro/php-amqplib":   "2.2.*",
+        "stripe/stripe-php":         "1.*",
         "twig/twig":                 "1.*"
     },
     "autoload": {
