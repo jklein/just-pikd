@@ -403,6 +403,46 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --
+-- Name: departments; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE departments FROM PUBLIC;
+REVOKE ALL ON TABLE departments FROM postgres;
+GRANT ALL ON TABLE departments TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE departments TO jp_readwrite;
+
+
+--
+-- Name: employee_permissions; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE employee_permissions FROM PUBLIC;
+REVOKE ALL ON TABLE employee_permissions FROM postgres;
+GRANT ALL ON TABLE employee_permissions TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE employee_permissions TO jp_readwrite;
+
+
+--
+-- Name: employees; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE employees FROM PUBLIC;
+REVOKE ALL ON TABLE employees FROM postgres;
+GRANT ALL ON TABLE employees TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE employees TO jp_readwrite;
+
+
+--
+-- Name: permissions; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE permissions FROM PUBLIC;
+REVOKE ALL ON TABLE permissions FROM postgres;
+GRANT ALL ON TABLE permissions TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE permissions TO jp_readwrite;
+
+
+--
 -- PostgreSQL database dump complete
 --
 

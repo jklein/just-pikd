@@ -499,6 +499,46 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --
+-- Name: address_books; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE address_books FROM PUBLIC;
+REVOKE ALL ON TABLE address_books FROM postgres;
+GRANT ALL ON TABLE address_books TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE address_books TO jp_readwrite;
+
+
+--
+-- Name: customers; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE customers FROM PUBLIC;
+REVOKE ALL ON TABLE customers FROM postgres;
+GRANT ALL ON TABLE customers TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE customers TO jp_readwrite;
+
+
+--
+-- Name: order_products; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE order_products FROM PUBLIC;
+REVOKE ALL ON TABLE order_products FROM postgres;
+GRANT ALL ON TABLE order_products TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE order_products TO jp_readwrite;
+
+
+--
+-- Name: orders; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE orders FROM PUBLIC;
+REVOKE ALL ON TABLE orders FROM postgres;
+GRANT ALL ON TABLE orders TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE orders TO jp_readwrite;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
