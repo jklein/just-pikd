@@ -17,7 +17,14 @@ class Product {
     }
 
     private function assignTemplateVars() {
-        $sql = 'SELECT * from products where product_id = :id';
+        $sql = 'SELECT * from base_products bp
+                join products p on bp.product_id = p.product_id
+                join products_images i on i.sku = p.sku
+                where bp.product_id = :id
+                and rank = 1 and show_on_site = true
+                order by image_id
+                limit 1';
+
         $bind = ['id' => $this->id];
         $product = $this->dbconn->fetchOne($sql, $bind);
 
@@ -26,6 +33,8 @@ class Product {
                 $this->$key = $value;
             }
             $this->template_vars = $product;
+
+            $this->template_vars['image_src'] = \Pikd\Image::product($this->manufacturer_id, $this->image_id);
             $this->is_active = true;
         }
     }
