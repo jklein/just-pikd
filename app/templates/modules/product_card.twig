@@ -1,20 +1,10 @@
-<div class="col-xs-6 col-sm-3 product_card" data-price="{{ product.list_cost }}" data-rating="{{ product.rating }}">
+<div class="col-xs-6 col-sm-3 product_card" data-price="{{ product.list_cost }}">
     <div class="products__single">
         <figure class="products__image">
-            <a href="{{ product.link }}">
-                <img alt="#" class="product__image" width="263" height="334" src="/assets/images/dummy/w263/1.jpg">
+            <a href="/images/{{ product.id }}">
+                <!--<img alt="{{ product.name }}" class="product__image" height="334" src="{{ product.image_src }}">-->
+                Click here to view all images
             </a>
-            <div class="product-overlay">
-                <a class="product-overlay__more" href="single-product.html">
-                    <span class="glyphicon glyphicon-search"></span>
-                </a>
-                <a class="product-overlay__cart" href="#">
-                    +<span class="glyphicon glyphicon-shopping-cart"></span>
-                </a>
-                <div class="product-overlay__stock">
-                    <span class="in-stock">&bull;</span> <span class="in-stock--text">In stock</span>
-                </div>
-            </div>
         </figure>
         <div class="row">
             <div class="col-xs-9">

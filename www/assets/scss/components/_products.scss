@@ -66,12 +66,6 @@
   margin-bottom: 20px;
 }
 
-.product__image {
-  width: 100%;
-  height: auto;
-  transition: transform .1s linear;
-}
-
 html.no-touch {
   .products__image {
     position: relative;
@@ -288,5 +282,5 @@ html.no-touch {
 }
 
 .product_card {
-  height:330px;
+  height:100px;
 }
