@@ -32,7 +32,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "chef_solo" do |chef|
     chef.cookbooks_path = "../just-pikd-chef/cookbooks"
     chef.roles_path = "../just-pikd-chef/roles"
-    chef.add_role("web")
+    chef.add_role("Base")
   end
   config.vm.provision "shell", inline: "sudo service nginx start"
   config.vm.provision "shell", inline: "sudo service php-fpm restart"
