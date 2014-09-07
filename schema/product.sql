@@ -574,8 +574,11 @@ ALTER TABLE public.im_productdata OWNER TO postgres;
 
 CREATE TABLE images (
     image_id integer NOT NULL,
-    manufacturer_id integer,
+    manufacturer_id integer NOT NULL,
+    sku character varying(12),
     mime_type character varying(255),
+    rank integer NOT NULL,
+    show_on_site boolean DEFAULT true NOT NULL,
     width integer,
     height integer,
     file_size integer,
@@ -583,7 +586,8 @@ CREATE TABLE images (
     description character varying(4000),
     source character varying(500),
     date_added timestamp with time zone DEFAULT now() NOT NULL,
-    last_updated timestamp with time zone DEFAULT now() NOT NULL
+    last_updated timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT images_rank_check CHECK ((rank > 0))
 );
 
 
@@ -604,10 +608,31 @@ COMMENT ON COLUMN images.manufacturer_id IS 'The manufacturer associated with ei
 
 
 --
+-- Name: COLUMN images.sku; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN images.sku IS 'The sku for the product the image is a picture of, if it is a product image. Null otherwise.';
+
+
+--
 -- Name: COLUMN images.mime_type; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN images.mime_type IS 'The mime-type to be displayed to the client for the image. Usually image/jpeg';
+
+
+--
+-- Name: COLUMN images.rank; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN images.rank IS 'Sort order on the product page (the default_image_id in products is always shown first though). Must be greater than zero, and must be unique to the sku+image combo';
+
+
+--
+-- Name: COLUMN images.show_on_site; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN images.show_on_site IS 'Whether to display the image on site.';
 
 
 --
@@ -900,51 +925,6 @@ COMMENT ON COLUMN products.weight IS 'The weight of the product in packaging in 
 
 
 --
--- Name: products_images; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE products_images (
-    sku character varying(12) NOT NULL,
-    image_id integer NOT NULL,
-    rank integer NOT NULL,
-    show_on_site boolean DEFAULT true NOT NULL,
-    alt_text_override character varying(255),
-    last_updated timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT products_images_rank_check CHECK ((rank > 0))
-);
-
-
-ALTER TABLE public.products_images OWNER TO postgres;
-
---
--- Name: TABLE products_images; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE products_images IS 'Joins an image to a product, with ranking specific to that product';
-
-
---
--- Name: COLUMN products_images.rank; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products_images.rank IS 'Sort order on the product page (the default_image_id in products is always shown first though). Must be greater than zero, and must be unique to the sku+image combo';
-
-
---
--- Name: COLUMN products_images.show_on_site; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products_images.show_on_site IS 'Whether to display the image on site.';
-
-
---
--- Name: COLUMN products_images.alt_text_override; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products_images.alt_text_override IS 'This allows us to override the alt text on an image a specific sku';
-
-
---
 -- Name: products_product_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -1219,11 +1199,11 @@ ALTER TABLE ONLY categories
 
 
 --
--- Name: images_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: images_pkey1; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY images
-    ADD CONSTRAINT images_pkey PRIMARY KEY (image_id);
+    ADD CONSTRAINT images_pkey1 PRIMARY KEY (image_id);
 
 
 --
@@ -1232,14 +1212,6 @@ ALTER TABLE ONLY images
 
 ALTER TABLE ONLY manufacturers
     ADD CONSTRAINT manufacturers_pkey PRIMARY KEY (manufacturer_id);
-
-
---
--- Name: products_images_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY products_images
-    ADD CONSTRAINT products_images_pkey PRIMARY KEY (sku, image_id);
 
 
 --
@@ -1283,11 +1255,11 @@ ALTER TABLE ONLY suppliers
 
 
 --
--- Name: unique_sku_image_ranks; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: uniq_sku_image_ranks; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
-ALTER TABLE ONLY products_images
-    ADD CONSTRAINT unique_sku_image_ranks UNIQUE (sku, image_id, rank);
+ALTER TABLE ONLY images
+    ADD CONSTRAINT uniq_sku_image_ranks UNIQUE (sku, rank);
 
 
 --
@@ -1321,13 +1293,73 @@ GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE attributes TO jp_readwrite;
 
 
 --
--- Name: images; Type: ACL; Schema: public; Owner: postgres
+-- Name: base_products; Type: ACL; Schema: public; Owner: postgres
 --
 
-REVOKE ALL ON TABLE images FROM PUBLIC;
-REVOKE ALL ON TABLE images FROM postgres;
-GRANT ALL ON TABLE images TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE images TO jp_readwrite;
+REVOKE ALL ON TABLE base_products FROM PUBLIC;
+REVOKE ALL ON TABLE base_products FROM postgres;
+GRANT ALL ON TABLE base_products TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE base_products TO jp_readwrite;
+
+
+--
+-- Name: candsproducts; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE candsproducts FROM PUBLIC;
+REVOKE ALL ON TABLE candsproducts FROM postgres;
+GRANT ALL ON TABLE candsproducts TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE candsproducts TO jp_readwrite;
+
+
+--
+-- Name: categories; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE categories FROM PUBLIC;
+REVOKE ALL ON TABLE categories FROM postgres;
+GRANT ALL ON TABLE categories TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE categories TO jp_readwrite;
+
+
+--
+-- Name: im_items; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE im_items FROM PUBLIC;
+REVOKE ALL ON TABLE im_items FROM postgres;
+GRANT ALL ON TABLE im_items TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE im_items TO jp_readwrite;
+
+
+--
+-- Name: im_media; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE im_media FROM PUBLIC;
+REVOKE ALL ON TABLE im_media FROM postgres;
+GRANT ALL ON TABLE im_media TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE im_media TO jp_readwrite;
+
+
+--
+-- Name: im_productdata; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE im_productdata FROM PUBLIC;
+REVOKE ALL ON TABLE im_productdata FROM postgres;
+GRANT ALL ON TABLE im_productdata TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE im_productdata TO jp_readwrite;
+
+
+--
+-- Name: manufacturers; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE manufacturers FROM PUBLIC;
+REVOKE ALL ON TABLE manufacturers FROM postgres;
+GRANT ALL ON TABLE manufacturers TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE manufacturers TO jp_readwrite;
 
 
 --

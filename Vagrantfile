@@ -37,6 +37,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell", inline: "sudo service nginx start"
   config.vm.provision "shell", inline: "sudo service php-fpm restart"
   config.vm.provision "shell", inline: "sudo service postgresql start"
-  config.vm.provision "shell", inline: "sudo service rabbitmq-server start"
   config.vm.synced_folder ".", "/usr/share/nginx/html"
+  config.vm.synced_folder "~/Box\ Sync/Company\ Shared\ Folder/database/", "/mnt/database"
 end
