@@ -34,9 +34,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     chef.roles_path = "../just-pikd-chef/roles"
     chef.add_role("Base")
   end
-  config.vm.provision "shell", inline: "sudo service nginx start"
+
+  #TODO remove this: monit should handle it
   config.vm.provision "shell", inline: "sudo service php-fpm restart"
-  config.vm.provision "shell", inline: "sudo service postgresql start"
+
+  #create shared folder for code
   config.vm.synced_folder ".", "/usr/share/nginx/html"
+  #shared folder for database dumps (assumes you have Box set up)
   config.vm.synced_folder "~/Box\ Sync/Company\ Shared\ Folder/database/", "/mnt/database"
 end
