@@ -1,17 +1,17 @@
 {
     "require": {
-        "monolog/monolog":           "1.2.*",
+        "monolog/monolog":           "1.*",
         "swiftmailer/swiftmailer":   "5.0.*",
         "slim/slim":                 "2.4.*",
         "slim/views":                "0.1.*",
         "mustache/mustache":         "2.5.*",
-        "guzzle/guzzle":             "3.8.*",
+        "guzzlehttp/guzzle":         "5.*",
         "phpmd/phpmd" :              "1.5.*",
         "sebastian/hhvm-wrapper":    "2.0.*",
         "squizlabs/php_codesniffer": "1.*",
         "aura/input":                "1.1.*",
         "aura/sql":                  "2.*",
-        "respect/validation":        "0.5.*",
+        "respect/validation":        "0.6.*",
         "videlalvaro/php-amqplib":   "2.2.*",
         "stripe/stripe-php":         "1.*",
         "twig/twig":                 "1.*"
