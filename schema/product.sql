@@ -90,7 +90,8 @@ CREATE TYPE product_status AS ENUM (
     'Active',
     'Being Added',
     'Temporarily Unavailable',
-    'Discontinued'
+    'Discontinued',
+    'Dummy'
 );
 
 
@@ -200,7 +201,8 @@ CREATE TABLE base_products (
     category_id integer NOT NULL,
     description text,
     shelf_life_days integer,
-    qc_check_interval_days integer
+    qc_check_interval_days integer,
+    brand_id integer
 );
 
 
@@ -263,6 +265,13 @@ COMMENT ON COLUMN base_products.qc_check_interval_days IS 'Frequency at which we
 
 
 --
+-- Name: COLUMN base_products.brand_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN base_products.brand_id IS 'Foreign key to brand.id';
+
+
+--
 -- Name: base_products_product_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -281,6 +290,62 @@ ALTER TABLE public.base_products_product_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE base_products_product_id_seq OWNED BY base_products.product_id;
+
+
+--
+-- Name: brands; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE brands (
+    brand_id integer NOT NULL,
+    brand_name character varying(500) NOT NULL,
+    logo_image_url character varying(500),
+    marketing_description character varying(500)
+);
+
+
+ALTER TABLE public.brands OWNER TO postgres;
+
+--
+-- Name: TABLE brands; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE brands IS 'Contains brand name and ID. Expand to include other fields that we can track about who makes a product.';
+
+
+--
+-- Name: COLUMN brands.logo_image_url; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN brands.logo_image_url IS 'URL to an image containing the brand logo for display on site';
+
+
+--
+-- Name: COLUMN brands.marketing_description; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN brands.marketing_description IS 'A story or description about this brand for display to customers';
+
+
+--
+-- Name: brands_brand_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE brands_brand_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.brands_brand_id_seq OWNER TO postgres;
+
+--
+-- Name: brands_brand_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE brands_brand_id_seq OWNED BY brands.brand_id;
 
 
 --
@@ -334,8 +399,6 @@ ALTER TABLE public.candsproducts OWNER TO postgres;
 CREATE TABLE categories (
     category_id integer NOT NULL,
     category_name character varying(500) NOT NULL,
-    category_number integer,
-    category_top_level character varying(500),
     third_party_identifier character varying(500),
     parent_category_id integer,
     active boolean,
@@ -357,20 +420,6 @@ COMMENT ON TABLE categories IS 'Product categorization - a category tree is main
 --
 
 COMMENT ON COLUMN categories.category_name IS 'Display name on site for the category';
-
-
---
--- Name: COLUMN categories.category_number; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN categories.category_number IS 'Third party category number from C&S data. We may be able to drop this';
-
-
---
--- Name: COLUMN categories.category_top_level; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN categories.category_top_level IS 'Third party top level category identifier from C&S data. We may be able to drop this';
 
 
 --
@@ -699,6 +748,341 @@ ALTER SEQUENCE images_image_id_seq OWNED BY images.image_id;
 
 
 --
+-- Name: kwikee_external_codes; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE kwikee_external_codes (
+    gtin character varying(14),
+    external_code character varying(500),
+    external_code_value character varying(500)
+);
+
+
+ALTER TABLE public.kwikee_external_codes OWNER TO postgres;
+
+--
+-- Name: kwikee_nutrition; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE kwikee_nutrition (
+    upc character varying(10),
+    gtin character varying(14),
+    promotion character varying(800),
+    cal_from_sat_tran_fat character varying(15),
+    calories_per_serving character varying(15),
+    carbo_per_serving character varying(15),
+    carbo_uom character varying(15),
+    cholesterol_per_serving character varying(15),
+    cholesterol_uom character varying(15),
+    dvp_biotin character varying(15),
+    dvp_calcium character varying(15),
+    dvp_carbo character varying(15),
+    dvp_chloride character varying(15),
+    dvp_cholesterol character varying(15),
+    dvp_chromium character varying(15),
+    dvp_copper character varying(15),
+    dvp_fiber character varying(15),
+    dvp_folic_acid character varying(15),
+    dvp_iodide character varying(15),
+    dvp_iodine character varying(15),
+    dvp_iron character varying(15),
+    dvp_magnesium character varying(15),
+    dvp_manganese character varying(15),
+    dvp_molybdenum character varying(15),
+    dvp_niacin character varying(15),
+    dvp_panthothenate character varying(15),
+    dvp_phosphorus character varying(15),
+    dvp_potassium character varying(15),
+    dvp_protein character varying(15),
+    dvp_riboflavin character varying(15),
+    dvp_sat_tran_fat character varying(15),
+    dvp_saturated_fat character varying(15),
+    dvp_selenium character varying(15),
+    dvp_sodium character varying(15),
+    dvp_sugar character varying(15),
+    dvp_thiamin character varying(15),
+    dvp_total_fat character varying(15),
+    dvp_vitamin_a character varying(15),
+    dvp_vitamin_b12 character varying(15),
+    dvp_vitamin_b6 character varying(15),
+    dvp_vitamin_c character varying(15),
+    dvp_vitamin_d character varying(15),
+    dvp_vitamin_e character varying(15),
+    dvp_vitamin_k character varying(15),
+    dvp_zinc character varying(15),
+    fat_calories_per_serving character varying(15),
+    fiber_per_serving character varying(15),
+    fiber_uom character varying(15),
+    insol_fiber_per_serving character varying(15),
+    insol_fiber_per_serving_uom character varying(15),
+    mono_unsat_fat character varying(15),
+    mono_unsat_fat_uom character varying(15),
+    nutrient_disclaimer_1 character varying(800),
+    nutrient_disclaimer_2 character varying(800),
+    nutrient_disclaimer_3 character varying(800),
+    nutrient_disclaimer_4 character varying(800),
+    nutrition_label character varying(800),
+    omega_3_polyunsat character varying(15),
+    omega_3_polyunsat_uom character varying(15),
+    omega_6_polyunsat character varying(15),
+    omega_6_polyunsat_uom character varying(15),
+    omega_9_polyunsat character varying(15),
+    omega_9_polyunsat_uom character varying(15),
+    poly_unsat_fat character varying(15),
+    poly_unsat_fat_uom character varying(15),
+    potassium_per_serving character varying(15),
+    potassium_uom character varying(15),
+    protein_per_serving character varying(15),
+    protein_uom character varying(15),
+    sat_fat_per_serving character varying(15),
+    sat_fat_uom character varying(15),
+    serving_size character varying(15),
+    serving_size_uom character varying(15),
+    servings_per_container character varying(15),
+    sodium_per_serving character varying(15),
+    sodium_uom character varying(15),
+    sol_fiber_per_serving character varying(15),
+    sol_fiber_per_serving_uom character varying(15),
+    starch_per_serving character varying(15),
+    starch_per_serving_uom character varying(15),
+    sub_number integer,
+    sugar_per_serving character varying(15),
+    sugar_uom character varying(15),
+    suger_alc_per_serving character varying(15),
+    suger_alc_per_serving_uom character varying(15),
+    total_calories_per_serving character varying(15),
+    total_fat_per_serving character varying(15),
+    total_fat_uom character varying(15),
+    trans_fat_per_serving character varying(15),
+    trans_fat_uom character varying(15)
+);
+
+
+ALTER TABLE public.kwikee_nutrition OWNER TO postgres;
+
+--
+-- Name: kwikee_pog; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE kwikee_pog (
+    gtin character varying(14),
+    upc_10 character varying(10),
+    upc_12 character varying(12),
+    gpc_brick_id integer,
+    gpc_brick_name character varying(8000),
+    section_id character varying(15),
+    section_name character varying(800),
+    manufacturer_name character varying(800),
+    brand_name character varying(800),
+    custom_product_name character varying(8000),
+    product_name character varying(8000),
+    description character varying(8000),
+    product_size double precision,
+    uom character varying(50),
+    container_type character varying(800),
+    height double precision,
+    height_count double precision,
+    width double precision,
+    width_count double precision,
+    depth double precision,
+    depth_count double precision,
+    depth_nesting double precision,
+    dual_nesting integer,
+    vertical_nesting double precision,
+    peg_down double precision,
+    peg_right double precision,
+    tray_count character varying(15),
+    tray_depth double precision,
+    tray_height double precision,
+    tray_width double precision,
+    case_count double precision,
+    case_depth double precision,
+    case_height double precision,
+    case_width double precision,
+    display_depth double precision,
+    display_height double precision,
+    display_width double precision,
+    unique_id character varying(800),
+    physical_weight_lb double precision,
+    physical_weight_oz double precision,
+    date_created timestamp without time zone,
+    product_count character varying(500),
+    unit_size double precision,
+    unit_uom character varying(50),
+    unit_container character varying(800),
+    source_zip character varying(50)
+);
+
+
+ALTER TABLE public.kwikee_pog OWNER TO postgres;
+
+--
+-- Name: kwikee_products; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE kwikee_products (
+    upc character varying(10),
+    whole_upc character varying(12),
+    gtin character varying(14),
+    case_gtin character varying(100),
+    manufacturer_name character varying(800),
+    brand_name character varying(800),
+    product_name character varying(800),
+    description character varying(8000),
+    product_size double precision,
+    uom character varying(50),
+    container_type character varying(500),
+    product_count character varying(500),
+    unit_size double precision,
+    unit_uom character varying(50),
+    unit_container character varying(500),
+    custom_product_name character varying(800),
+    promotion character varying(800),
+    gpc_brick_id integer,
+    section_id character varying(15),
+    section_name character varying(800),
+    consumable character varying(5),
+    low_fat character varying(5),
+    fat_free character varying(5),
+    gluten_free character varying(5),
+    kosher character varying(5),
+    organic character varying(5),
+    model character varying(50),
+    ingredient_code character varying(8000),
+    ingredients character varying(8000),
+    allergens character varying(8000),
+    indications_copy character varying(8000),
+    interactions_copy character varying(8000),
+    why_buy_1 character varying(8000),
+    why_buy_2 character varying(8000),
+    why_buy_3 character varying(8000),
+    why_buy_4 character varying(8000),
+    why_buy_5 character varying(8000),
+    why_buy_6 character varying(8000),
+    why_buy_7 character varying(8000),
+    romance_copy_1 character varying(8000),
+    romance_copy_2 character varying(8000),
+    romance_copy_3 character varying(8000),
+    romance_copy_4 character varying(8000),
+    warnings_copy character varying(8000),
+    instructions_copy_1 character varying(8000),
+    instructions_copy_2 character varying(8000),
+    instructions_copy_3 character varying(8000),
+    instructions_copy_4 character varying(8000),
+    instructions_copy_5 character varying(8000),
+    guarantees character varying(8000),
+    guarantee_analysis character varying(8000),
+    legal character varying(8000),
+    post_consumer character varying(8000),
+    keywords character varying(8000),
+    height double precision,
+    width double precision,
+    depth double precision,
+    peg_right double precision,
+    peg_down double precision,
+    physical_weight_lb double precision,
+    physical_weight_oz double precision,
+    case_count integer,
+    case_depth double precision,
+    case_height double precision,
+    case_width double precision,
+    depth_count integer,
+    display_depth double precision,
+    display_height double precision,
+    display_width double precision,
+    height_count integer,
+    tray_count character varying(15),
+    tray_depth double precision,
+    tray_height double precision,
+    tray_width double precision,
+    width_count double precision,
+    multiple_shelf_facings integer,
+    dual_nesting integer,
+    depth_nesting double precision,
+    vertical_nesting double precision,
+    product_created_date timestamp without time zone,
+    product_last_modified_date timestamp without time zone,
+    division_name character varying(800),
+    division_name_2 character varying(800),
+    last_publish_date timestamp without time zone,
+    image_indicator integer,
+    seasonal_flag integer,
+    country_id integer,
+    language_id integer,
+    mfr_approved_date timestamp without time zone,
+    product_base_id integer,
+    product_varietal character varying(800),
+    variant_name_1 character varying(800),
+    variant_name_2 character varying(800),
+    variant_value_1 double precision,
+    variant_value_2 double precision,
+    alt_brand_name character varying(800),
+    alt_container_type character varying(500),
+    alt_product_description character varying(8000),
+    alt_product_name character varying(800),
+    alt_product_size double precision,
+    alt_uom character varying(15),
+    nutrient_claim_1 character varying(100),
+    nutrient_claim_2 character varying(100),
+    nutrient_claim_3 character varying(100),
+    nutrient_claim_4 character varying(100),
+    nutrient_claim_5 character varying(100),
+    nutrient_claim_6 character varying(100),
+    nutrient_claim_7 character varying(100),
+    nutrient_claim_8 character varying(100),
+    nutrition_footnotes_1 character varying(800),
+    nutrition_footnotes_2 character varying(800),
+    nutrition_head_1 character varying(800),
+    nutrition_head_2 character varying(800),
+    other_nutrient_statement character varying(8000),
+    extra_text_2 character varying(800),
+    extra_text_3 character varying(800),
+    extra_text_4 character varying(800),
+    diabetes_fc_values character varying(800),
+    disease_claim character varying(800),
+    romance_copy_category character varying(800),
+    sensible_solutions character varying(800),
+    size_description_1 character varying(800),
+    size_description_2 character varying(800),
+    ss_claim_1 character varying(800),
+    ss_claim_2 character varying(800),
+    ss_claim_3 character varying(800),
+    ss_claim_4 character varying(800),
+    hexcode character varying(800),
+    identifier_1 character varying(800),
+    identifier_2 character varying(800),
+    vm_claim_1 character varying(800),
+    vm_claim_2 character varying(800),
+    vm_claim_3 character varying(800),
+    vm_claim_4 character varying(800),
+    vm_type_1 character varying(800),
+    vm_type_2 character varying(800),
+    vm_type_3 character varying(800),
+    vm_type_4 character varying(800),
+    bdm_account_base_id integer,
+    client_base_id integer,
+    container_type_uc character varying(800),
+    csm_account_base_id integer,
+    custom_product_name_uc character varying(800),
+    ethnic_copy character varying(8000),
+    flavor character varying(800),
+    national_billing_flag integer,
+    product_form character varying(800),
+    product_name_uc character varying(8000),
+    product_size_uc character varying(800),
+    product_type character varying(800),
+    supplied_brand_name character varying(800),
+    supplied_manufacturer_name character varying(800),
+    uom_uc character varying(15),
+    walmart_long_desc_header character varying(8000),
+    walmart_search_description character varying(8000),
+    source_zip character varying(50)
+);
+
+
+ALTER TABLE public.kwikee_products OWNER TO postgres;
+
+--
 -- Name: manufacturers; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -778,7 +1162,9 @@ CREATE TABLE products (
     width double precision,
     height double precision,
     cubic_volume double precision,
-    weight double precision
+    weight double precision,
+    wholesale_cost money,
+    gtin character varying(14)
 );
 
 
@@ -922,6 +1308,20 @@ COMMENT ON COLUMN products.cubic_volume IS 'The length*width*depth. This is redu
 --
 
 COMMENT ON COLUMN products.weight IS 'The weight of the product in packaging in lbs';
+
+
+--
+-- Name: COLUMN products.wholesale_cost; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.wholesale_cost IS 'The price we pay to the supplier';
+
+
+--
+-- Name: COLUMN products.gtin; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.gtin IS 'Global Trade Item Number';
 
 
 --
@@ -1125,6 +1525,13 @@ ALTER TABLE ONLY base_products ALTER COLUMN product_id SET DEFAULT nextval('base
 
 
 --
+-- Name: brand_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY brands ALTER COLUMN brand_id SET DEFAULT nextval('brands_brand_id_seq'::regclass);
+
+
+--
 -- Name: category_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1188,6 +1595,14 @@ ALTER TABLE ONLY attributes
 
 ALTER TABLE ONLY base_products
     ADD CONSTRAINT base_products_pkey PRIMARY KEY (product_id);
+
+
+--
+-- Name: brands_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY brands
+    ADD CONSTRAINT brands_pkey PRIMARY KEY (brand_id);
 
 
 --
@@ -1350,6 +1765,16 @@ REVOKE ALL ON TABLE im_productdata FROM PUBLIC;
 REVOKE ALL ON TABLE im_productdata FROM postgres;
 GRANT ALL ON TABLE im_productdata TO postgres;
 GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE im_productdata TO jp_readwrite;
+
+
+--
+-- Name: images; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE images FROM PUBLIC;
+REVOKE ALL ON TABLE images FROM postgres;
+GRANT ALL ON TABLE images TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE images TO jp_readwrite;
 
 
 --
