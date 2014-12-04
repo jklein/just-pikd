@@ -69,7 +69,12 @@ CREATE TYPE measurement_unit AS ENUM (
     'oz',
     'sq ft',
     'lbs',
-    'count'
+    'count',
+    'L',
+    'qt',
+    'pt',
+    'gal',
+    'pack'
 );
 
 
@@ -96,13 +101,6 @@ CREATE TYPE product_status AS ENUM (
 
 
 ALTER TYPE public.product_status OWNER TO postgres;
-
---
--- Name: TYPE product_status; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TYPE product_status IS 'Stages of product lifecycle. Only active base_products are listed on site';
-
 
 --
 -- Name: temperature_zone; Type: TYPE; Schema: public; Owner: postgres
