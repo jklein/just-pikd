@@ -103,6 +103,13 @@ CREATE TYPE product_status AS ENUM (
 ALTER TYPE public.product_status OWNER TO postgres;
 
 --
+-- Name: TYPE product_status; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TYPE product_status IS 'Stages of product lifecycle. Only active base_products are listed on site';
+
+
+--
 -- Name: temperature_zone; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -185,109 +192,6 @@ ALTER TABLE public.attributes_attribute_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE attributes_attribute_id_seq OWNED BY attributes.attribute_id;
-
-
---
--- Name: base_products; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE base_products (
-    product_id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    temperature_zone temperature_zone NOT NULL,
-    manufacturer_id integer NOT NULL,
-    category_id integer NOT NULL,
-    description text,
-    shelf_life_days integer,
-    qc_check_interval_days integer,
-    brand_id integer
-);
-
-
-ALTER TABLE public.base_products OWNER TO postgres;
-
---
--- Name: TABLE base_products; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE base_products IS 'Base level product information. Anything that is not option/size specific. Assumption: description is not size specific. Assumption: a product lives in a single category';
-
-
---
--- Name: COLUMN base_products.name; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN base_products.name IS 'Product name as shown to customers on site';
-
-
---
--- Name: COLUMN base_products.temperature_zone; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN base_products.temperature_zone IS 'Temperature zone where the product is stored in the warehouse';
-
-
---
--- Name: COLUMN base_products.manufacturer_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN base_products.manufacturer_id IS 'The manufacturer that produces the product';
-
-
---
--- Name: COLUMN base_products.category_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN base_products.category_id IS 'The category the product is tied to for revenue allocation and merchandising purposes';
-
-
---
--- Name: COLUMN base_products.description; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN base_products.description IS 'The detailed product description as displayed to customers on site';
-
-
---
--- Name: COLUMN base_products.shelf_life_days; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN base_products.shelf_life_days IS 'Estimated shelf life in days after a product is received. We will need to populate this based on our experience if we can''t get data from the manufacturer.';
-
-
---
--- Name: COLUMN base_products.qc_check_interval_days; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN base_products.qc_check_interval_days IS 'Frequency at which we should check quality on a product, especially produce';
-
-
---
--- Name: COLUMN base_products.brand_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN base_products.brand_id IS 'Foreign key to brand.id';
-
-
---
--- Name: base_products_product_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE base_products_product_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.base_products_product_id_seq OWNER TO postgres;
-
---
--- Name: base_products_product_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE base_products_product_id_seq OWNED BY base_products.product_id;
 
 
 --
@@ -1137,6 +1041,40 @@ ALTER SEQUENCE manufacturers_manufacturer_id_seq OWNED BY manufacturers.manufact
 
 
 --
+-- Name: product_families; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE product_families (
+    product_family_id integer NOT NULL,
+    product_family_name character varying(255) NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.product_families OWNER TO postgres;
+
+--
+-- Name: product_families_product_family_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE product_families_product_family_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.product_families_product_family_id_seq OWNER TO postgres;
+
+--
+-- Name: product_families_product_family_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE product_families_product_family_id_seq OWNED BY product_families.product_family_id;
+
+
+--
 -- Name: products; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -1144,7 +1082,6 @@ CREATE TABLE products (
     sku character varying(14) NOT NULL,
     product_id integer NOT NULL,
     sku_is_real_upc boolean NOT NULL,
-    list_cost money NOT NULL,
     status product_status NOT NULL,
     default_image_id integer,
     instance_description character varying(255),
@@ -1162,7 +1099,20 @@ CREATE TABLE products (
     cubic_volume double precision,
     weight double precision,
     wholesale_cost money,
-    gtin character varying(14)
+    gtin character varying(14),
+    temperature_zone temperature_zone,
+    manufacturer_id integer,
+    category_id integer,
+    description text,
+    shelf_life_days integer,
+    qc_check_interval_days integer,
+    brand_id integer,
+    name character varying(255),
+    product_family_id integer,
+    case_length double precision,
+    case_width double precision,
+    case_height double precision,
+    case_weight double precision
 );
 
 
@@ -1187,13 +1137,6 @@ COMMENT ON COLUMN products.sku IS 'The unique UPC for this item, as scanned if t
 --
 
 COMMENT ON COLUMN products.sku_is_real_upc IS 'True if the item has a barcode on it and our sku is an actual UPC.';
-
-
---
--- Name: COLUMN products.list_cost; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.list_cost IS 'The price as listed to the customer';
 
 
 --
@@ -1323,6 +1266,69 @@ COMMENT ON COLUMN products.gtin IS 'Global Trade Item Number';
 
 
 --
+-- Name: COLUMN products.temperature_zone; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.temperature_zone IS 'Temperature zone where the product is stored in the warehouse';
+
+
+--
+-- Name: COLUMN products.manufacturer_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.manufacturer_id IS 'The manufacturer that produces the product';
+
+
+--
+-- Name: COLUMN products.category_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.category_id IS 'The category the product is tied to for revenue allocation and merchandising purposes';
+
+
+--
+-- Name: COLUMN products.description; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.description IS 'The detailed product description as displayed to customers on site';
+
+
+--
+-- Name: COLUMN products.shelf_life_days; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.shelf_life_days IS 'Estimated shelf life in days after a product is received. We will need to populate this based on our experience if we can''t get data from the manufacturer.';
+
+
+--
+-- Name: COLUMN products.qc_check_interval_days; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.qc_check_interval_days IS 'Frequency at which we should check quality on a product, especially produce';
+
+
+--
+-- Name: COLUMN products.brand_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.brand_id IS 'Foreign key to brand.id';
+
+
+--
+-- Name: COLUMN products.name; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.name IS 'Product name as shown to customers on site';
+
+
+--
+-- Name: COLUMN products.product_family_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.product_family_id IS 'Foreign key to product_families table if the product is part of a family.';
+
+
+--
 -- Name: products_product_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -1348,9 +1354,10 @@ ALTER SEQUENCE products_product_id_seq OWNED BY products.product_id;
 --
 
 CREATE TABLE products_stores (
-    sku integer NOT NULL,
+    sku character varying(14) NOT NULL,
     store_id integer NOT NULL,
-    last_updated timestamp with time zone DEFAULT now() NOT NULL
+    last_updated timestamp with time zone DEFAULT now() NOT NULL,
+    list_cost money NOT NULL
 );
 
 
@@ -1361,6 +1368,13 @@ ALTER TABLE public.products_stores OWNER TO postgres;
 --
 
 COMMENT ON TABLE products_stores IS 'Which base_products are available on which stores';
+
+
+--
+-- Name: COLUMN products_stores.list_cost; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products_stores.list_cost IS 'The price as listed to the customer';
 
 
 --
@@ -1516,13 +1530,6 @@ ALTER TABLE ONLY attributes ALTER COLUMN attribute_id SET DEFAULT nextval('attri
 
 
 --
--- Name: product_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY base_products ALTER COLUMN product_id SET DEFAULT nextval('base_products_product_id_seq'::regclass);
-
-
---
 -- Name: brand_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1548,6 +1555,13 @@ ALTER TABLE ONLY images ALTER COLUMN image_id SET DEFAULT nextval('images_image_
 --
 
 ALTER TABLE ONLY manufacturers ALTER COLUMN manufacturer_id SET DEFAULT nextval('manufacturers_manufacturer_id_seq'::regclass);
+
+
+--
+-- Name: product_family_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY product_families ALTER COLUMN product_family_id SET DEFAULT nextval('product_families_product_family_id_seq'::regclass);
 
 
 --
@@ -1588,14 +1602,6 @@ ALTER TABLE ONLY attributes
 
 
 --
--- Name: base_products_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY base_products
-    ADD CONSTRAINT base_products_pkey PRIMARY KEY (product_id);
-
-
---
 -- Name: brands_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -1625,6 +1631,14 @@ ALTER TABLE ONLY images
 
 ALTER TABLE ONLY manufacturers
     ADD CONSTRAINT manufacturers_pkey PRIMARY KEY (manufacturer_id);
+
+
+--
+-- Name: product_families_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY product_families
+    ADD CONSTRAINT product_families_pkey PRIMARY KEY (product_family_id);
 
 
 --
@@ -1706,13 +1720,13 @@ GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE attributes TO jp_readwrite;
 
 
 --
--- Name: base_products; Type: ACL; Schema: public; Owner: postgres
+-- Name: brands; Type: ACL; Schema: public; Owner: postgres
 --
 
-REVOKE ALL ON TABLE base_products FROM PUBLIC;
-REVOKE ALL ON TABLE base_products FROM postgres;
-GRANT ALL ON TABLE base_products TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE base_products TO jp_readwrite;
+REVOKE ALL ON TABLE brands FROM PUBLIC;
+REVOKE ALL ON TABLE brands FROM postgres;
+GRANT ALL ON TABLE brands TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE brands TO jp_readwrite;
 
 
 --
@@ -1773,6 +1787,46 @@ REVOKE ALL ON TABLE images FROM PUBLIC;
 REVOKE ALL ON TABLE images FROM postgres;
 GRANT ALL ON TABLE images TO postgres;
 GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE images TO jp_readwrite;
+
+
+--
+-- Name: kwikee_external_codes; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE kwikee_external_codes FROM PUBLIC;
+REVOKE ALL ON TABLE kwikee_external_codes FROM postgres;
+GRANT ALL ON TABLE kwikee_external_codes TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE kwikee_external_codes TO jp_readwrite;
+
+
+--
+-- Name: kwikee_nutrition; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE kwikee_nutrition FROM PUBLIC;
+REVOKE ALL ON TABLE kwikee_nutrition FROM postgres;
+GRANT ALL ON TABLE kwikee_nutrition TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE kwikee_nutrition TO jp_readwrite;
+
+
+--
+-- Name: kwikee_pog; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE kwikee_pog FROM PUBLIC;
+REVOKE ALL ON TABLE kwikee_pog FROM postgres;
+GRANT ALL ON TABLE kwikee_pog TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE kwikee_pog TO jp_readwrite;
+
+
+--
+-- Name: kwikee_products; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE kwikee_products FROM PUBLIC;
+REVOKE ALL ON TABLE kwikee_products FROM postgres;
+GRANT ALL ON TABLE kwikee_products TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE kwikee_products TO jp_readwrite;
 
 
 --
