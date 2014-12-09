@@ -1098,7 +1098,6 @@ CREATE TABLE products (
     height double precision,
     cubic_volume double precision,
     weight double precision,
-    wholesale_cost money,
     gtin character varying(14),
     temperature_zone temperature_zone,
     manufacturer_id integer,
@@ -1252,13 +1251,6 @@ COMMENT ON COLUMN products.weight IS 'The weight of the product in packaging in 
 
 
 --
--- Name: COLUMN products.wholesale_cost; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.wholesale_cost IS 'The price we pay to the supplier';
-
-
---
 -- Name: COLUMN products.gtin; Type: COMMENT; Schema: public; Owner: postgres
 --
 
@@ -1382,7 +1374,7 @@ COMMENT ON COLUMN products_stores.list_cost IS 'The price as listed to the custo
 --
 
 CREATE TABLE products_suppliers (
-    sku integer NOT NULL,
+    sku character varying(14) NOT NULL,
     supplier_id integer NOT NULL,
     status product_status NOT NULL,
     wholesale_cost money,
