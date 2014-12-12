@@ -61,6 +61,29 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 SET search_path = public, pg_catalog;
 
 --
+-- Name: expiration_class; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE expiration_class AS ENUM (
+    'A',
+    'B',
+    'C'
+);
+
+
+ALTER TYPE public.expiration_class OWNER TO postgres;
+
+--
+-- Name: TYPE expiration_class; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TYPE expiration_class IS 'Level of rigor needed in checking expiration dates.
+Class A products have short shelf lives (<2 weeks) and must be checked immediately when stocking.
+Class B products have shelf lives measured in months and are checked only if they remain on hand for weeks.
+Class C products have shelf lives measured in years and are checked only if they remain on hand for months.';
+
+
+--
 -- Name: measurement_unit; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -1111,7 +1134,8 @@ CREATE TABLE products (
     case_length double precision,
     case_width double precision,
     case_height double precision,
-    case_weight double precision
+    case_weight double precision,
+    expiration_class expiration_class
 );
 
 
@@ -1318,6 +1342,13 @@ COMMENT ON COLUMN products.name IS 'Product name as shown to customers on site';
 --
 
 COMMENT ON COLUMN products.product_family_id IS 'Foreign key to product_families table if the product is part of a family.';
+
+
+--
+-- Name: COLUMN products.expiration_class; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.expiration_class IS 'Level of rigor needed in checking expirations - based on shelf life';
 
 
 --
