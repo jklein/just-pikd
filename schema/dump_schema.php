@@ -13,6 +13,7 @@ $databases = [
     'product',
     'customer',
     'hr',
+    'wms_1'
 ];
 
 // Dump all databases

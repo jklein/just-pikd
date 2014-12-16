@@ -1863,6 +1863,16 @@ GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE manufacturers TO jp_readwrit
 
 
 --
+-- Name: product_families; Type: ACL; Schema: public; Owner: postgres
+--
+
+REVOKE ALL ON TABLE product_families FROM PUBLIC;
+REVOKE ALL ON TABLE product_families FROM postgres;
+GRANT ALL ON TABLE product_families TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE product_families TO jp_readwrite;
+
+
+--
 -- Name: products; Type: ACL; Schema: public; Owner: postgres
 --
 
