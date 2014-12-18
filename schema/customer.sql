@@ -70,7 +70,7 @@ CREATE TYPE address_type AS ENUM (
 );
 
 
-ALTER TYPE public.address_type OWNER TO postgres;
+ALTER TYPE address_type OWNER TO postgres;
 
 --
 -- Name: notification_type; Type: TYPE; Schema: public; Owner: postgres
@@ -83,7 +83,7 @@ CREATE TYPE notification_type AS ENUM (
 );
 
 
-ALTER TYPE public.notification_type OWNER TO postgres;
+ALTER TYPE notification_type OWNER TO postgres;
 
 --
 -- Name: TYPE notification_type; Type: COMMENT; Schema: public; Owner: postgres
@@ -105,7 +105,7 @@ CREATE TYPE order_status AS ENUM (
 );
 
 
-ALTER TYPE public.order_status OWNER TO postgres;
+ALTER TYPE order_status OWNER TO postgres;
 
 --
 -- Name: TYPE order_status; Type: COMMENT; Schema: public; Owner: postgres
@@ -139,7 +139,7 @@ CREATE TABLE address_books (
 );
 
 
-ALTER TABLE public.address_books OWNER TO postgres;
+ALTER TABLE address_books OWNER TO postgres;
 
 --
 -- Name: TABLE address_books; Type: COMMENT; Schema: public; Owner: postgres
@@ -167,7 +167,7 @@ CREATE SEQUENCE address_books_address_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.address_books_address_id_seq OWNER TO postgres;
+ALTER TABLE address_books_address_id_seq OWNER TO postgres;
 
 --
 -- Name: address_books_address_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -196,7 +196,7 @@ CREATE TABLE customers (
 );
 
 
-ALTER TABLE public.customers OWNER TO postgres;
+ALTER TABLE customers OWNER TO postgres;
 
 --
 -- Name: TABLE customers; Type: COMMENT; Schema: public; Owner: postgres
@@ -245,7 +245,7 @@ CREATE SEQUENCE customers_customer_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.customers_customer_id_seq OWNER TO postgres;
+ALTER TABLE customers_customer_id_seq OWNER TO postgres;
 
 --
 -- Name: customers_customer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -271,7 +271,7 @@ CREATE TABLE order_products (
 );
 
 
-ALTER TABLE public.order_products OWNER TO postgres;
+ALTER TABLE order_products OWNER TO postgres;
 
 --
 -- Name: TABLE order_products; Type: COMMENT; Schema: public; Owner: postgres
@@ -348,7 +348,7 @@ CREATE SEQUENCE order_products_item_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.order_products_item_id_seq OWNER TO postgres;
+ALTER TABLE order_products_item_id_seq OWNER TO postgres;
 
 --
 -- Name: order_products_item_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -385,7 +385,7 @@ CREATE TABLE orders (
 );
 
 
-ALTER TABLE public.orders OWNER TO postgres;
+ALTER TABLE orders OWNER TO postgres;
 
 --
 -- Name: TABLE orders; Type: COMMENT; Schema: public; Owner: postgres
@@ -455,7 +455,7 @@ CREATE SEQUENCE orders_order_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.orders_order_id_seq OWNER TO postgres;
+ALTER TABLE orders_order_id_seq OWNER TO postgres;
 
 --
 -- Name: orders_order_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres

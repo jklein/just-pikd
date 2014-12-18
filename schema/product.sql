@@ -71,7 +71,7 @@ CREATE TYPE expiration_class AS ENUM (
 );
 
 
-ALTER TYPE public.expiration_class OWNER TO postgres;
+ALTER TYPE expiration_class OWNER TO postgres;
 
 --
 -- Name: TYPE expiration_class; Type: COMMENT; Schema: public; Owner: postgres
@@ -101,7 +101,7 @@ CREATE TYPE measurement_unit AS ENUM (
 );
 
 
-ALTER TYPE public.measurement_unit OWNER TO postgres;
+ALTER TYPE measurement_unit OWNER TO postgres;
 
 --
 -- Name: TYPE measurement_unit; Type: COMMENT; Schema: public; Owner: postgres
@@ -123,7 +123,7 @@ CREATE TYPE product_status AS ENUM (
 );
 
 
-ALTER TYPE public.product_status OWNER TO postgres;
+ALTER TYPE product_status OWNER TO postgres;
 
 --
 -- Name: TYPE product_status; Type: COMMENT; Schema: public; Owner: postgres
@@ -144,7 +144,7 @@ CREATE TYPE temperature_zone AS ENUM (
 );
 
 
-ALTER TYPE public.temperature_zone OWNER TO postgres;
+ALTER TYPE temperature_zone OWNER TO postgres;
 
 --
 -- Name: TYPE temperature_zone; Type: COMMENT; Schema: public; Owner: postgres
@@ -168,7 +168,7 @@ CREATE TABLE attribute_values (
 );
 
 
-ALTER TABLE public.attribute_values OWNER TO postgres;
+ALTER TABLE attribute_values OWNER TO postgres;
 
 --
 -- Name: TABLE attribute_values; Type: COMMENT; Schema: public; Owner: postgres
@@ -187,7 +187,7 @@ CREATE TABLE attributes (
 );
 
 
-ALTER TABLE public.attributes OWNER TO postgres;
+ALTER TABLE attributes OWNER TO postgres;
 
 --
 -- Name: TABLE attributes; Type: COMMENT; Schema: public; Owner: postgres
@@ -208,7 +208,7 @@ CREATE SEQUENCE attributes_attribute_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.attributes_attribute_id_seq OWNER TO postgres;
+ALTER TABLE attributes_attribute_id_seq OWNER TO postgres;
 
 --
 -- Name: attributes_attribute_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -229,7 +229,7 @@ CREATE TABLE brands (
 );
 
 
-ALTER TABLE public.brands OWNER TO postgres;
+ALTER TABLE brands OWNER TO postgres;
 
 --
 -- Name: TABLE brands; Type: COMMENT; Schema: public; Owner: postgres
@@ -264,7 +264,7 @@ CREATE SEQUENCE brands_brand_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.brands_brand_id_seq OWNER TO postgres;
+ALTER TABLE brands_brand_id_seq OWNER TO postgres;
 
 --
 -- Name: brands_brand_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -315,7 +315,7 @@ CREATE TABLE candsproducts (
 );
 
 
-ALTER TABLE public.candsproducts OWNER TO postgres;
+ALTER TABLE candsproducts OWNER TO postgres;
 
 --
 -- Name: categories; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -331,7 +331,7 @@ CREATE TABLE categories (
 );
 
 
-ALTER TABLE public.categories OWNER TO postgres;
+ALTER TABLE categories OWNER TO postgres;
 
 --
 -- Name: TABLE categories; Type: COMMENT; Schema: public; Owner: postgres
@@ -387,7 +387,7 @@ CREATE SEQUENCE categories_category_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.categories_category_id_seq OWNER TO postgres;
+ALTER TABLE categories_category_id_seq OWNER TO postgres;
 
 --
 -- Name: categories_category_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -430,7 +430,7 @@ CREATE TABLE im_items (
 );
 
 
-ALTER TABLE public.im_items OWNER TO postgres;
+ALTER TABLE im_items OWNER TO postgres;
 
 --
 -- Name: im_media; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -488,7 +488,7 @@ CREATE TABLE im_media (
 );
 
 
-ALTER TABLE public.im_media OWNER TO postgres;
+ALTER TABLE im_media OWNER TO postgres;
 
 --
 -- Name: im_productdata; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -540,7 +540,7 @@ CREATE TABLE im_productdata (
 );
 
 
-ALTER TABLE public.im_productdata OWNER TO postgres;
+ALTER TABLE im_productdata OWNER TO postgres;
 
 --
 -- Name: images; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -565,7 +565,7 @@ CREATE TABLE images (
 );
 
 
-ALTER TABLE public.images OWNER TO postgres;
+ALTER TABLE images OWNER TO postgres;
 
 --
 -- Name: TABLE images; Type: COMMENT; Schema: public; Owner: postgres
@@ -663,7 +663,7 @@ CREATE SEQUENCE images_image_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.images_image_id_seq OWNER TO postgres;
+ALTER TABLE images_image_id_seq OWNER TO postgres;
 
 --
 -- Name: images_image_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -683,7 +683,7 @@ CREATE TABLE kwikee_external_codes (
 );
 
 
-ALTER TABLE public.kwikee_external_codes OWNER TO postgres;
+ALTER TABLE kwikee_external_codes OWNER TO postgres;
 
 --
 -- Name: kwikee_nutrition; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -783,7 +783,7 @@ CREATE TABLE kwikee_nutrition (
 );
 
 
-ALTER TABLE public.kwikee_nutrition OWNER TO postgres;
+ALTER TABLE kwikee_nutrition OWNER TO postgres;
 
 --
 -- Name: kwikee_pog; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -839,7 +839,7 @@ CREATE TABLE kwikee_pog (
 );
 
 
-ALTER TABLE public.kwikee_pog OWNER TO postgres;
+ALTER TABLE kwikee_pog OWNER TO postgres;
 
 --
 -- Name: kwikee_products; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -1005,7 +1005,7 @@ CREATE TABLE kwikee_products (
 );
 
 
-ALTER TABLE public.kwikee_products OWNER TO postgres;
+ALTER TABLE kwikee_products OWNER TO postgres;
 
 --
 -- Name: manufacturers; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -1019,7 +1019,7 @@ CREATE TABLE manufacturers (
 );
 
 
-ALTER TABLE public.manufacturers OWNER TO postgres;
+ALTER TABLE manufacturers OWNER TO postgres;
 
 --
 -- Name: TABLE manufacturers; Type: COMMENT; Schema: public; Owner: postgres
@@ -1054,7 +1054,7 @@ CREATE SEQUENCE manufacturers_manufacturer_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.manufacturers_manufacturer_id_seq OWNER TO postgres;
+ALTER TABLE manufacturers_manufacturer_id_seq OWNER TO postgres;
 
 --
 -- Name: manufacturers_manufacturer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -1074,7 +1074,7 @@ CREATE TABLE product_families (
 );
 
 
-ALTER TABLE public.product_families OWNER TO postgres;
+ALTER TABLE product_families OWNER TO postgres;
 
 --
 -- Name: product_families_product_family_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -1088,7 +1088,7 @@ CREATE SEQUENCE product_families_product_family_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.product_families_product_family_id_seq OWNER TO postgres;
+ALTER TABLE product_families_product_family_id_seq OWNER TO postgres;
 
 --
 -- Name: product_families_product_family_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -1139,7 +1139,7 @@ CREATE TABLE products (
 );
 
 
-ALTER TABLE public.products OWNER TO postgres;
+ALTER TABLE products OWNER TO postgres;
 
 --
 -- Name: TABLE products; Type: COMMENT; Schema: public; Owner: postgres
@@ -1363,7 +1363,7 @@ CREATE SEQUENCE products_product_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.products_product_id_seq OWNER TO postgres;
+ALTER TABLE products_product_id_seq OWNER TO postgres;
 
 --
 -- Name: products_product_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -1384,7 +1384,7 @@ CREATE TABLE products_stores (
 );
 
 
-ALTER TABLE public.products_stores OWNER TO postgres;
+ALTER TABLE products_stores OWNER TO postgres;
 
 --
 -- Name: TABLE products_stores; Type: COMMENT; Schema: public; Owner: postgres
@@ -1413,7 +1413,7 @@ CREATE TABLE products_suppliers (
 );
 
 
-ALTER TABLE public.products_suppliers OWNER TO postgres;
+ALTER TABLE products_suppliers OWNER TO postgres;
 
 --
 -- Name: TABLE products_suppliers; Type: COMMENT; Schema: public; Owner: postgres
@@ -1454,7 +1454,7 @@ CREATE TABLE stores (
 );
 
 
-ALTER TABLE public.stores OWNER TO postgres;
+ALTER TABLE stores OWNER TO postgres;
 
 --
 -- Name: TABLE stores; Type: COMMENT; Schema: public; Owner: postgres
@@ -1496,7 +1496,7 @@ CREATE SEQUENCE stores_store_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.stores_store_id_seq OWNER TO postgres;
+ALTER TABLE stores_store_id_seq OWNER TO postgres;
 
 --
 -- Name: stores_store_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -1515,7 +1515,7 @@ CREATE TABLE suppliers (
 );
 
 
-ALTER TABLE public.suppliers OWNER TO postgres;
+ALTER TABLE suppliers OWNER TO postgres;
 
 --
 -- Name: TABLE suppliers; Type: COMMENT; Schema: public; Owner: postgres
@@ -1536,7 +1536,7 @@ CREATE SEQUENCE suppliers_supplier_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.suppliers_supplier_id_seq OWNER TO postgres;
+ALTER TABLE suppliers_supplier_id_seq OWNER TO postgres;
 
 --
 -- Name: suppliers_supplier_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres

@@ -57,7 +57,7 @@ CREATE TYPE employee_type AS ENUM (
 );
 
 
-ALTER TYPE public.employee_type OWNER TO postgres;
+ALTER TYPE employee_type OWNER TO postgres;
 
 --
 -- Name: TYPE employee_type; Type: COMMENT; Schema: public; Owner: postgres
@@ -83,7 +83,7 @@ CREATE TABLE departments (
 );
 
 
-ALTER TABLE public.departments OWNER TO postgres;
+ALTER TABLE departments OWNER TO postgres;
 
 --
 -- Name: TABLE departments; Type: COMMENT; Schema: public; Owner: postgres
@@ -132,7 +132,7 @@ CREATE SEQUENCE departments_department_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.departments_department_id_seq OWNER TO postgres;
+ALTER TABLE departments_department_id_seq OWNER TO postgres;
 
 --
 -- Name: departments_department_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -151,7 +151,7 @@ CREATE TABLE employee_permissions (
 );
 
 
-ALTER TABLE public.employee_permissions OWNER TO postgres;
+ALTER TABLE employee_permissions OWNER TO postgres;
 
 --
 -- Name: TABLE employee_permissions; Type: COMMENT; Schema: public; Owner: postgres
@@ -185,7 +185,7 @@ CREATE TABLE employees (
 );
 
 
-ALTER TABLE public.employees OWNER TO postgres;
+ALTER TABLE employees OWNER TO postgres;
 
 --
 -- Name: TABLE employees; Type: COMMENT; Schema: public; Owner: postgres
@@ -290,7 +290,7 @@ CREATE SEQUENCE employees_employee_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.employees_employee_id_seq OWNER TO postgres;
+ALTER TABLE employees_employee_id_seq OWNER TO postgres;
 
 --
 -- Name: employees_employee_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -309,7 +309,7 @@ CREATE TABLE permissions (
 );
 
 
-ALTER TABLE public.permissions OWNER TO postgres;
+ALTER TABLE permissions OWNER TO postgres;
 
 --
 -- Name: TABLE permissions; Type: COMMENT; Schema: public; Owner: postgres
@@ -330,7 +330,7 @@ CREATE SEQUENCE permissions_permissions_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.permissions_permissions_id_seq OWNER TO postgres;
+ALTER TABLE permissions_permissions_id_seq OWNER TO postgres;
 
 --
 -- Name: permissions_permissions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres

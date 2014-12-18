@@ -62,7 +62,7 @@ CREATE TYPE customer_order_status AS ENUM (
 );
 
 
-ALTER TYPE public.customer_order_status OWNER TO postgres;
+ALTER TYPE customer_order_status OWNER TO postgres;
 
 --
 -- Name: TYPE customer_order_status; Type: COMMENT; Schema: public; Owner: postgres
@@ -89,7 +89,7 @@ CREATE TYPE expiration_class AS ENUM (
 );
 
 
-ALTER TYPE public.expiration_class OWNER TO postgres;
+ALTER TYPE expiration_class OWNER TO postgres;
 
 --
 -- Name: TYPE expiration_class; Type: COMMENT; Schema: public; Owner: postgres
@@ -115,7 +115,7 @@ CREATE TYPE inbound_status AS ENUM (
 );
 
 
-ALTER TYPE public.inbound_status OWNER TO postgres;
+ALTER TYPE inbound_status OWNER TO postgres;
 
 --
 -- Name: TYPE inbound_status; Type: COMMENT; Schema: public; Owner: postgres
@@ -135,7 +135,7 @@ CREATE TYPE notification_type AS ENUM (
 );
 
 
-ALTER TYPE public.notification_type OWNER TO postgres;
+ALTER TYPE notification_type OWNER TO postgres;
 
 --
 -- Name: TYPE notification_type; Type: COMMENT; Schema: public; Owner: postgres
@@ -155,7 +155,7 @@ CREATE TYPE outbound_status AS ENUM (
 );
 
 
-ALTER TYPE public.outbound_status OWNER TO postgres;
+ALTER TYPE outbound_status OWNER TO postgres;
 
 --
 -- Name: TYPE outbound_status; Type: COMMENT; Schema: public; Owner: postgres
@@ -174,7 +174,7 @@ CREATE TYPE pick_container_location_type AS ENUM (
 );
 
 
-ALTER TYPE public.pick_container_location_type OWNER TO postgres;
+ALTER TYPE pick_container_location_type OWNER TO postgres;
 
 --
 -- Name: TYPE pick_container_location_type; Type: COMMENT; Schema: public; Owner: postgres
@@ -193,7 +193,7 @@ CREATE TYPE pick_container_type AS ENUM (
 );
 
 
-ALTER TYPE public.pick_container_type OWNER TO postgres;
+ALTER TYPE pick_container_type OWNER TO postgres;
 
 --
 -- Name: TYPE pick_container_type; Type: COMMENT; Schema: public; Owner: postgres
@@ -212,7 +212,7 @@ CREATE TYPE pickup_location_type AS ENUM (
 );
 
 
-ALTER TYPE public.pickup_location_type OWNER TO postgres;
+ALTER TYPE pickup_location_type OWNER TO postgres;
 
 --
 -- Name: TYPE pickup_location_type; Type: COMMENT; Schema: public; Owner: postgres
@@ -232,7 +232,7 @@ CREATE TYPE receiving_location_type AS ENUM (
 );
 
 
-ALTER TYPE public.receiving_location_type OWNER TO postgres;
+ALTER TYPE receiving_location_type OWNER TO postgres;
 
 --
 -- Name: TYPE receiving_location_type; Type: COMMENT; Schema: public; Owner: postgres
@@ -259,7 +259,7 @@ CREATE TYPE station_type AS ENUM (
 );
 
 
-ALTER TYPE public.station_type OWNER TO postgres;
+ALTER TYPE station_type OWNER TO postgres;
 
 --
 -- Name: TYPE station_type; Type: COMMENT; Schema: public; Owner: postgres
@@ -279,7 +279,7 @@ CREATE TYPE stocking_location_type AS ENUM (
 );
 
 
-ALTER TYPE public.stocking_location_type OWNER TO postgres;
+ALTER TYPE stocking_location_type OWNER TO postgres;
 
 --
 -- Name: TYPE stocking_location_type; Type: COMMENT; Schema: public; Owner: postgres
@@ -303,7 +303,7 @@ CREATE TYPE stocking_purchase_order_status AS ENUM (
 );
 
 
-ALTER TYPE public.stocking_purchase_order_status OWNER TO postgres;
+ALTER TYPE stocking_purchase_order_status OWNER TO postgres;
 
 --
 -- Name: TYPE stocking_purchase_order_status; Type: COMMENT; Schema: public; Owner: postgres
@@ -331,7 +331,7 @@ CREATE TYPE task_status AS ENUM (
 );
 
 
-ALTER TYPE public.task_status OWNER TO postgres;
+ALTER TYPE task_status OWNER TO postgres;
 
 --
 -- Name: TYPE task_status; Type: COMMENT; Schema: public; Owner: postgres
@@ -356,7 +356,7 @@ CREATE TYPE temperature_zone AS ENUM (
 );
 
 
-ALTER TYPE public.temperature_zone OWNER TO postgres;
+ALTER TYPE temperature_zone OWNER TO postgres;
 
 --
 -- Name: TYPE temperature_zone; Type: COMMENT; Schema: public; Owner: postgres
@@ -380,7 +380,7 @@ CREATE TABLE associate_current_stations (
 );
 
 
-ALTER TABLE public.associate_current_stations OWNER TO postgres;
+ALTER TABLE associate_current_stations OWNER TO postgres;
 
 --
 -- Name: TABLE associate_current_stations; Type: COMMENT; Schema: public; Owner: postgres
@@ -423,7 +423,7 @@ CREATE TABLE associates (
 );
 
 
-ALTER TABLE public.associates OWNER TO postgres;
+ALTER TABLE associates OWNER TO postgres;
 
 --
 -- Name: TABLE associates; Type: COMMENT; Schema: public; Owner: postgres
@@ -465,7 +465,7 @@ CREATE SEQUENCE associates_associate_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.associates_associate_id_seq OWNER TO postgres;
+ALTER TABLE associates_associate_id_seq OWNER TO postgres;
 
 --
 -- Name: associates_associate_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -487,7 +487,7 @@ CREATE TABLE customer_order_products (
 );
 
 
-ALTER TABLE public.customer_order_products OWNER TO postgres;
+ALTER TABLE customer_order_products OWNER TO postgres;
 
 --
 -- Name: TABLE customer_order_products; Type: COMMENT; Schema: public; Owner: postgres
@@ -543,7 +543,7 @@ CREATE TABLE customer_orders (
 );
 
 
-ALTER TABLE public.customer_orders OWNER TO postgres;
+ALTER TABLE customer_orders OWNER TO postgres;
 
 --
 -- Name: TABLE customer_orders; Type: COMMENT; Schema: public; Owner: postgres
@@ -641,7 +641,7 @@ CREATE TABLE inbound_inventory (
 );
 
 
-ALTER TABLE public.inbound_inventory OWNER TO postgres;
+ALTER TABLE inbound_inventory OWNER TO postgres;
 
 --
 -- Name: TABLE inbound_inventory; Type: COMMENT; Schema: public; Owner: postgres
@@ -735,7 +735,7 @@ CREATE SEQUENCE inbound_inventory_inbound_inventory_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.inbound_inventory_inbound_inventory_id_seq OWNER TO postgres;
+ALTER TABLE inbound_inventory_inbound_inventory_id_seq OWNER TO postgres;
 
 --
 -- Name: inbound_inventory_inbound_inventory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -762,7 +762,7 @@ CREATE TABLE inventory_errors (
 );
 
 
-ALTER TABLE public.inventory_errors OWNER TO postgres;
+ALTER TABLE inventory_errors OWNER TO postgres;
 
 --
 -- Name: TABLE inventory_errors; Type: COMMENT; Schema: public; Owner: postgres
@@ -846,7 +846,7 @@ CREATE SEQUENCE inventory_errors_inventory_error_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.inventory_errors_inventory_error_id_seq OWNER TO postgres;
+ALTER TABLE inventory_errors_inventory_error_id_seq OWNER TO postgres;
 
 --
 -- Name: inventory_errors_inventory_error_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -867,7 +867,7 @@ CREATE TABLE inventory_holds (
 );
 
 
-ALTER TABLE public.inventory_holds OWNER TO postgres;
+ALTER TABLE inventory_holds OWNER TO postgres;
 
 --
 -- Name: COLUMN inventory_holds.inventory_hold_id; Type: COMMENT; Schema: public; Owner: postgres
@@ -909,7 +909,7 @@ CREATE SEQUENCE inventory_holds_inventory_hold_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.inventory_holds_inventory_hold_id_seq OWNER TO postgres;
+ALTER TABLE inventory_holds_inventory_hold_id_seq OWNER TO postgres;
 
 --
 -- Name: inventory_holds_inventory_hold_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -929,7 +929,7 @@ CREATE TABLE kiosks (
 );
 
 
-ALTER TABLE public.kiosks OWNER TO postgres;
+ALTER TABLE kiosks OWNER TO postgres;
 
 --
 -- Name: TABLE kiosks; Type: COMMENT; Schema: public; Owner: postgres
@@ -964,7 +964,7 @@ CREATE SEQUENCE kiosks_kiosk_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.kiosks_kiosk_id_seq OWNER TO postgres;
+ALTER TABLE kiosks_kiosk_id_seq OWNER TO postgres;
 
 --
 -- Name: kiosks_kiosk_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -989,7 +989,7 @@ CREATE TABLE outbound_inventory (
 );
 
 
-ALTER TABLE public.outbound_inventory OWNER TO postgres;
+ALTER TABLE outbound_inventory OWNER TO postgres;
 
 --
 -- Name: TABLE outbound_inventory; Type: COMMENT; Schema: public; Owner: postgres
@@ -1059,7 +1059,7 @@ CREATE SEQUENCE outbound_inventory_outbound_inventory_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.outbound_inventory_outbound_inventory_id_seq OWNER TO postgres;
+ALTER TABLE outbound_inventory_outbound_inventory_id_seq OWNER TO postgres;
 
 --
 -- Name: outbound_inventory_outbound_inventory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -1080,7 +1080,7 @@ CREATE TABLE pick_container_locations (
 );
 
 
-ALTER TABLE public.pick_container_locations OWNER TO postgres;
+ALTER TABLE pick_container_locations OWNER TO postgres;
 
 --
 -- Name: TABLE pick_container_locations; Type: COMMENT; Schema: public; Owner: postgres
@@ -1126,7 +1126,7 @@ CREATE TABLE pick_containers (
 );
 
 
-ALTER TABLE public.pick_containers OWNER TO postgres;
+ALTER TABLE pick_containers OWNER TO postgres;
 
 --
 -- Name: TABLE pick_containers; Type: COMMENT; Schema: public; Owner: postgres
@@ -1197,7 +1197,7 @@ CREATE TABLE pick_task_products (
 );
 
 
-ALTER TABLE public.pick_task_products OWNER TO postgres;
+ALTER TABLE pick_task_products OWNER TO postgres;
 
 --
 -- Name: TABLE pick_task_products; Type: COMMENT; Schema: public; Owner: postgres
@@ -1253,7 +1253,7 @@ CREATE SEQUENCE pick_task_products_pick_task_product_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.pick_task_products_pick_task_product_id_seq OWNER TO postgres;
+ALTER TABLE pick_task_products_pick_task_product_id_seq OWNER TO postgres;
 
 --
 -- Name: pick_task_products_pick_task_product_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -1280,7 +1280,7 @@ CREATE TABLE pick_tasks (
 );
 
 
-ALTER TABLE public.pick_tasks OWNER TO postgres;
+ALTER TABLE pick_tasks OWNER TO postgres;
 
 --
 -- Name: TABLE pick_tasks; Type: COMMENT; Schema: public; Owner: postgres
@@ -1371,7 +1371,7 @@ CREATE SEQUENCE pick_tasks_pick_task_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.pick_tasks_pick_task_id_seq OWNER TO postgres;
+ALTER TABLE pick_tasks_pick_task_id_seq OWNER TO postgres;
 
 --
 -- Name: pick_tasks_pick_task_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -1393,7 +1393,7 @@ CREATE TABLE pickup_locations (
 );
 
 
-ALTER TABLE public.pickup_locations OWNER TO postgres;
+ALTER TABLE pickup_locations OWNER TO postgres;
 
 --
 -- Name: TABLE pickup_locations; Type: COMMENT; Schema: public; Owner: postgres
@@ -1442,7 +1442,7 @@ CREATE SEQUENCE pickup_locations_pickup_location_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.pickup_locations_pickup_location_id_seq OWNER TO postgres;
+ALTER TABLE pickup_locations_pickup_location_id_seq OWNER TO postgres;
 
 --
 -- Name: pickup_locations_pickup_location_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -1464,7 +1464,7 @@ CREATE TABLE pickup_task_products (
 );
 
 
-ALTER TABLE public.pickup_task_products OWNER TO postgres;
+ALTER TABLE pickup_task_products OWNER TO postgres;
 
 --
 -- Name: COLUMN pickup_task_products.pickup_task_product_id; Type: COMMENT; Schema: public; Owner: postgres
@@ -1513,7 +1513,7 @@ CREATE SEQUENCE pickup_task_products_pickup_task_product_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.pickup_task_products_pickup_task_product_id_seq OWNER TO postgres;
+ALTER TABLE pickup_task_products_pickup_task_product_id_seq OWNER TO postgres;
 
 --
 -- Name: pickup_task_products_pickup_task_product_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -1538,7 +1538,7 @@ CREATE TABLE pickup_tasks (
 );
 
 
-ALTER TABLE public.pickup_tasks OWNER TO postgres;
+ALTER TABLE pickup_tasks OWNER TO postgres;
 
 --
 -- Name: TABLE pickup_tasks; Type: COMMENT; Schema: public; Owner: postgres
@@ -1615,7 +1615,7 @@ CREATE SEQUENCE pickup_tasks_pickup_task_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.pickup_tasks_pickup_task_id_seq OWNER TO postgres;
+ALTER TABLE pickup_tasks_pickup_task_id_seq OWNER TO postgres;
 
 --
 -- Name: pickup_tasks_pickup_task_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -1636,7 +1636,7 @@ CREATE TABLE receiving_locations (
 );
 
 
-ALTER TABLE public.receiving_locations OWNER TO postgres;
+ALTER TABLE receiving_locations OWNER TO postgres;
 
 --
 -- Name: TABLE receiving_locations; Type: COMMENT; Schema: public; Owner: postgres
@@ -1680,7 +1680,7 @@ CREATE TABLE static_inventory (
 );
 
 
-ALTER TABLE public.static_inventory OWNER TO postgres;
+ALTER TABLE static_inventory OWNER TO postgres;
 
 --
 -- Name: TABLE static_inventory; Type: COMMENT; Schema: public; Owner: postgres
@@ -1785,7 +1785,7 @@ CREATE SEQUENCE static_inventory_static_inventory_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.static_inventory_static_inventory_id_seq OWNER TO postgres;
+ALTER TABLE static_inventory_static_inventory_id_seq OWNER TO postgres;
 
 --
 -- Name: static_inventory_static_inventory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -1815,7 +1815,7 @@ CREATE TABLE stocking_locations (
 );
 
 
-ALTER TABLE public.stocking_locations OWNER TO postgres;
+ALTER TABLE stocking_locations OWNER TO postgres;
 
 --
 -- Name: TABLE stocking_locations; Type: COMMENT; Schema: public; Owner: postgres
@@ -1926,7 +1926,7 @@ CREATE TABLE stocking_purchase_order_products (
 );
 
 
-ALTER TABLE public.stocking_purchase_order_products OWNER TO postgres;
+ALTER TABLE stocking_purchase_order_products OWNER TO postgres;
 
 --
 -- Name: TABLE stocking_purchase_order_products; Type: COMMENT; Schema: public; Owner: postgres
@@ -1996,7 +1996,7 @@ CREATE SEQUENCE stocking_purchase_order_produ_stocking_purchase_order_produ_seq
     CACHE 1;
 
 
-ALTER TABLE public.stocking_purchase_order_produ_stocking_purchase_order_produ_seq OWNER TO postgres;
+ALTER TABLE stocking_purchase_order_produ_stocking_purchase_order_produ_seq OWNER TO postgres;
 
 --
 -- Name: stocking_purchase_order_produ_stocking_purchase_order_produ_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -2020,7 +2020,7 @@ CREATE TABLE stocking_purchase_orders (
 );
 
 
-ALTER TABLE public.stocking_purchase_orders OWNER TO postgres;
+ALTER TABLE stocking_purchase_orders OWNER TO postgres;
 
 --
 -- Name: TABLE stocking_purchase_orders; Type: COMMENT; Schema: public; Owner: postgres
@@ -2090,7 +2090,7 @@ CREATE SEQUENCE stocking_purchase_orders_stocking_purchase_order_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.stocking_purchase_orders_stocking_purchase_order_id_seq OWNER TO postgres;
+ALTER TABLE stocking_purchase_orders_stocking_purchase_order_id_seq OWNER TO postgres;
 
 --
 -- Name: stocking_purchase_orders_stocking_purchase_order_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
@@ -2110,7 +2110,7 @@ CREATE TABLE supplier_shipments (
 );
 
 
-ALTER TABLE public.supplier_shipments OWNER TO postgres;
+ALTER TABLE supplier_shipments OWNER TO postgres;
 
 --
 -- Name: TABLE supplier_shipments; Type: COMMENT; Schema: public; Owner: postgres
@@ -2152,13 +2152,53 @@ CREATE SEQUENCE supplier_shipments_supplier_shipment_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.supplier_shipments_supplier_shipment_id_seq OWNER TO postgres;
+ALTER TABLE supplier_shipments_supplier_shipment_id_seq OWNER TO postgres;
 
 --
 -- Name: supplier_shipments_supplier_shipment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE supplier_shipments_supplier_shipment_id_seq OWNED BY supplier_shipments.supplier_shipment_id;
+
+
+--
+-- Name: suppliers; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE suppliers (
+    supplier_id integer NOT NULL,
+    supplier_name character varying(500) NOT NULL
+);
+
+
+ALTER TABLE suppliers OWNER TO postgres;
+
+--
+-- Name: TABLE suppliers; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE suppliers IS 'Information about companies we directly source base_products from.';
+
+
+--
+-- Name: suppliers_supplier_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE suppliers_supplier_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE suppliers_supplier_id_seq OWNER TO postgres;
+
+--
+-- Name: suppliers_supplier_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE suppliers_supplier_id_seq OWNED BY suppliers.supplier_id;
 
 
 --
@@ -2264,6 +2304,13 @@ ALTER TABLE ONLY stocking_purchase_orders ALTER COLUMN stocking_purchase_order_i
 --
 
 ALTER TABLE ONLY supplier_shipments ALTER COLUMN supplier_shipment_id SET DEFAULT nextval('supplier_shipments_supplier_shipment_id_seq'::regclass);
+
+
+--
+-- Name: supplier_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY suppliers ALTER COLUMN supplier_id SET DEFAULT nextval('suppliers_supplier_id_seq'::regclass);
 
 
 --
@@ -2387,6 +2434,14 @@ ALTER TABLE ONLY pickup_tasks
 
 
 --
+-- Name: pk_static_inventory; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY static_inventory
+    ADD CONSTRAINT pk_static_inventory PRIMARY KEY (static_inventory_id);
+
+
+--
 -- Name: receiving_locations_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -2424,6 +2479,14 @@ ALTER TABLE ONLY stocking_purchase_orders
 
 ALTER TABLE ONLY supplier_shipments
     ADD CONSTRAINT supplier_shipments_pkey PRIMARY KEY (supplier_shipment_id);
+
+
+--
+-- Name: suppliers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY suppliers
+    ADD CONSTRAINT suppliers_pkey PRIMARY KEY (supplier_id);
 
 
 --
