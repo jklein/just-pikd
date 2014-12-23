@@ -44,6 +44,20 @@ CREATE EXTENSION IF NOT EXISTS dblink WITH SCHEMA public;
 COMMENT ON EXTENSION dblink IS 'connect to other PostgreSQL databases from within a database';
 
 
+--
+-- Name: isn; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS isn WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION isn; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION isn IS 'data types for international product numbering standards';
+
+
 SET search_path = public, pg_catalog;
 
 --
@@ -102,26 +116,30 @@ Class C products have shelf lives measured in years and are checked only if they
 
 
 --
--- Name: inbound_status; Type: TYPE; Schema: public; Owner: postgres
+-- Name: measurement_unit; Type: TYPE; Schema: public; Owner: postgres
 --
 
-CREATE TYPE inbound_status AS ENUM (
-    'Ordered',
-    'Received',
-    'Stocked',
-    'Unfulfilled',
-    'Backordered',
-    'Received - Qty Mismatch'
+CREATE TYPE measurement_unit AS ENUM (
+    'fl oz',
+    'oz',
+    'sq ft',
+    'lbs',
+    'count',
+    'L',
+    'qt',
+    'pt',
+    'gal',
+    'pack'
 );
 
 
-ALTER TYPE inbound_status OWNER TO postgres;
+ALTER TYPE measurement_unit OWNER TO postgres;
 
 --
--- Name: TYPE inbound_status; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TYPE measurement_unit; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON TYPE inbound_status IS 'Possible states for inbound inventory. Should go from Ordered to Received to Stocked in the general case. Unfulfilled means the item was not in the shipment that arrived.';
+COMMENT ON TYPE measurement_unit IS 'Units of measure for product sizes';
 
 
 --
@@ -145,11 +163,38 @@ COMMENT ON TYPE notification_type IS 'Customer selected contact preference types
 
 
 --
+-- Name: outbound_inventory_type; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE outbound_inventory_type AS ENUM (
+    'Customer Order',
+    'Return to Vendor',
+    'Donation',
+    'Promotion'
+);
+
+
+ALTER TYPE outbound_inventory_type OWNER TO postgres;
+
+--
+-- Name: TYPE outbound_inventory_type; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TYPE outbound_inventory_type IS 'Reasons for inventory to leave the warehouse:
+Customer Order - purchased products
+Return to Vendor - products we return to the vendor
+Donation - products we donate
+Promotion - products we give away for promotional/marketing purposes';
+
+
+--
 -- Name: outbound_status; Type: TYPE; Schema: public; Owner: postgres
 --
 
 CREATE TYPE outbound_status AS ENUM (
-    'Awaiting Pickup',
+    'Queued for Picking',
+    'Picking',
+    'Ready for Pickup',
     'Completed Pickup',
     'Cancelled Pickup'
 );
@@ -222,6 +267,28 @@ COMMENT ON TYPE pickup_location_type IS 'Types of pickup locations - indoor or o
 
 
 --
+-- Name: product_status; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE product_status AS ENUM (
+    'Active',
+    'Being Added',
+    'Temporarily Unavailable',
+    'Discontinued',
+    'Dummy'
+);
+
+
+ALTER TYPE product_status OWNER TO postgres;
+
+--
+-- Name: TYPE product_status; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TYPE product_status IS 'Stages of product lifecycle. Only active products are listed on site';
+
+
+--
 -- Name: receiving_location_type; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -289,6 +356,32 @@ COMMENT ON TYPE stocking_location_type IS 'Types of stocking_locations';
 
 
 --
+-- Name: stocking_purchase_order_product_status; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE stocking_purchase_order_product_status AS ENUM (
+    'Unsent',
+    'Requested',
+    'Confirmed',
+    'Shipped',
+    'Received',
+    'Stocked',
+    'Unfulfilled',
+    'Unavailable',
+    'Received - Qty Mismatch'
+);
+
+
+ALTER TYPE stocking_purchase_order_product_status OWNER TO postgres;
+
+--
+-- Name: TYPE stocking_purchase_order_product_status; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TYPE stocking_purchase_order_product_status IS 'Possible states for SPO products. Should go from Ordered to Received to Stocked in the general case. Unfulfilled means the item was not in the shipment that arrived.';
+
+
+--
 -- Name: stocking_purchase_order_status; Type: TYPE; Schema: public; Owner: postgres
 --
 
@@ -315,7 +408,7 @@ Requested: has been sent to supplier, no confirmation received
 Confirmed: has been confirmed by supplier
 Shipped: has been shipped by supplier
 Partially Delivered: some products have arrived, but not all
-Delivered: all products Delivered
+Delivered: all products delivered
 Cancelled: self explanatory';
 
 
@@ -370,44 +463,45 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: associate_current_stations; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: associate_stations; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
-CREATE TABLE associate_current_stations (
+CREATE TABLE associate_stations (
     associate_id integer NOT NULL,
     station_type station_type NOT NULL,
-    start_time timestamp without time zone NOT NULL
+    start_time timestamp without time zone NOT NULL,
+    end_time timestamp without time zone
 );
 
 
-ALTER TABLE associate_current_stations OWNER TO postgres;
+ALTER TABLE associate_stations OWNER TO postgres;
 
 --
--- Name: TABLE associate_current_stations; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE associate_stations; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON TABLE associate_current_stations IS 'Current station associates are staffed to';
-
-
---
--- Name: COLUMN associate_current_stations.associate_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN associate_current_stations.associate_id IS 'Foreign key to associates table';
+COMMENT ON TABLE associate_stations IS 'Current and historical stations associates are staffed to';
 
 
 --
--- Name: COLUMN associate_current_stations.station_type; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN associate_stations.associate_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN associate_current_stations.station_type IS 'The station they are staffed to';
+COMMENT ON COLUMN associate_stations.associate_id IS 'Foreign key to associates table';
 
 
 --
--- Name: COLUMN associate_current_stations.start_time; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN associate_stations.station_type; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN associate_current_stations.start_time IS 'When this employee started working at this station';
+COMMENT ON COLUMN associate_stations.station_type IS 'The station they are staffed to';
+
+
+--
+-- Name: COLUMN associate_stations.start_time; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN associate_stations.start_time IS 'When this employee started working at this station';
 
 
 --
@@ -481,7 +575,7 @@ ALTER SEQUENCE associates_associate_id_seq OWNED BY associates.associate_id;
 CREATE TABLE customer_order_products (
     customer_order_product_id integer NOT NULL,
     customer_order_id integer NOT NULL,
-    sku character varying(14) NOT NULL,
+    sku ean13 NOT NULL,
     quantity integer NOT NULL,
     last_updated timestamp without time zone DEFAULT now() NOT NULL
 );
@@ -623,138 +717,16 @@ COMMENT ON COLUMN customer_orders.scheduled_pickup IS 'Scheduled pickup date';
 
 
 --
--- Name: inbound_inventory; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE inbound_inventory (
-    inbound_inventory_id integer NOT NULL,
-    stocking_purchase_order_product_id integer,
-    sku character varying(14) NOT NULL,
-    expected_arrival timestamp without time zone,
-    actual_arrival timestamp without time zone,
-    confirmed_qty integer NOT NULL,
-    received_qty integer,
-    status inbound_status NOT NULL,
-    expiration_class expiration_class,
-    stocking_location_id character varying(14),
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE inbound_inventory OWNER TO postgres;
-
---
--- Name: TABLE inbound_inventory; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE inbound_inventory IS 'Representation of inventory on order or waiting to be stocked.
-Unlike with static_inventory, rows do not need to be deleted once the product is stocked.
-We update their status and keep them for later reporting or to tie static inventory to a purchase order.
-Unlike with stocking_purchase_order_products, this contains only items that have been confirmed by the suppliers.';
-
-
---
--- Name: COLUMN inbound_inventory.inbound_inventory_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN inbound_inventory.inbound_inventory_id IS 'Unique key for this table';
-
-
---
--- Name: COLUMN inbound_inventory.stocking_purchase_order_product_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN inbound_inventory.stocking_purchase_order_product_id IS 'Foreign key to stocking_purchase_order_products - nullable only in case of mystery/found products';
-
-
---
--- Name: COLUMN inbound_inventory.sku; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN inbound_inventory.sku IS 'The sku from the products table of the inventory';
-
-
---
--- Name: COLUMN inbound_inventory.expected_arrival; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN inbound_inventory.expected_arrival IS 'Expected arrival date of this product';
-
-
---
--- Name: COLUMN inbound_inventory.actual_arrival; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN inbound_inventory.actual_arrival IS 'Actual arrival date of this product';
-
-
---
--- Name: COLUMN inbound_inventory.confirmed_qty; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN inbound_inventory.confirmed_qty IS 'Total quantity of this product that supplier promised to us on this purchase order';
-
-
---
--- Name: COLUMN inbound_inventory.received_qty; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN inbound_inventory.received_qty IS 'Actual quantity of this product that we received on this purchase order';
-
-
---
--- Name: COLUMN inbound_inventory.status; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN inbound_inventory.status IS 'Current state of this product on this order';
-
-
---
--- Name: COLUMN inbound_inventory.expiration_class; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN inbound_inventory.expiration_class IS 'Indicates level of rigor required around expiration date checking';
-
-
---
--- Name: COLUMN inbound_inventory.stocking_location_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN inbound_inventory.stocking_location_id IS 'Location the product is in when received and waiting to be stocked';
-
-
---
--- Name: inbound_inventory_inbound_inventory_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE inbound_inventory_inbound_inventory_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE inbound_inventory_inbound_inventory_id_seq OWNER TO postgres;
-
---
--- Name: inbound_inventory_inbound_inventory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE inbound_inventory_inbound_inventory_id_seq OWNED BY inbound_inventory.inbound_inventory_id;
-
-
---
 -- Name: inventory_errors; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE inventory_errors (
     inventory_error_id integer NOT NULL,
     associate_id integer NOT NULL,
-    sku character varying(14) NOT NULL,
+    sku ean13 NOT NULL,
     qty_adjustment integer,
     static_inventory_id integer,
-    inbound_inventory_id integer,
+    stocking_purchase_order_product_id integer,
     outbound_inventory_id integer,
     notes text,
     error_date timestamp without time zone,
@@ -768,7 +740,7 @@ ALTER TABLE inventory_errors OWNER TO postgres;
 -- Name: TABLE inventory_errors; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON TABLE inventory_errors IS 'A place to log any inventory errors or adjustments to static_inventory, inbound_inventory or outbound_inventory';
+COMMENT ON TABLE inventory_errors IS 'A place to log any inventory errors or adjustments to inventory';
 
 
 --
@@ -807,10 +779,10 @@ COMMENT ON COLUMN inventory_errors.static_inventory_id IS 'The static_inventory 
 
 
 --
--- Name: COLUMN inventory_errors.inbound_inventory_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN inventory_errors.stocking_purchase_order_product_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN inventory_errors.inbound_inventory_id IS 'The inbound_inventory record this pertains to, if applicable';
+COMMENT ON COLUMN inventory_errors.stocking_purchase_order_product_id IS 'The stocking_purchase_order_products record this pertains to, if applicable';
 
 
 --
@@ -863,11 +835,19 @@ CREATE TABLE inventory_holds (
     inventory_hold_id integer NOT NULL,
     static_inventory_id integer NOT NULL,
     customer_order_product_id integer NOT NULL,
-    qty integer NOT NULL
+    qty integer NOT NULL,
+    last_updated timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
 ALTER TABLE inventory_holds OWNER TO postgres;
+
+--
+-- Name: TABLE inventory_holds; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE inventory_holds IS 'Products that are on hold for unprocessed orders (tied to static_inventory)';
+
 
 --
 -- Name: COLUMN inventory_holds.inventory_hold_id; Type: COMMENT; Schema: public; Owner: postgres
@@ -980,10 +960,12 @@ ALTER SEQUENCE kiosks_kiosk_id_seq OWNED BY kiosks.kiosk_id;
 CREATE TABLE outbound_inventory (
     outbound_inventory_id integer NOT NULL,
     customer_order_product_id integer NOT NULL,
-    sku character varying(14) NOT NULL,
-    pick_container_id integer NOT NULL,
-    stocking_location_id character varying(14) NOT NULL,
+    sku ean13 NOT NULL,
+    pick_container_id ean13 NOT NULL,
+    stocking_location_id ean13 NOT NULL,
+    static_inventory_id integer NOT NULL,
     qty integer NOT NULL,
+    outbound_inventory_type outbound_inventory_type NOT NULL,
     status outbound_status NOT NULL,
     last_updated timestamp without time zone DEFAULT now() NOT NULL
 );
@@ -1030,7 +1012,14 @@ COMMENT ON COLUMN outbound_inventory.pick_container_id IS 'Finished goods storag
 -- Name: COLUMN outbound_inventory.stocking_location_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN outbound_inventory.stocking_location_id IS 'The storage slot in static_inventory that the product came from';
+COMMENT ON COLUMN outbound_inventory.stocking_location_id IS 'The storage slot in static_inventory that the product came from. Part of the primary key because a single product could come from multiple locations.';
+
+
+--
+-- Name: COLUMN outbound_inventory.static_inventory_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN outbound_inventory.static_inventory_id IS 'The static inventory record this outbound inventory is coming from';
 
 
 --
@@ -1038,6 +1027,13 @@ COMMENT ON COLUMN outbound_inventory.stocking_location_id IS 'The storage slot i
 --
 
 COMMENT ON COLUMN outbound_inventory.qty IS 'Quantity of this product stored in this finished goods location';
+
+
+--
+-- Name: COLUMN outbound_inventory.outbound_inventory_type; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN outbound_inventory.outbound_inventory_type IS 'Reason why this inventory is outbound (i.e. customer order vs donation)';
 
 
 --
@@ -1073,7 +1069,7 @@ ALTER SEQUENCE outbound_inventory_outbound_inventory_id_seq OWNED BY outbound_in
 --
 
 CREATE TABLE pick_container_locations (
-    pick_container_location_id character varying(14) NOT NULL,
+    pick_container_location_id ean13 NOT NULL,
     pick_container_location_type pick_container_location_type NOT NULL,
     temperature_zone temperature_zone,
     last_updated timestamp without time zone DEFAULT now() NOT NULL
@@ -1115,7 +1111,7 @@ COMMENT ON COLUMN pick_container_locations.temperature_zone IS 'The temperature 
 --
 
 CREATE TABLE pick_containers (
-    pick_container_id character varying(14) NOT NULL,
+    pick_container_id ean13 NOT NULL,
     temperature_zone temperature_zone NOT NULL,
     pick_container_type pick_container_type NOT NULL,
     pick_container_location_id integer,
@@ -1192,8 +1188,9 @@ CREATE TABLE pick_task_products (
     pick_task_product_id integer NOT NULL,
     pick_task_id integer NOT NULL,
     customer_order_product_id integer NOT NULL,
-    sku character varying(14) NOT NULL,
-    qty integer NOT NULL
+    sku ean13 NOT NULL,
+    qty integer NOT NULL,
+    last_updated timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1268,7 +1265,7 @@ ALTER SEQUENCE pick_task_products_pick_task_product_id_seq OWNED BY pick_task_pr
 
 CREATE TABLE pick_tasks (
     pick_task_id integer NOT NULL,
-    pick_container_id integer NOT NULL,
+    pick_container_id ean13 NOT NULL,
     customer_order_id integer NOT NULL,
     status task_status NOT NULL,
     temperature_zone temperature_zone NOT NULL,
@@ -1276,7 +1273,8 @@ CREATE TABLE pick_tasks (
     associate_id integer,
     est_duration integer,
     start_time timestamp without time zone,
-    end_time timestamp without time zone
+    end_time timestamp without time zone,
+    last_updated timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1459,8 +1457,9 @@ CREATE TABLE pickup_task_products (
     pickup_task_product_id integer NOT NULL,
     pickup_task_id integer NOT NULL,
     customer_order_product_id integer NOT NULL,
-    sku character varying(14) NOT NULL,
-    qty integer NOT NULL
+    sku ean13 NOT NULL,
+    qty integer NOT NULL,
+    last_updated timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1534,7 +1533,8 @@ CREATE TABLE pickup_tasks (
     pickup_location_id integer NOT NULL,
     associate_id integer,
     start_time timestamp without time zone,
-    end_time timestamp without time zone
+    end_time timestamp without time zone,
+    last_updated timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1625,11 +1625,293 @@ ALTER SEQUENCE pickup_tasks_pickup_task_id_seq OWNED BY pickup_tasks.pickup_task
 
 
 --
+-- Name: products; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE products (
+    sku ean13 NOT NULL,
+    sku_is_real_upc boolean NOT NULL,
+    status product_status NOT NULL,
+    default_image_id integer,
+    case_upc ean13,
+    units_per_case smallint,
+    measurement_unit measurement_unit,
+    measurement_value integer,
+    upc_commodity integer,
+    upc_vendor integer,
+    upc_case integer,
+    upc_item integer,
+    length double precision,
+    width double precision,
+    height double precision,
+    cubic_volume double precision,
+    weight double precision,
+    gtin character varying(14),
+    temperature_zone temperature_zone,
+    manufacturer_id integer,
+    category_id integer,
+    description text,
+    shelf_life_days integer,
+    qc_check_interval_days integer,
+    brand_id integer,
+    name character varying(255),
+    product_family_id integer,
+    case_length double precision,
+    case_width double precision,
+    case_height double precision,
+    case_weight double precision,
+    expiration_class expiration_class,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE products OWNER TO postgres;
+
+--
+-- Name: TABLE products; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE products IS 'Information about a product that is size-specific, such as UPC, measurements and prices. Must be tied to a product_id for base product information even if there is only one size.';
+
+
+--
+-- Name: COLUMN products.sku; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.sku IS 'The unique UPC for this item, as scanned if the item has a barcode on it. For other items like produce, this is an number determine.';
+
+
+--
+-- Name: COLUMN products.sku_is_real_upc; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.sku_is_real_upc IS 'True if the item has a barcode on it and our sku is an actual UPC.';
+
+
+--
+-- Name: COLUMN products.status; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.status IS 'Whether the product can be displayed and sold on site';
+
+
+--
+-- Name: COLUMN products.default_image_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.default_image_id IS 'Default image to be displayed on browse and product pages';
+
+
+--
+-- Name: COLUMN products.case_upc; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.case_upc IS 'The UPC of the case the item comes in, if applicable';
+
+
+--
+-- Name: COLUMN products.units_per_case; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.units_per_case IS 'The quantity of this item contained in the case_upc';
+
+
+--
+-- Name: COLUMN products.measurement_unit; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.measurement_unit IS 'The unit of measure for this product if applicable';
+
+
+--
+-- Name: COLUMN products.measurement_value; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.measurement_value IS 'The value in units of measurement_unit';
+
+
+--
+-- Name: COLUMN products.upc_commodity; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.upc_commodity IS 'This data comes from C&S and we may not need it. Drop?';
+
+
+--
+-- Name: COLUMN products.upc_vendor; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.upc_vendor IS 'This data comes from C&S and we may not need it. Drop?';
+
+
+--
+-- Name: COLUMN products.upc_case; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.upc_case IS 'This data comes from C&S and we may not need it. Drop?';
+
+
+--
+-- Name: COLUMN products.upc_item; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.upc_item IS 'This data comes from C&S and we may not need it. Drop?';
+
+
+--
+-- Name: COLUMN products.length; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.length IS 'The length of the product in inches in packaging as stored in the warehouse';
+
+
+--
+-- Name: COLUMN products.width; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.width IS 'The width of the product in inches in packaging as stored in the warehouse';
+
+
+--
+-- Name: COLUMN products.height; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.height IS 'The height of the product in inches in packaging as stored in the warehouse';
+
+
+--
+-- Name: COLUMN products.cubic_volume; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.cubic_volume IS 'The length*width*depth. This is redundant. Drop?';
+
+
+--
+-- Name: COLUMN products.weight; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.weight IS 'The weight of the product in packaging in lbs';
+
+
+--
+-- Name: COLUMN products.gtin; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.gtin IS 'Global Trade Item Number';
+
+
+--
+-- Name: COLUMN products.temperature_zone; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.temperature_zone IS 'Temperature zone where the product is stored in the warehouse';
+
+
+--
+-- Name: COLUMN products.manufacturer_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.manufacturer_id IS 'The manufacturer that produces the product';
+
+
+--
+-- Name: COLUMN products.category_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.category_id IS 'The category the product is tied to for revenue allocation and merchandising purposes';
+
+
+--
+-- Name: COLUMN products.description; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.description IS 'The detailed product description as displayed to customers on site';
+
+
+--
+-- Name: COLUMN products.shelf_life_days; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.shelf_life_days IS 'Estimated shelf life in days after a product is received. We will need to populate this based on our experience if we can''t get data from the manufacturer.';
+
+
+--
+-- Name: COLUMN products.qc_check_interval_days; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.qc_check_interval_days IS 'Frequency at which we should check quality on a product, especially produce';
+
+
+--
+-- Name: COLUMN products.brand_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.brand_id IS 'Foreign key to brand.id';
+
+
+--
+-- Name: COLUMN products.name; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.name IS 'Product name as shown to customers on site';
+
+
+--
+-- Name: COLUMN products.product_family_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.product_family_id IS 'Foreign key to product_families table if the product is part of a family.';
+
+
+--
+-- Name: COLUMN products.expiration_class; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.expiration_class IS 'Level of rigor needed in checking expirations - based on shelf life';
+
+
+--
+-- Name: products_suppliers; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE products_suppliers (
+    sku ean13 NOT NULL,
+    supplier_id integer NOT NULL,
+    status product_status NOT NULL,
+    wholesale_cost integer,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE products_suppliers OWNER TO postgres;
+
+--
+-- Name: TABLE products_suppliers; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE products_suppliers IS 'Which product instances are carried by which suppliers and at what wholesale price';
+
+
+--
+-- Name: COLUMN products_suppliers.status; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products_suppliers.status IS 'Whether we can currently buy this product from this supplier';
+
+
+--
+-- Name: COLUMN products_suppliers.wholesale_cost; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products_suppliers.wholesale_cost IS 'The price in CENTS we would pay to buy this product from the supplier';
+
+
+--
 -- Name: receiving_locations; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE receiving_locations (
-    receiving_location_id character varying(14) NOT NULL,
+    receiving_location_id ean13 NOT NULL,
     receiving_location_type receiving_location_type NOT NULL,
     temperature_zone temperature_zone NOT NULL,
     last_updated timestamp without time zone DEFAULT now() NOT NULL
@@ -1665,17 +1947,21 @@ COMMENT ON COLUMN receiving_locations.temperature_zone IS 'Temperature zone the 
 
 CREATE TABLE static_inventory (
     static_inventory_id integer NOT NULL,
-    stocking_location_id character varying(14) NOT NULL,
-    sku character varying(14) NOT NULL,
-    inbound_inventory_id integer NOT NULL,
+    stocking_location_id ean13 NOT NULL,
+    sku ean13 NOT NULL,
+    stocking_purchase_order_product_id integer NOT NULL,
     expiration_class expiration_class,
     expiration_date timestamp without time zone,
     total_qty integer NOT NULL,
     available_qty integer NOT NULL,
     arrival_date timestamp without time zone,
-    wholesale_cost money,
+    emptied_date timestamp without time zone,
     manufacturer_id integer,
     name character varying(255),
+    length double precision,
+    width double precision,
+    height double precision,
+    weight double precision,
     last_updated timestamp without time zone DEFAULT now() NOT NULL
 );
 
@@ -1711,10 +1997,10 @@ COMMENT ON COLUMN static_inventory.sku IS 'The sku from the products table of th
 
 
 --
--- Name: COLUMN static_inventory.inbound_inventory_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN static_inventory.stocking_purchase_order_product_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN static_inventory.inbound_inventory_id IS 'Foreign key to inbound_inventory - denotes where the product came from';
+COMMENT ON COLUMN static_inventory.stocking_purchase_order_product_id IS 'Foreign key to stocking_purchase_order_products - denotes where the product came from';
 
 
 --
@@ -1753,10 +2039,10 @@ COMMENT ON COLUMN static_inventory.arrival_date IS 'Date the slot was stocked';
 
 
 --
--- Name: COLUMN static_inventory.wholesale_cost; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN static_inventory.emptied_date; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN static_inventory.wholesale_cost IS 'The wholesale cost we paid for the products - multiply by quantity to get total';
+COMMENT ON COLUMN static_inventory.emptied_date IS 'Date the slot was emptied - if not null this means the slot is free';
 
 
 --
@@ -1771,6 +2057,34 @@ COMMENT ON COLUMN static_inventory.manufacturer_id IS 'Manufacturer ID (used to 
 --
 
 COMMENT ON COLUMN static_inventory.name IS 'Display name of the product';
+
+
+--
+-- Name: COLUMN static_inventory.length; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN static_inventory.length IS 'Length of a single product in inches';
+
+
+--
+-- Name: COLUMN static_inventory.width; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN static_inventory.width IS 'Width of a single product in inches';
+
+
+--
+-- Name: COLUMN static_inventory.height; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN static_inventory.height IS 'Height of a single product in inches';
+
+
+--
+-- Name: COLUMN static_inventory.weight; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN static_inventory.weight IS 'Weight of a single product in pounds';
 
 
 --
@@ -1799,18 +2113,18 @@ ALTER SEQUENCE static_inventory_static_inventory_id_seq OWNED BY static_inventor
 --
 
 CREATE TABLE stocking_locations (
-    stocking_location_id character varying(14) NOT NULL,
+    stocking_location_id ean13 NOT NULL,
     temperature_zone temperature_zone NOT NULL,
     stocking_location_type stocking_location_type NOT NULL,
     pick_segment integer NOT NULL,
     aisle integer NOT NULL,
-    bay integer,
-    shelf integer,
-    shelf_slot integer,
+    bay integer NOT NULL,
+    shelf integer NOT NULL,
+    shelf_slot integer NOT NULL,
     height double precision,
     width double precision,
     depth double precision,
-    assigned_sku character varying(14),
+    assigned_sku ean13,
     last_updated timestamp without time zone DEFAULT now() NOT NULL
 );
 
@@ -1917,11 +2231,25 @@ COMMENT ON COLUMN stocking_locations.assigned_sku IS 'sku that should be placed 
 CREATE TABLE stocking_purchase_order_products (
     stocking_purchase_order_product_id integer NOT NULL,
     stocking_purchase_order_id integer NOT NULL,
-    sku character varying(14) NOT NULL,
+    sku ean13 NOT NULL,
+    status stocking_purchase_order_product_status NOT NULL,
     requested_qty integer NOT NULL,
     confirmed_qty integer,
-    wholesale_cost money,
+    received_qty integer,
+    case_upc ean13,
+    units_per_case integer,
+    requested_case_qty integer,
+    confirmed_case_qty integer,
+    received_case_qty integer,
+    case_length double precision,
+    case_width double precision,
+    case_height double precision,
+    case_weight double precision,
+    expected_arrival timestamp without time zone,
+    actual_arrival timestamp without time zone,
+    wholesale_cost integer,
     expiration_class expiration_class,
+    receiving_location_id ean13,
     last_updated timestamp without time zone DEFAULT now() NOT NULL
 );
 
@@ -1932,7 +2260,7 @@ ALTER TABLE stocking_purchase_order_products OWNER TO postgres;
 -- Name: TABLE stocking_purchase_order_products; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON TABLE stocking_purchase_order_products IS 'Products requested on stocking purchase orders. If confirmed by suppliers, they move to inbound_inventory';
+COMMENT ON TABLE stocking_purchase_order_products IS 'Products requested on stocking purchase orders. This tracks products from purchasing up through receiving.';
 
 
 --
@@ -1957,6 +2285,13 @@ COMMENT ON COLUMN stocking_purchase_order_products.sku IS 'Foreign key to produc
 
 
 --
+-- Name: COLUMN stocking_purchase_order_products.status; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.status IS 'Current state of this product on this order';
+
+
+--
 -- Name: COLUMN stocking_purchase_order_products.requested_qty; Type: COMMENT; Schema: public; Owner: postgres
 --
 
@@ -1971,10 +2306,94 @@ COMMENT ON COLUMN stocking_purchase_order_products.confirmed_qty IS 'Quantity th
 
 
 --
+-- Name: COLUMN stocking_purchase_order_products.received_qty; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.received_qty IS 'Actual quantity of this product that we received on this purchase order';
+
+
+--
+-- Name: COLUMN stocking_purchase_order_products.case_upc; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.case_upc IS 'Barcode on the case of products if shipped by case';
+
+
+--
+-- Name: COLUMN stocking_purchase_order_products.units_per_case; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.units_per_case IS 'Quantity of products per case';
+
+
+--
+-- Name: COLUMN stocking_purchase_order_products.requested_case_qty; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.requested_case_qty IS 'Number of cases requested';
+
+
+--
+-- Name: COLUMN stocking_purchase_order_products.confirmed_case_qty; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.confirmed_case_qty IS 'Number of cases confirmed';
+
+
+--
+-- Name: COLUMN stocking_purchase_order_products.received_case_qty; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.received_case_qty IS 'Number of cases received';
+
+
+--
+-- Name: COLUMN stocking_purchase_order_products.case_length; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.case_length IS 'Length of the case in inches';
+
+
+--
+-- Name: COLUMN stocking_purchase_order_products.case_width; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.case_width IS 'Width of the case in inches';
+
+
+--
+-- Name: COLUMN stocking_purchase_order_products.case_height; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.case_height IS 'Height of the case in inches';
+
+
+--
+-- Name: COLUMN stocking_purchase_order_products.case_weight; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.case_weight IS 'Weight of the case in pounds';
+
+
+--
+-- Name: COLUMN stocking_purchase_order_products.expected_arrival; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.expected_arrival IS 'Expected arrival date of this product';
+
+
+--
+-- Name: COLUMN stocking_purchase_order_products.actual_arrival; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.actual_arrival IS 'Actual arrival date of this product';
+
+
+--
 -- Name: COLUMN stocking_purchase_order_products.wholesale_cost; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN stocking_purchase_order_products.wholesale_cost IS 'Wholesale cost per unit we will to pay the supplier';
+COMMENT ON COLUMN stocking_purchase_order_products.wholesale_cost IS 'Wholesale cost per unit in CENTS we will to pay the supplier';
 
 
 --
@@ -1982,6 +2401,13 @@ COMMENT ON COLUMN stocking_purchase_order_products.wholesale_cost IS 'Wholesale 
 --
 
 COMMENT ON COLUMN stocking_purchase_order_products.expiration_class IS 'Indicates level of rigor required around expiration date checking';
+
+
+--
+-- Name: COLUMN stocking_purchase_order_products.receiving_location_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.receiving_location_id IS 'Location the product is in when received and waiting to be stocked';
 
 
 --
@@ -2016,7 +2442,8 @@ CREATE TABLE stocking_purchase_orders (
     date_ordered timestamp without time zone NOT NULL,
     date_confirmed timestamp without time zone,
     date_shipped timestamp without time zone,
-    date_arrived timestamp without time zone
+    date_arrived timestamp without time zone,
+    last_updated timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -2075,7 +2502,7 @@ COMMENT ON COLUMN stocking_purchase_orders.date_shipped IS 'Date the supplier se
 -- Name: COLUMN stocking_purchase_orders.date_arrived; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN stocking_purchase_orders.date_arrived IS 'Date the order arrived - note individual item arrival times tracked in inbound_inventory in case of multiple shipments';
+COMMENT ON COLUMN stocking_purchase_orders.date_arrived IS 'Date the order arrived - note individual item arrival times tracked in stocking_purchase_order_products in case of multiple shipments';
 
 
 --
@@ -2106,7 +2533,9 @@ ALTER SEQUENCE stocking_purchase_orders_stocking_purchase_order_id_seq OWNED BY 
 CREATE TABLE supplier_shipments (
     supplier_shipment_id integer NOT NULL,
     shipment_id character varying(255) NOT NULL,
-    stocking_purchase_order_id integer NOT NULL
+    stocking_purchase_order_id integer NOT NULL,
+    supplier_id integer NOT NULL,
+    last_updated timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -2141,6 +2570,13 @@ COMMENT ON COLUMN supplier_shipments.stocking_purchase_order_id IS 'Foreign key 
 
 
 --
+-- Name: COLUMN supplier_shipments.supplier_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN supplier_shipments.supplier_id IS 'The supplier the shipment is tied to';
+
+
+--
 -- Name: supplier_shipments_supplier_shipment_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -2162,57 +2598,10 @@ ALTER SEQUENCE supplier_shipments_supplier_shipment_id_seq OWNED BY supplier_shi
 
 
 --
--- Name: suppliers; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE suppliers (
-    supplier_id integer NOT NULL,
-    supplier_name character varying(500) NOT NULL
-);
-
-
-ALTER TABLE suppliers OWNER TO postgres;
-
---
--- Name: TABLE suppliers; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TABLE suppliers IS 'Information about companies we directly source base_products from.';
-
-
---
--- Name: suppliers_supplier_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE suppliers_supplier_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE suppliers_supplier_id_seq OWNER TO postgres;
-
---
--- Name: suppliers_supplier_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE suppliers_supplier_id_seq OWNED BY suppliers.supplier_id;
-
-
---
 -- Name: associate_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY associates ALTER COLUMN associate_id SET DEFAULT nextval('associates_associate_id_seq'::regclass);
-
-
---
--- Name: inbound_inventory_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY inbound_inventory ALTER COLUMN inbound_inventory_id SET DEFAULT nextval('inbound_inventory_inbound_inventory_id_seq'::regclass);
 
 
 --
@@ -2307,13 +2696,6 @@ ALTER TABLE ONLY supplier_shipments ALTER COLUMN supplier_shipment_id SET DEFAUL
 
 
 --
--- Name: supplier_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY suppliers ALTER COLUMN supplier_id SET DEFAULT nextval('suppliers_supplier_id_seq'::regclass);
-
-
---
 -- Name: associates_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -2335,14 +2717,6 @@ ALTER TABLE ONLY customer_order_products
 
 ALTER TABLE ONLY customer_orders
     ADD CONSTRAINT customer_orders_pkey PRIMARY KEY (customer_order_id);
-
-
---
--- Name: inbound_inventory_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY inbound_inventory
-    ADD CONSTRAINT inbound_inventory_pkey PRIMARY KEY (inbound_inventory_id);
 
 
 --
@@ -2434,11 +2808,19 @@ ALTER TABLE ONLY pickup_tasks
 
 
 --
--- Name: pk_static_inventory; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: products_pkey1; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
-ALTER TABLE ONLY static_inventory
-    ADD CONSTRAINT pk_static_inventory PRIMARY KEY (static_inventory_id);
+ALTER TABLE ONLY products
+    ADD CONSTRAINT products_pkey1 PRIMARY KEY (sku);
+
+
+--
+-- Name: products_suppliers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY products_suppliers
+    ADD CONSTRAINT products_suppliers_pkey PRIMARY KEY (sku, supplier_id);
 
 
 --
@@ -2447,6 +2829,14 @@ ALTER TABLE ONLY static_inventory
 
 ALTER TABLE ONLY receiving_locations
     ADD CONSTRAINT receiving_locations_pkey PRIMARY KEY (receiving_location_id);
+
+
+--
+-- Name: static_inventory_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY static_inventory
+    ADD CONSTRAINT static_inventory_pkey PRIMARY KEY (static_inventory_id);
 
 
 --
@@ -2482,14 +2872,6 @@ ALTER TABLE ONLY supplier_shipments
 
 
 --
--- Name: suppliers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY suppliers
-    ADD CONSTRAINT suppliers_pkey PRIMARY KEY (supplier_id);
-
-
---
 -- Name: unique_hold_sku_location; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -2522,6 +2904,202 @@ ALTER TABLE ONLY stocking_purchase_order_products
 
 
 --
+-- Name: associate_stations_associate_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX associate_stations_associate_id_idx ON associate_stations USING btree (associate_id);
+
+
+--
+-- Name: associate_stations_end_time_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX associate_stations_end_time_idx ON associate_stations USING btree (end_time) WHERE (end_time IS NULL);
+
+
+--
+-- Name: associate_stations_start_time_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX associate_stations_start_time_idx ON associate_stations USING btree (start_time);
+
+
+--
+-- Name: customer_order_products_customer_order_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX customer_order_products_customer_order_id_idx ON customer_order_products USING btree (customer_order_id);
+
+
+--
+-- Name: customer_order_products_sku_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX customer_order_products_sku_idx ON customer_order_products USING btree (sku);
+
+
+--
+-- Name: customer_orders_status_scheduled_pickup_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX customer_orders_status_scheduled_pickup_idx ON customer_orders USING btree (status, scheduled_pickup) WHERE ((status <> 'Completed'::customer_order_status) AND (status <> 'Cancelled'::customer_order_status));
+
+
+--
+-- Name: customer_orders_submitted_at_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX customer_orders_submitted_at_idx ON customer_orders USING btree (submitted_at);
+
+
+--
+-- Name: inventory_errors_error_date_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX inventory_errors_error_date_idx ON inventory_errors USING btree (error_date);
+
+
+--
+-- Name: inventory_errors_outbound_inventory_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX inventory_errors_outbound_inventory_id_idx ON inventory_errors USING btree (outbound_inventory_id);
+
+
+--
+-- Name: inventory_errors_static_inventory_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX inventory_errors_static_inventory_id_idx ON inventory_errors USING btree (static_inventory_id);
+
+
+--
+-- Name: inventory_errors_stocking_purchase_order_product_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX inventory_errors_stocking_purchase_order_product_id_idx ON inventory_errors USING btree (stocking_purchase_order_product_id);
+
+
+--
+-- Name: inventory_holds_customer_order_product_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX inventory_holds_customer_order_product_id_idx ON inventory_holds USING btree (customer_order_product_id);
+
+
+--
+-- Name: outbound_inventory_pick_container_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX outbound_inventory_pick_container_id_idx ON outbound_inventory USING btree (pick_container_id);
+
+
+--
+-- Name: outbound_inventory_stocking_location_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX outbound_inventory_stocking_location_id_idx ON outbound_inventory USING btree (stocking_location_id);
+
+
+--
+-- Name: pick_containers_pick_container_location_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX pick_containers_pick_container_location_id_idx ON pick_containers USING btree (pick_container_location_id);
+
+
+--
+-- Name: pick_task_products_customer_order_product_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX pick_task_products_customer_order_product_id_idx ON pick_task_products USING btree (customer_order_product_id);
+
+
+--
+-- Name: pick_task_products_pick_task_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX pick_task_products_pick_task_id_idx ON pick_task_products USING btree (pick_task_id);
+
+
+--
+-- Name: pick_tasks_customer_order_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX pick_tasks_customer_order_id_idx ON pick_tasks USING btree (customer_order_id);
+
+
+--
+-- Name: pick_tasks_pick_container_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX pick_tasks_pick_container_id_idx ON pick_tasks USING btree (pick_container_id);
+
+
+--
+-- Name: pick_tasks_status_order_promised_time_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX pick_tasks_status_order_promised_time_idx ON pick_tasks USING btree (status, order_promised_time) WHERE (status <> 'Completed'::task_status);
+
+
+--
+-- Name: pickup_task_products_customer_order_product_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX pickup_task_products_customer_order_product_id_idx ON pickup_task_products USING btree (customer_order_product_id);
+
+
+--
+-- Name: pickup_task_products_pickup_task_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX pickup_task_products_pickup_task_id_idx ON pickup_task_products USING btree (pickup_task_id);
+
+
+--
+-- Name: pickup_tasks_associate_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX pickup_tasks_associate_id_idx ON pickup_tasks USING btree (associate_id);
+
+
+--
+-- Name: pickup_tasks_customer_checkin_time_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX pickup_tasks_customer_checkin_time_idx ON pickup_tasks USING btree (customer_checkin_time);
+
+
+--
+-- Name: pickup_tasks_customer_order_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX pickup_tasks_customer_order_id_idx ON pickup_tasks USING btree (customer_order_id);
+
+
+--
+-- Name: pickup_tasks_status_customer_checkin_time_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX pickup_tasks_status_customer_checkin_time_idx ON pickup_tasks USING btree (status, customer_checkin_time) WHERE (status <> 'Completed'::task_status);
+
+
+--
+-- Name: static_inventory_expiration_date_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX static_inventory_expiration_date_idx ON static_inventory USING btree (expiration_date);
+
+
+--
+-- Name: static_inventory_last_updated_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX static_inventory_last_updated_idx ON static_inventory USING btree (last_updated);
+
+
+--
 -- Name: static_inventory_sku_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -2529,10 +3107,73 @@ CREATE INDEX static_inventory_sku_idx ON static_inventory USING btree (sku);
 
 
 --
--- Name: static_inventory_stocking_location_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: static_inventory_stocking_purchase_order_product_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
-CREATE INDEX static_inventory_stocking_location_id_idx ON static_inventory USING btree (stocking_location_id);
+CREATE INDEX static_inventory_stocking_purchase_order_product_id_idx ON static_inventory USING btree (stocking_purchase_order_product_id);
+
+
+--
+-- Name: stocking_purchase_order_products_actual_arrival_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX stocking_purchase_order_products_actual_arrival_idx ON stocking_purchase_order_products USING btree (actual_arrival);
+
+
+--
+-- Name: stocking_purchase_order_products_expected_arrival_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX stocking_purchase_order_products_expected_arrival_idx ON stocking_purchase_order_products USING btree (expected_arrival);
+
+
+--
+-- Name: stocking_purchase_order_products_sku_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX stocking_purchase_order_products_sku_idx ON stocking_purchase_order_products USING btree (sku);
+
+
+--
+-- Name: stocking_purchase_order_products_status_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX stocking_purchase_order_products_status_idx ON stocking_purchase_order_products USING btree (status) WHERE (status <> 'Stocked'::stocking_purchase_order_product_status);
+
+
+--
+-- Name: stocking_purchase_orders_date_arrived_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX stocking_purchase_orders_date_arrived_idx ON stocking_purchase_orders USING btree (date_arrived);
+
+
+--
+-- Name: stocking_purchase_orders_date_confirmed_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX stocking_purchase_orders_date_confirmed_idx ON stocking_purchase_orders USING btree (date_confirmed);
+
+
+--
+-- Name: stocking_purchase_orders_date_ordered_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX stocking_purchase_orders_date_ordered_idx ON stocking_purchase_orders USING btree (date_ordered);
+
+
+--
+-- Name: stocking_purchase_orders_date_shipped_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX stocking_purchase_orders_date_shipped_idx ON stocking_purchase_orders USING btree (date_shipped);
+
+
+--
+-- Name: supplier_shipments_shipment_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX supplier_shipments_shipment_id_idx ON supplier_shipments USING btree (shipment_id);
 
 
 --
@@ -2546,223 +3187,23 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --
--- Name: associate_current_stations; Type: ACL; Schema: public; Owner: postgres
+-- Name: products; Type: ACL; Schema: public; Owner: postgres
 --
 
-REVOKE ALL ON TABLE associate_current_stations FROM PUBLIC;
-REVOKE ALL ON TABLE associate_current_stations FROM postgres;
-GRANT ALL ON TABLE associate_current_stations TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE associate_current_stations TO jp_readwrite;
-
-
---
--- Name: associates; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE associates FROM PUBLIC;
-REVOKE ALL ON TABLE associates FROM postgres;
-GRANT ALL ON TABLE associates TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE associates TO jp_readwrite;
+REVOKE ALL ON TABLE products FROM PUBLIC;
+REVOKE ALL ON TABLE products FROM postgres;
+GRANT ALL ON TABLE products TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE products TO jp_readwrite;
 
 
 --
--- Name: customer_order_products; Type: ACL; Schema: public; Owner: postgres
+-- Name: products_suppliers; Type: ACL; Schema: public; Owner: postgres
 --
 
-REVOKE ALL ON TABLE customer_order_products FROM PUBLIC;
-REVOKE ALL ON TABLE customer_order_products FROM postgres;
-GRANT ALL ON TABLE customer_order_products TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE customer_order_products TO jp_readwrite;
-
-
---
--- Name: customer_orders; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE customer_orders FROM PUBLIC;
-REVOKE ALL ON TABLE customer_orders FROM postgres;
-GRANT ALL ON TABLE customer_orders TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE customer_orders TO jp_readwrite;
-
-
---
--- Name: inbound_inventory; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE inbound_inventory FROM PUBLIC;
-REVOKE ALL ON TABLE inbound_inventory FROM postgres;
-GRANT ALL ON TABLE inbound_inventory TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE inbound_inventory TO jp_readwrite;
-
-
---
--- Name: inventory_errors; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE inventory_errors FROM PUBLIC;
-REVOKE ALL ON TABLE inventory_errors FROM postgres;
-GRANT ALL ON TABLE inventory_errors TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE inventory_errors TO jp_readwrite;
-
-
---
--- Name: inventory_holds; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE inventory_holds FROM PUBLIC;
-REVOKE ALL ON TABLE inventory_holds FROM postgres;
-GRANT ALL ON TABLE inventory_holds TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE inventory_holds TO jp_readwrite;
-
-
---
--- Name: kiosks; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE kiosks FROM PUBLIC;
-REVOKE ALL ON TABLE kiosks FROM postgres;
-GRANT ALL ON TABLE kiosks TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE kiosks TO jp_readwrite;
-
-
---
--- Name: outbound_inventory; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE outbound_inventory FROM PUBLIC;
-REVOKE ALL ON TABLE outbound_inventory FROM postgres;
-GRANT ALL ON TABLE outbound_inventory TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE outbound_inventory TO jp_readwrite;
-
-
---
--- Name: pick_container_locations; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE pick_container_locations FROM PUBLIC;
-REVOKE ALL ON TABLE pick_container_locations FROM postgres;
-GRANT ALL ON TABLE pick_container_locations TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE pick_container_locations TO jp_readwrite;
-
-
---
--- Name: pick_containers; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE pick_containers FROM PUBLIC;
-REVOKE ALL ON TABLE pick_containers FROM postgres;
-GRANT ALL ON TABLE pick_containers TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE pick_containers TO jp_readwrite;
-
-
---
--- Name: pick_task_products; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE pick_task_products FROM PUBLIC;
-REVOKE ALL ON TABLE pick_task_products FROM postgres;
-GRANT ALL ON TABLE pick_task_products TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE pick_task_products TO jp_readwrite;
-
-
---
--- Name: pick_tasks; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE pick_tasks FROM PUBLIC;
-REVOKE ALL ON TABLE pick_tasks FROM postgres;
-GRANT ALL ON TABLE pick_tasks TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE pick_tasks TO jp_readwrite;
-
-
---
--- Name: pickup_locations; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE pickup_locations FROM PUBLIC;
-REVOKE ALL ON TABLE pickup_locations FROM postgres;
-GRANT ALL ON TABLE pickup_locations TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE pickup_locations TO jp_readwrite;
-
-
---
--- Name: pickup_task_products; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE pickup_task_products FROM PUBLIC;
-REVOKE ALL ON TABLE pickup_task_products FROM postgres;
-GRANT ALL ON TABLE pickup_task_products TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE pickup_task_products TO jp_readwrite;
-
-
---
--- Name: pickup_tasks; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE pickup_tasks FROM PUBLIC;
-REVOKE ALL ON TABLE pickup_tasks FROM postgres;
-GRANT ALL ON TABLE pickup_tasks TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE pickup_tasks TO jp_readwrite;
-
-
---
--- Name: receiving_locations; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE receiving_locations FROM PUBLIC;
-REVOKE ALL ON TABLE receiving_locations FROM postgres;
-GRANT ALL ON TABLE receiving_locations TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE receiving_locations TO jp_readwrite;
-
-
---
--- Name: static_inventory; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE static_inventory FROM PUBLIC;
-REVOKE ALL ON TABLE static_inventory FROM postgres;
-GRANT ALL ON TABLE static_inventory TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE static_inventory TO jp_readwrite;
-
-
---
--- Name: stocking_locations; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE stocking_locations FROM PUBLIC;
-REVOKE ALL ON TABLE stocking_locations FROM postgres;
-GRANT ALL ON TABLE stocking_locations TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE stocking_locations TO jp_readwrite;
-
-
---
--- Name: stocking_purchase_order_products; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE stocking_purchase_order_products FROM PUBLIC;
-REVOKE ALL ON TABLE stocking_purchase_order_products FROM postgres;
-GRANT ALL ON TABLE stocking_purchase_order_products TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE stocking_purchase_order_products TO jp_readwrite;
-
-
---
--- Name: stocking_purchase_orders; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE stocking_purchase_orders FROM PUBLIC;
-REVOKE ALL ON TABLE stocking_purchase_orders FROM postgres;
-GRANT ALL ON TABLE stocking_purchase_orders TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE stocking_purchase_orders TO jp_readwrite;
-
-
---
--- Name: supplier_shipments; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE supplier_shipments FROM PUBLIC;
-REVOKE ALL ON TABLE supplier_shipments FROM postgres;
-GRANT ALL ON TABLE supplier_shipments TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE supplier_shipments TO jp_readwrite;
+REVOKE ALL ON TABLE products_suppliers FROM PUBLIC;
+REVOKE ALL ON TABLE products_suppliers FROM postgres;
+GRANT ALL ON TABLE products_suppliers TO postgres;
+GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE products_suppliers TO jp_readwrite;
 
 
 --

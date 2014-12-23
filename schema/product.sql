@@ -13,7 +13,7 @@ SET client_min_messages = warning;
 -- Name: product; Type: COMMENT; Schema: -; Owner: postgres
 --
 
-COMMENT ON DATABASE product IS 'Stores information to display product content on the website including the base_products themselves, categorization, attributes/tags, brand/manufacturer information, images. Merchandising and editing of base_products happens against this database, and the product data must flow to the WMS. There should be one master product database replicated to store specific product_<storeid> databases which have override tables so that merchandising, pricing etc. can be overridden by store';
+COMMENT ON DATABASE product IS 'Stores information to display product content on the website including the products themselves, categorization, attributes/tags, brand/manufacturer information, images. Merchandising and editing of products happens against this database, and the product data must flow to the WMS.';
 
 
 --
@@ -42,6 +42,20 @@ CREATE EXTENSION IF NOT EXISTS dblink WITH SCHEMA public;
 --
 
 COMMENT ON EXTENSION dblink IS 'connect to other PostgreSQL databases from within a database';
+
+
+--
+-- Name: isn; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS isn WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION isn; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION isn IS 'data types for international product numbering standards';
 
 
 --
@@ -129,7 +143,7 @@ ALTER TYPE product_status OWNER TO postgres;
 -- Name: TYPE product_status; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON TYPE product_status IS 'Stages of product lifecycle. Only active base_products are listed on site';
+COMMENT ON TYPE product_status IS 'Stages of product lifecycle. Only active products are listed on site';
 
 
 --
@@ -549,7 +563,7 @@ ALTER TABLE im_productdata OWNER TO postgres;
 CREATE TABLE images (
     image_id integer NOT NULL,
     manufacturer_id integer NOT NULL,
-    sku character varying(12),
+    sku ean13,
     mime_type character varying(255),
     rank integer NOT NULL,
     show_on_site boolean DEFAULT true NOT NULL,
@@ -1102,13 +1116,11 @@ ALTER SEQUENCE product_families_product_family_id_seq OWNED BY product_families.
 --
 
 CREATE TABLE products (
-    sku character varying(14) NOT NULL,
-    product_id integer NOT NULL,
+    sku ean13 NOT NULL,
     sku_is_real_upc boolean NOT NULL,
     status product_status NOT NULL,
     default_image_id integer,
-    instance_description character varying(255),
-    case_upc character varying(64),
+    case_upc ean13,
     units_per_case smallint,
     measurement_unit measurement_unit,
     measurement_value integer,
@@ -1135,7 +1147,8 @@ CREATE TABLE products (
     case_width double precision,
     case_height double precision,
     case_weight double precision,
-    expiration_class expiration_class
+    expiration_class expiration_class,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1152,7 +1165,7 @@ COMMENT ON TABLE products IS 'Information about a product that is size-specific,
 -- Name: COLUMN products.sku; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.sku IS 'The unique UPC for this item, as scanned if the item has a barcode on it. For other items like produce, this is an number determine.';
+COMMENT ON COLUMN products.sku IS 'Unique sku to a product - stored as ean13. All UPCs will have 0 for leading digit, our internally generated ones will have 2 as a leading digit';
 
 
 --
@@ -1174,13 +1187,6 @@ COMMENT ON COLUMN products.status IS 'Whether the product can be displayed and s
 --
 
 COMMENT ON COLUMN products.default_image_id IS 'Default image to be displayed on browse and product pages';
-
-
---
--- Name: COLUMN products.instance_description; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.instance_description IS 'Instance-specific description if applicable. Otherwise base product description will be displayed along with sizing information';
 
 
 --
@@ -1345,6 +1351,34 @@ COMMENT ON COLUMN products.product_family_id IS 'Foreign key to product_families
 
 
 --
+-- Name: COLUMN products.case_length; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.case_length IS 'Length of the case in inches';
+
+
+--
+-- Name: COLUMN products.case_width; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.case_width IS 'Width of the case in inches';
+
+
+--
+-- Name: COLUMN products.case_height; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.case_height IS 'Height of the case in inches';
+
+
+--
+-- Name: COLUMN products.case_weight; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.case_weight IS 'Weight of the case in pounds';
+
+
+--
 -- Name: COLUMN products.expiration_class; Type: COMMENT; Schema: public; Owner: postgres
 --
 
@@ -1352,35 +1386,14 @@ COMMENT ON COLUMN products.expiration_class IS 'Level of rigor needed in checkin
 
 
 --
--- Name: products_product_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE products_product_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE products_product_id_seq OWNER TO postgres;
-
---
--- Name: products_product_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE products_product_id_seq OWNED BY products.product_id;
-
-
---
 -- Name: products_stores; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE products_stores (
-    sku character varying(14) NOT NULL,
+    sku ean13 NOT NULL,
     store_id integer NOT NULL,
     last_updated timestamp with time zone DEFAULT now() NOT NULL,
-    list_cost money NOT NULL
+    list_cost integer NOT NULL
 );
 
 
@@ -1390,14 +1403,14 @@ ALTER TABLE products_stores OWNER TO postgres;
 -- Name: TABLE products_stores; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON TABLE products_stores IS 'Which base_products are available on which stores';
+COMMENT ON TABLE products_stores IS 'Which products are available on which stores, as well as any store specific info such as prices (and potentially merchandising overrides)';
 
 
 --
 -- Name: COLUMN products_stores.list_cost; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products_stores.list_cost IS 'The price as listed to the customer';
+COMMENT ON COLUMN products_stores.list_cost IS 'The price in CENTS as listed to the customer';
 
 
 --
@@ -1405,10 +1418,10 @@ COMMENT ON COLUMN products_stores.list_cost IS 'The price as listed to the custo
 --
 
 CREATE TABLE products_suppliers (
-    sku character varying(14) NOT NULL,
+    sku ean13 NOT NULL,
     supplier_id integer NOT NULL,
     status product_status NOT NULL,
-    wholesale_cost money,
+    wholesale_cost integer,
     last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -1433,7 +1446,7 @@ COMMENT ON COLUMN products_suppliers.status IS 'Whether we can currently buy thi
 -- Name: COLUMN products_suppliers.wholesale_cost; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products_suppliers.wholesale_cost IS 'The price we would pay to buy this product from the supplier';
+COMMENT ON COLUMN products_suppliers.wholesale_cost IS 'The price in CENTS we would pay to buy this product from the supplier';
 
 
 --
@@ -1521,7 +1534,7 @@ ALTER TABLE suppliers OWNER TO postgres;
 -- Name: TABLE suppliers; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON TABLE suppliers IS 'Information about companies we directly source base_products from.';
+COMMENT ON TABLE suppliers IS 'Information about companies we directly source products from.';
 
 
 --
@@ -1585,13 +1598,6 @@ ALTER TABLE ONLY manufacturers ALTER COLUMN manufacturer_id SET DEFAULT nextval(
 --
 
 ALTER TABLE ONLY product_families ALTER COLUMN product_family_id SET DEFAULT nextval('product_families_product_family_id_seq'::regclass);
-
-
---
--- Name: product_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY products ALTER COLUMN product_id SET DEFAULT nextval('products_product_id_seq'::regclass);
 
 
 --

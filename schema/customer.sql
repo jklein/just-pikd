@@ -45,6 +45,20 @@ COMMENT ON EXTENSION dblink IS 'connect to other PostgreSQL databases from withi
 
 
 --
+-- Name: isn; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS isn WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION isn; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION isn IS 'data types for international product numbering standards';
+
+
+--
 -- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: 
 --
 
@@ -71,26 +85,6 @@ CREATE TYPE address_type AS ENUM (
 
 
 ALTER TYPE address_type OWNER TO postgres;
-
---
--- Name: notification_type; Type: TYPE; Schema: public; Owner: postgres
---
-
-CREATE TYPE notification_type AS ENUM (
-    'Email',
-    'Text',
-    'Push'
-);
-
-
-ALTER TYPE notification_type OWNER TO postgres;
-
---
--- Name: TYPE notification_type; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON TYPE notification_type IS 'Customer selected contact preference types for order status notifications';
-
 
 --
 -- Name: order_status; Type: TYPE; Schema: public; Owner: postgres
@@ -259,13 +253,13 @@ ALTER SEQUENCE customers_customer_id_seq OWNED BY customers.customer_id;
 --
 
 CREATE TABLE order_products (
-    order_product_id integer NOT NULL,
+    item_id integer NOT NULL,
     order_id integer NOT NULL,
-    sku character varying(14) NOT NULL,
+    sku ean13 NOT NULL,
     quantity integer NOT NULL,
     name character varying(255) NOT NULL,
     manufacturer_name character varying(255),
-    list_cost money,
+    list_cost integer,
     date_added timestamp with time zone DEFAULT now() NOT NULL,
     date_updated timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -319,7 +313,7 @@ COMMENT ON COLUMN order_products.manufacturer_name IS 'Manufacturer display name
 -- Name: COLUMN order_products.list_cost; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN order_products.list_cost IS 'products list_cost at time of addition to cart. For a shopping list, this should stay NULL until it becomes a cart';
+COMMENT ON COLUMN order_products.list_cost IS 'products list_cost in CENTS at time of addition to cart. For a shopping list, this should stay NULL until it becomes a cart';
 
 
 --
@@ -354,7 +348,7 @@ ALTER TABLE order_products_item_id_seq OWNER TO postgres;
 -- Name: order_products_item_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE order_products_item_id_seq OWNED BY order_products.order_product_id;
+ALTER SEQUENCE order_products_item_id_seq OWNED BY order_products.item_id;
 
 
 --
@@ -369,7 +363,7 @@ CREATE TABLE orders (
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     submitted_at timestamp with time zone,
-    total_cost money,
+    total_cost integer,
     first_name character varying(255),
     middle_name character varying(255),
     last_name character varying(255),
@@ -379,9 +373,7 @@ CREATE TABLE orders (
     city character varying(255),
     state character(2),
     zip_code character varying(12),
-    phone character varying(30),
-    notification_type notification_type,
-    scheduled_pickup timestamp without time zone
+    phone character varying(30)
 );
 
 
@@ -426,21 +418,7 @@ COMMENT ON COLUMN orders.submitted_at IS 'The time when the customer submitted t
 -- Name: COLUMN orders.total_cost; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN orders.total_cost IS 'The total price paid by the customer for all base_products on the order';
-
-
---
--- Name: COLUMN orders.notification_type; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN orders.notification_type IS 'Customer selected contact preference types for order status notifications';
-
-
---
--- Name: COLUMN orders.scheduled_pickup; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN orders.scheduled_pickup IS 'Scheduled pickup time chosen when placing order';
+COMMENT ON COLUMN orders.total_cost IS 'The total price in CENTS paid by the customer for all base_products on the order';
 
 
 --
@@ -479,10 +457,10 @@ ALTER TABLE ONLY customers ALTER COLUMN customer_id SET DEFAULT nextval('custome
 
 
 --
--- Name: order_product_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: item_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY order_products ALTER COLUMN order_product_id SET DEFAULT nextval('order_products_item_id_seq'::regclass);
+ALTER TABLE ONLY order_products ALTER COLUMN item_id SET DEFAULT nextval('order_products_item_id_seq'::regclass);
 
 
 --
@@ -513,7 +491,7 @@ ALTER TABLE ONLY customers
 --
 
 ALTER TABLE ONLY order_products
-    ADD CONSTRAINT order_products_pkey PRIMARY KEY (order_product_id);
+    ADD CONSTRAINT order_products_pkey PRIMARY KEY (item_id);
 
 
 --
