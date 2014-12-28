@@ -20,5 +20,8 @@
         "psr-4": {
             "Pikd\\": "src/"
         }
+    },
+    "require-dev": {
+        "symfony/var-dumper": "~2.6"
     }
 }
