@@ -1914,7 +1914,7 @@ CREATE TABLE receiving_locations (
     receiving_location_id ean13 NOT NULL,
     receiving_location_type receiving_location_type NOT NULL,
     temperature_zone temperature_zone NOT NULL,
-    stocking_purchase_order_id integer,
+    supplier_shipment_id integer,
     last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -1943,10 +1943,10 @@ COMMENT ON COLUMN receiving_locations.temperature_zone IS 'Temperature zone the 
 
 
 --
--- Name: COLUMN receiving_locations.stocking_purchase_order_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN receiving_locations.supplier_shipment_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN receiving_locations.stocking_purchase_order_id IS 'Current SPO in this location, if the location is not empty';
+COMMENT ON COLUMN receiving_locations.supplier_shipment_id IS 'Current supplier shipment in this location, if the location is not empty';
 
 
 --
@@ -3097,7 +3097,7 @@ CREATE INDEX pickup_tasks_status_customer_checkin_time_idx ON pickup_tasks USING
 -- Name: receiving_locations_temperature_zone_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
-CREATE INDEX receiving_locations_temperature_zone_idx ON receiving_locations USING btree (temperature_zone) WHERE (stocking_purchase_order_id IS NOT NULL);
+CREATE INDEX receiving_locations_temperature_zone_idx ON receiving_locations USING btree (temperature_zone) WHERE (supplier_shipment_id IS NOT NULL);
 
 
 --
