@@ -1914,7 +1914,8 @@ CREATE TABLE receiving_locations (
     receiving_location_id ean13 NOT NULL,
     receiving_location_type receiving_location_type NOT NULL,
     temperature_zone temperature_zone NOT NULL,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    stocking_purchase_order_id integer,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1924,7 +1925,7 @@ ALTER TABLE receiving_locations OWNER TO postgres;
 -- Name: TABLE receiving_locations; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON TABLE receiving_locations IS 'Locations where goods can be stored during receiving.';
+COMMENT ON TABLE receiving_locations IS 'Locations where goods can be stored during receiving. A location is empty if stocking_purchase_order_id is null, and non-empty otherwise.';
 
 
 --
@@ -1939,6 +1940,13 @@ COMMENT ON COLUMN receiving_locations.receiving_location_id IS 'Barcode identifi
 --
 
 COMMENT ON COLUMN receiving_locations.temperature_zone IS 'Temperature zone the receiving location is located in';
+
+
+--
+-- Name: COLUMN receiving_locations.stocking_purchase_order_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN receiving_locations.stocking_purchase_order_id IS 'Current SPO in this location, if the location is not empty';
 
 
 --
@@ -2407,7 +2415,7 @@ COMMENT ON COLUMN stocking_purchase_order_products.expiration_class IS 'Indicate
 -- Name: COLUMN stocking_purchase_order_products.receiving_location_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN stocking_purchase_order_products.receiving_location_id IS 'Location the product is in when received and waiting to be stocked';
+COMMENT ON COLUMN stocking_purchase_order_products.receiving_location_id IS 'Location the product is/was in when received and waiting to be stocked';
 
 
 --
@@ -3083,6 +3091,13 @@ CREATE INDEX pickup_tasks_customer_order_id_idx ON pickup_tasks USING btree (cus
 --
 
 CREATE INDEX pickup_tasks_status_customer_checkin_time_idx ON pickup_tasks USING btree (status, customer_checkin_time) WHERE (status <> 'Completed'::task_status);
+
+
+--
+-- Name: receiving_locations_temperature_zone_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX receiving_locations_temperature_zone_idx ON receiving_locations USING btree (temperature_zone) WHERE (stocking_purchase_order_id IS NOT NULL);
 
 
 --
