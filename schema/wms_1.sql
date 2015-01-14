@@ -2543,7 +2543,9 @@ CREATE TABLE supplier_shipments (
     shipment_id character varying(255) NOT NULL,
     stocking_purchase_order_id integer NOT NULL,
     supplier_id integer NOT NULL,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    promised_delivery timestamp with time zone,
+    actual_delivery timestamp with time zone,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -2582,6 +2584,20 @@ COMMENT ON COLUMN supplier_shipments.stocking_purchase_order_id IS 'Foreign key 
 --
 
 COMMENT ON COLUMN supplier_shipments.supplier_id IS 'The supplier the shipment is tied to';
+
+
+--
+-- Name: COLUMN supplier_shipments.promised_delivery; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN supplier_shipments.promised_delivery IS 'Date supplier promised the shipment would be delivered by';
+
+
+--
+-- Name: COLUMN supplier_shipments.actual_delivery; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN supplier_shipments.actual_delivery IS 'Actual date shipment was received';
 
 
 --
@@ -3154,6 +3170,13 @@ CREATE INDEX stocking_purchase_order_products_sku_idx ON stocking_purchase_order
 --
 
 CREATE INDEX stocking_purchase_order_products_status_idx ON stocking_purchase_order_products USING btree (status) WHERE (status <> 'Stocked'::stocking_purchase_order_product_status);
+
+
+--
+-- Name: stocking_purchase_order_products_stocking_purchase_order_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX stocking_purchase_order_products_stocking_purchase_order_id_idx ON stocking_purchase_order_products USING btree (stocking_purchase_order_id);
 
 
 --
