@@ -176,9 +176,11 @@ SET default_with_oids = false;
 --
 
 CREATE TABLE attribute_values (
-    product_id integer NOT NULL,
-    attribute_id integer NOT NULL,
-    value boolean NOT NULL
+    atv_id integer NOT NULL,
+    atv_pr_sku integer NOT NULL,
+    atv_at_id integer NOT NULL,
+    atv_value boolean NOT NULL,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -192,12 +194,62 @@ COMMENT ON TABLE attribute_values IS 'Contains yes/no values for each product we
 
 
 --
+-- Name: COLUMN attribute_values.atv_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN attribute_values.atv_id IS 'Surrogate primary key';
+
+
+--
+-- Name: COLUMN attribute_values.atv_pr_sku; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN attribute_values.atv_pr_sku IS 'Foreign key to products';
+
+
+--
+-- Name: COLUMN attribute_values.atv_at_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN attribute_values.atv_at_id IS 'Foreign key to attributes';
+
+
+--
+-- Name: COLUMN attribute_values.atv_value; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN attribute_values.atv_value IS 'The yes/no value for this attribute for this product';
+
+
+--
+-- Name: attribute_values_atv_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE attribute_values_atv_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE attribute_values_atv_id_seq OWNER TO postgres;
+
+--
+-- Name: attribute_values_atv_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE attribute_values_atv_id_seq OWNED BY attribute_values.atv_id;
+
+
+--
 -- Name: attributes; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE attributes (
-    attribute_id integer NOT NULL,
-    attribute_name character varying(255) NOT NULL
+    at_id integer NOT NULL,
+    at_name character varying(255) NOT NULL,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -211,10 +263,10 @@ COMMENT ON TABLE attributes IS 'Description of various product attributes which 
 
 
 --
--- Name: attributes_attribute_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: attributes_at_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE attributes_attribute_id_seq
+CREATE SEQUENCE attributes_at_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -222,13 +274,13 @@ CREATE SEQUENCE attributes_attribute_id_seq
     CACHE 1;
 
 
-ALTER TABLE attributes_attribute_id_seq OWNER TO postgres;
+ALTER TABLE attributes_at_id_seq OWNER TO postgres;
 
 --
--- Name: attributes_attribute_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: attributes_at_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE attributes_attribute_id_seq OWNED BY attributes.attribute_id;
+ALTER SEQUENCE attributes_at_id_seq OWNED BY attributes.at_id;
 
 
 --
@@ -236,10 +288,11 @@ ALTER SEQUENCE attributes_attribute_id_seq OWNED BY attributes.attribute_id;
 --
 
 CREATE TABLE brands (
-    brand_id integer NOT NULL,
-    brand_name character varying(500) NOT NULL,
-    logo_image_url character varying(500),
-    marketing_description character varying(500)
+    bnd_id integer NOT NULL,
+    bnd_name character varying(500) NOT NULL,
+    bnd_logo_image_url character varying(500),
+    bnd_marketing_description character varying(500),
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -253,24 +306,24 @@ COMMENT ON TABLE brands IS 'Contains brand name and ID. Expand to include other 
 
 
 --
--- Name: COLUMN brands.logo_image_url; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN brands.bnd_logo_image_url; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN brands.logo_image_url IS 'URL to an image containing the brand logo for display on site';
-
-
---
--- Name: COLUMN brands.marketing_description; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN brands.marketing_description IS 'A story or description about this brand for display to customers';
+COMMENT ON COLUMN brands.bnd_logo_image_url IS 'URL to an image containing the brand logo for display on site';
 
 
 --
--- Name: brands_brand_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: COLUMN brands.bnd_marketing_description; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE brands_brand_id_seq
+COMMENT ON COLUMN brands.bnd_marketing_description IS 'A story or description about this brand for display to customers';
+
+
+--
+-- Name: brands_bnd_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE brands_bnd_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -278,13 +331,13 @@ CREATE SEQUENCE brands_brand_id_seq
     CACHE 1;
 
 
-ALTER TABLE brands_brand_id_seq OWNER TO postgres;
+ALTER TABLE brands_bnd_id_seq OWNER TO postgres;
 
 --
--- Name: brands_brand_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: brands_bnd_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE brands_brand_id_seq OWNED BY brands.brand_id;
+ALTER SEQUENCE brands_bnd_id_seq OWNED BY brands.bnd_id;
 
 
 --
@@ -336,11 +389,11 @@ ALTER TABLE candsproducts OWNER TO postgres;
 --
 
 CREATE TABLE categories (
-    category_id integer NOT NULL,
-    category_name character varying(500) NOT NULL,
-    third_party_identifier character varying(500),
-    parent_category_id integer,
-    active boolean,
+    cat_id integer NOT NULL,
+    cat_name character varying(500) NOT NULL,
+    cat_third_party_identifier character varying(500),
+    cat_parent_cat_id integer,
+    cat_active boolean,
     last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -355,31 +408,31 @@ COMMENT ON TABLE categories IS 'Product categorization - a category tree is main
 
 
 --
--- Name: COLUMN categories.category_name; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN categories.cat_name; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN categories.category_name IS 'Display name on site for the category';
-
-
---
--- Name: COLUMN categories.third_party_identifier; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN categories.third_party_identifier IS 'Full third party identifier to the category from which name, number and top_level are extracted';
+COMMENT ON COLUMN categories.cat_name IS 'Display name on site for the category';
 
 
 --
--- Name: COLUMN categories.parent_category_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN categories.cat_third_party_identifier; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN categories.parent_category_id IS 'Each category can have a single parent, creating a tree of categories';
+COMMENT ON COLUMN categories.cat_third_party_identifier IS 'Full third party identifier to the category from which name, number and top_level are extracted';
 
 
 --
--- Name: COLUMN categories.active; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN categories.cat_parent_cat_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN categories.active IS 'Should this category be displayed and browsable on site?';
+COMMENT ON COLUMN categories.cat_parent_cat_id IS 'Each category can have a single parent, creating a tree of categories';
+
+
+--
+-- Name: COLUMN categories.cat_active; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN categories.cat_active IS 'Should this category be displayed and browsable on site?';
 
 
 --
@@ -390,10 +443,10 @@ COMMENT ON COLUMN categories.last_updated IS 'The last time any of the data in t
 
 
 --
--- Name: categories_category_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: categories_cat_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE categories_category_id_seq
+CREATE SEQUENCE categories_cat_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -401,13 +454,13 @@ CREATE SEQUENCE categories_category_id_seq
     CACHE 1;
 
 
-ALTER TABLE categories_category_id_seq OWNER TO postgres;
+ALTER TABLE categories_cat_id_seq OWNER TO postgres;
 
 --
--- Name: categories_category_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: categories_cat_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE categories_category_id_seq OWNED BY categories.category_id;
+ALTER SEQUENCE categories_cat_id_seq OWNED BY categories.cat_id;
 
 
 --
@@ -561,21 +614,21 @@ ALTER TABLE im_productdata OWNER TO postgres;
 --
 
 CREATE TABLE images (
-    image_id integer NOT NULL,
-    manufacturer_id integer NOT NULL,
-    sku ean13,
-    mime_type character varying(255),
-    rank integer NOT NULL,
-    show_on_site boolean DEFAULT true NOT NULL,
-    width integer,
-    height integer,
-    file_size integer,
-    alt_text character varying(255),
-    description character varying(4000),
-    source character varying(500),
-    date_added timestamp with time zone DEFAULT now() NOT NULL,
+    img_id integer NOT NULL,
+    img_ma_id integer NOT NULL,
+    img_pr_sku ean13,
+    img_mime_type character varying(255),
+    img_rank integer NOT NULL,
+    img_show_on_site boolean DEFAULT true NOT NULL,
+    img_width integer,
+    img_height integer,
+    img_file_size integer,
+    img_alt_text character varying(255),
+    img_description character varying(4000),
+    img_source character varying(500),
+    img_date_added timestamp with time zone DEFAULT now() NOT NULL,
     last_updated timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT images_rank_check CHECK ((rank > 0))
+    CONSTRAINT images_rank_check CHECK ((img_rank > 0))
 );
 
 
@@ -589,87 +642,87 @@ COMMENT ON TABLE images IS 'Any image resource. Either a picture of a product, a
 
 
 --
--- Name: COLUMN images.manufacturer_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN images.img_ma_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN images.manufacturer_id IS 'The manufacturer associated with either the product the image is a picture of, or the manufacturer logo. Used to determine the image path.';
-
-
---
--- Name: COLUMN images.sku; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN images.sku IS 'The sku for the product the image is a picture of, if it is a product image. Null otherwise.';
+COMMENT ON COLUMN images.img_ma_id IS 'The manufacturer associated with either the product the image is a picture of, or the manufacturer logo. Used to determine the image path.';
 
 
 --
--- Name: COLUMN images.mime_type; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN images.img_pr_sku; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN images.mime_type IS 'The mime-type to be displayed to the client for the image. Usually image/jpeg';
-
-
---
--- Name: COLUMN images.rank; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN images.rank IS 'Sort order on the product page (the default_image_id in products is always shown first though). Must be greater than zero, and must be unique to the sku+image combo';
+COMMENT ON COLUMN images.img_pr_sku IS 'The sku for the product the image is a picture of, if it is a product image. Null otherwise.';
 
 
 --
--- Name: COLUMN images.show_on_site; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN images.img_mime_type; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN images.show_on_site IS 'Whether to display the image on site.';
-
-
---
--- Name: COLUMN images.width; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN images.width IS 'The width in pixels';
+COMMENT ON COLUMN images.img_mime_type IS 'The mime-type to be displayed to the client for the image. Usually image/jpeg';
 
 
 --
--- Name: COLUMN images.height; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN images.img_rank; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN images.height IS 'The height in pixels';
-
-
---
--- Name: COLUMN images.file_size; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN images.file_size IS 'Size on disk';
+COMMENT ON COLUMN images.img_rank IS 'Sort order on the product page (the default_image_id in products is always shown first though). Must be greater than zero, and must be unique to the sku+image combo';
 
 
 --
--- Name: COLUMN images.alt_text; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN images.img_show_on_site; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN images.alt_text IS 'Alt text to display on site';
-
-
---
--- Name: COLUMN images.description; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN images.description IS 'Internal-only description of the image. Not shown to customers';
+COMMENT ON COLUMN images.img_show_on_site IS 'Whether to display the image on site.';
 
 
 --
--- Name: COLUMN images.source; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN images.img_width; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN images.source IS 'Brief description of who or where we got the image from';
+COMMENT ON COLUMN images.img_width IS 'The width in pixels';
 
 
 --
--- Name: images_image_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: COLUMN images.img_height; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE images_image_id_seq
+COMMENT ON COLUMN images.img_height IS 'The height in pixels';
+
+
+--
+-- Name: COLUMN images.img_file_size; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN images.img_file_size IS 'Size on disk';
+
+
+--
+-- Name: COLUMN images.img_alt_text; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN images.img_alt_text IS 'Alt text to display on site';
+
+
+--
+-- Name: COLUMN images.img_description; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN images.img_description IS 'Internal-only description of the image. Not shown to customers';
+
+
+--
+-- Name: COLUMN images.img_source; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN images.img_source IS 'Brief description of who or where we got the image from';
+
+
+--
+-- Name: images_img_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE images_img_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -677,13 +730,13 @@ CREATE SEQUENCE images_image_id_seq
     CACHE 1;
 
 
-ALTER TABLE images_image_id_seq OWNER TO postgres;
+ALTER TABLE images_img_id_seq OWNER TO postgres;
 
 --
--- Name: images_image_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: images_img_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE images_image_id_seq OWNED BY images.image_id;
+ALTER SEQUENCE images_img_id_seq OWNED BY images.img_id;
 
 
 --
@@ -1026,10 +1079,11 @@ ALTER TABLE kwikee_products OWNER TO postgres;
 --
 
 CREATE TABLE manufacturers (
-    manufacturer_id integer NOT NULL,
-    manufacturer_name character varying(500) NOT NULL,
-    logo_image_url character varying(500),
-    marketing_description character varying(500)
+    ma_id integer NOT NULL,
+    ma_name character varying(500) NOT NULL,
+    ma_logo_image_url character varying(500),
+    ma_marketing_description character varying(500),
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1043,24 +1097,24 @@ COMMENT ON TABLE manufacturers IS 'Contains manufacturer name and ID. Expand to 
 
 
 --
--- Name: COLUMN manufacturers.logo_image_url; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN manufacturers.ma_logo_image_url; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN manufacturers.logo_image_url IS 'URL to an image containing the manufacturer logo for display on site';
-
-
---
--- Name: COLUMN manufacturers.marketing_description; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN manufacturers.marketing_description IS 'A story or description about this manufacturer for display to customers';
+COMMENT ON COLUMN manufacturers.ma_logo_image_url IS 'URL to an image containing the manufacturer logo for display on site';
 
 
 --
--- Name: manufacturers_manufacturer_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: COLUMN manufacturers.ma_marketing_description; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE manufacturers_manufacturer_id_seq
+COMMENT ON COLUMN manufacturers.ma_marketing_description IS 'A story or description about this manufacturer for display to customers';
+
+
+--
+-- Name: manufacturers_ma_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE manufacturers_ma_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1068,13 +1122,13 @@ CREATE SEQUENCE manufacturers_manufacturer_id_seq
     CACHE 1;
 
 
-ALTER TABLE manufacturers_manufacturer_id_seq OWNER TO postgres;
+ALTER TABLE manufacturers_ma_id_seq OWNER TO postgres;
 
 --
--- Name: manufacturers_manufacturer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: manufacturers_ma_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE manufacturers_manufacturer_id_seq OWNED BY manufacturers.manufacturer_id;
+ALTER SEQUENCE manufacturers_ma_id_seq OWNED BY manufacturers.ma_id;
 
 
 --
@@ -1082,19 +1136,19 @@ ALTER SEQUENCE manufacturers_manufacturer_id_seq OWNED BY manufacturers.manufact
 --
 
 CREATE TABLE product_families (
-    product_family_id integer NOT NULL,
-    product_family_name character varying(255) NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL
+    ma_id integer NOT NULL,
+    ma_name character varying(255) NOT NULL,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
 ALTER TABLE product_families OWNER TO postgres;
 
 --
--- Name: product_families_product_family_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: product_families_pfl_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE product_families_product_family_id_seq
+CREATE SEQUENCE product_families_pfl_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1102,13 +1156,13 @@ CREATE SEQUENCE product_families_product_family_id_seq
     CACHE 1;
 
 
-ALTER TABLE product_families_product_family_id_seq OWNER TO postgres;
+ALTER TABLE product_families_pfl_id_seq OWNER TO postgres;
 
 --
--- Name: product_families_product_family_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: product_families_pfl_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE product_families_product_family_id_seq OWNED BY product_families.product_family_id;
+ALTER SEQUENCE product_families_pfl_id_seq OWNED BY product_families.ma_id;
 
 
 --
@@ -1116,38 +1170,38 @@ ALTER SEQUENCE product_families_product_family_id_seq OWNED BY product_families.
 --
 
 CREATE TABLE products (
-    sku ean13 NOT NULL,
-    sku_is_real_upc boolean NOT NULL,
-    status product_status NOT NULL,
-    default_image_id integer,
-    case_upc ean13,
-    units_per_case smallint,
-    measurement_unit measurement_unit,
-    measurement_value integer,
-    upc_commodity integer,
-    upc_vendor integer,
-    upc_case integer,
-    upc_item integer,
-    length double precision,
-    width double precision,
-    height double precision,
-    cubic_volume double precision,
-    weight double precision,
-    gtin character varying(14),
-    temperature_zone temperature_zone,
-    manufacturer_id integer,
-    category_id integer,
-    description text,
-    shelf_life_days integer,
-    qc_check_interval_days integer,
-    brand_id integer,
-    name character varying(255),
-    product_family_id integer,
-    case_length double precision,
-    case_width double precision,
-    case_height double precision,
-    case_weight double precision,
-    expiration_class expiration_class,
+    pr_sku ean13 NOT NULL,
+    pr_sku_is_real_upc boolean NOT NULL,
+    pr_status product_status NOT NULL,
+    pr_default_img_id integer,
+    pr_case_upc ean13,
+    pr_units_per_case smallint,
+    pr_measurement_unit measurement_unit,
+    pr_measurement_value integer,
+    pr_upc_commodity integer,
+    pr_upc_vendor integer,
+    pr_upc_case integer,
+    pr_upc_item integer,
+    pr_length double precision,
+    pr_width double precision,
+    pr_height double precision,
+    pr_cubic_volume double precision,
+    pr_weight double precision,
+    pr_gtin character varying(14),
+    pr_temperature_zone temperature_zone,
+    pr_ma_id integer,
+    pr_cat_id integer,
+    pr_description text,
+    pr_shelf_life_days integer,
+    pr_qc_check_interval_days integer,
+    pr_bnd_id integer,
+    pr_name character varying(255),
+    pr_pfl_id integer,
+    pr_case_length double precision,
+    pr_case_width double precision,
+    pr_case_height double precision,
+    pr_case_weight double precision,
+    pr_expiration_class expiration_class,
     last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -1162,227 +1216,227 @@ COMMENT ON TABLE products IS 'Information about a product that is size-specific,
 
 
 --
--- Name: COLUMN products.sku; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_sku; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.sku IS 'Unique sku to a product - stored as ean13. All UPCs will have 0 for leading digit, our internally generated ones will have 2 as a leading digit';
-
-
---
--- Name: COLUMN products.sku_is_real_upc; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.sku_is_real_upc IS 'True if the item has a barcode on it and our sku is an actual UPC.';
+COMMENT ON COLUMN products.pr_sku IS 'Unique sku to a product - stored as ean13. All UPCs will have 0 for leading digit, our internally generated ones will have 2 as a leading digit';
 
 
 --
--- Name: COLUMN products.status; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_sku_is_real_upc; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.status IS 'Whether the product can be displayed and sold on site';
-
-
---
--- Name: COLUMN products.default_image_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.default_image_id IS 'Default image to be displayed on browse and product pages';
+COMMENT ON COLUMN products.pr_sku_is_real_upc IS 'True if the item has a barcode on it and our sku is an actual UPC.';
 
 
 --
--- Name: COLUMN products.case_upc; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_status; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.case_upc IS 'The UPC of the case the item comes in, if applicable';
-
-
---
--- Name: COLUMN products.units_per_case; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.units_per_case IS 'The quantity of this item contained in the case_upc';
+COMMENT ON COLUMN products.pr_status IS 'Whether the product can be displayed and sold on site';
 
 
 --
--- Name: COLUMN products.measurement_unit; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_default_img_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.measurement_unit IS 'The unit of measure for this product if applicable';
-
-
---
--- Name: COLUMN products.measurement_value; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.measurement_value IS 'The value in units of measurement_unit';
+COMMENT ON COLUMN products.pr_default_img_id IS 'Default image to be displayed on browse and product pages';
 
 
 --
--- Name: COLUMN products.upc_commodity; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_case_upc; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.upc_commodity IS 'This data comes from C&S and we may not need it. Drop?';
-
-
---
--- Name: COLUMN products.upc_vendor; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.upc_vendor IS 'This data comes from C&S and we may not need it. Drop?';
+COMMENT ON COLUMN products.pr_case_upc IS 'The UPC of the case the item comes in, if applicable';
 
 
 --
--- Name: COLUMN products.upc_case; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_units_per_case; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.upc_case IS 'This data comes from C&S and we may not need it. Drop?';
-
-
---
--- Name: COLUMN products.upc_item; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.upc_item IS 'This data comes from C&S and we may not need it. Drop?';
+COMMENT ON COLUMN products.pr_units_per_case IS 'The quantity of this item contained in the case_upc';
 
 
 --
--- Name: COLUMN products.length; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_measurement_unit; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.length IS 'The length of the product in inches in packaging as stored in the warehouse';
-
-
---
--- Name: COLUMN products.width; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.width IS 'The width of the product in inches in packaging as stored in the warehouse';
+COMMENT ON COLUMN products.pr_measurement_unit IS 'The unit of measure for this product if applicable';
 
 
 --
--- Name: COLUMN products.height; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_measurement_value; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.height IS 'The height of the product in inches in packaging as stored in the warehouse';
-
-
---
--- Name: COLUMN products.cubic_volume; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.cubic_volume IS 'The length*width*depth. This is redundant. Drop?';
+COMMENT ON COLUMN products.pr_measurement_value IS 'The value in units of measurement_unit';
 
 
 --
--- Name: COLUMN products.weight; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_upc_commodity; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.weight IS 'The weight of the product in packaging in lbs';
-
-
---
--- Name: COLUMN products.gtin; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.gtin IS 'Global Trade Item Number';
+COMMENT ON COLUMN products.pr_upc_commodity IS 'This data comes from C&S and we may not need it. Drop?';
 
 
 --
--- Name: COLUMN products.temperature_zone; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_upc_vendor; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.temperature_zone IS 'Temperature zone where the product is stored in the warehouse';
-
-
---
--- Name: COLUMN products.manufacturer_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.manufacturer_id IS 'The manufacturer that produces the product';
+COMMENT ON COLUMN products.pr_upc_vendor IS 'This data comes from C&S and we may not need it. Drop?';
 
 
 --
--- Name: COLUMN products.category_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_upc_case; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.category_id IS 'The category the product is tied to for revenue allocation and merchandising purposes';
-
-
---
--- Name: COLUMN products.description; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.description IS 'The detailed product description as displayed to customers on site';
+COMMENT ON COLUMN products.pr_upc_case IS 'This data comes from C&S and we may not need it. Drop?';
 
 
 --
--- Name: COLUMN products.shelf_life_days; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_upc_item; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.shelf_life_days IS 'Estimated shelf life in days after a product is received. We will need to populate this based on our experience if we can''t get data from the manufacturer.';
-
-
---
--- Name: COLUMN products.qc_check_interval_days; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.qc_check_interval_days IS 'Frequency at which we should check quality on a product, especially produce';
+COMMENT ON COLUMN products.pr_upc_item IS 'This data comes from C&S and we may not need it. Drop?';
 
 
 --
--- Name: COLUMN products.brand_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_length; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.brand_id IS 'Foreign key to brand.id';
-
-
---
--- Name: COLUMN products.name; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.name IS 'Product name as shown to customers on site';
+COMMENT ON COLUMN products.pr_length IS 'The length of the product in inches in packaging as stored in the warehouse';
 
 
 --
--- Name: COLUMN products.product_family_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_width; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.product_family_id IS 'Foreign key to product_families table if the product is part of a family.';
-
-
---
--- Name: COLUMN products.case_length; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.case_length IS 'Length of the case in inches';
+COMMENT ON COLUMN products.pr_width IS 'The width of the product in inches in packaging as stored in the warehouse';
 
 
 --
--- Name: COLUMN products.case_width; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_height; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.case_width IS 'Width of the case in inches';
-
-
---
--- Name: COLUMN products.case_height; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN products.case_height IS 'Height of the case in inches';
+COMMENT ON COLUMN products.pr_height IS 'The height of the product in inches in packaging as stored in the warehouse';
 
 
 --
--- Name: COLUMN products.case_weight; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_cubic_volume; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.case_weight IS 'Weight of the case in pounds';
+COMMENT ON COLUMN products.pr_cubic_volume IS 'The length*width*depth. This is redundant. Drop?';
 
 
 --
--- Name: COLUMN products.expiration_class; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products.pr_weight; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products.expiration_class IS 'Level of rigor needed in checking expirations - based on shelf life';
+COMMENT ON COLUMN products.pr_weight IS 'The weight of the product in packaging in lbs';
+
+
+--
+-- Name: COLUMN products.pr_gtin; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_gtin IS 'Global Trade Item Number';
+
+
+--
+-- Name: COLUMN products.pr_temperature_zone; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_temperature_zone IS 'Temperature zone where the product is stored in the warehouse';
+
+
+--
+-- Name: COLUMN products.pr_ma_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_ma_id IS 'The manufacturer that produces the product';
+
+
+--
+-- Name: COLUMN products.pr_cat_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_cat_id IS 'The category the product is tied to for revenue allocation and merchandising purposes';
+
+
+--
+-- Name: COLUMN products.pr_description; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_description IS 'The detailed product description as displayed to customers on site';
+
+
+--
+-- Name: COLUMN products.pr_shelf_life_days; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_shelf_life_days IS 'Estimated shelf life in days after a product is received. We will need to populate this based on our experience if we can''t get data from the manufacturer.';
+
+
+--
+-- Name: COLUMN products.pr_qc_check_interval_days; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_qc_check_interval_days IS 'Frequency at which we should check quality on a product, especially produce';
+
+
+--
+-- Name: COLUMN products.pr_bnd_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_bnd_id IS 'Foreign key to brand.id';
+
+
+--
+-- Name: COLUMN products.pr_name; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_name IS 'Product name as shown to customers on site';
+
+
+--
+-- Name: COLUMN products.pr_pfl_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_pfl_id IS 'Foreign key to product_families table if the product is part of a family.';
+
+
+--
+-- Name: COLUMN products.pr_case_length; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_case_length IS 'Length of the case in inches';
+
+
+--
+-- Name: COLUMN products.pr_case_width; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_case_width IS 'Width of the case in inches';
+
+
+--
+-- Name: COLUMN products.pr_case_height; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_case_height IS 'Height of the case in inches';
+
+
+--
+-- Name: COLUMN products.pr_case_weight; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_case_weight IS 'Weight of the case in pounds';
+
+
+--
+-- Name: COLUMN products.pr_expiration_class; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products.pr_expiration_class IS 'Level of rigor needed in checking expirations - based on shelf life';
 
 
 --
@@ -1418,10 +1472,11 @@ COMMENT ON COLUMN products_stores.list_cost IS 'The price in CENTS as listed to 
 --
 
 CREATE TABLE products_suppliers (
-    sku ean13 NOT NULL,
-    supplier_id integer NOT NULL,
-    status product_status NOT NULL,
-    wholesale_cost integer,
+    psl_id integer NOT NULL,
+    psl_pr_sku ean13 NOT NULL,
+    psl_su_id integer NOT NULL,
+    psl_status product_status NOT NULL,
+    psl_wholesale_cost integer,
     last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -1436,17 +1491,52 @@ COMMENT ON TABLE products_suppliers IS 'Which product instances are carried by w
 
 
 --
--- Name: COLUMN products_suppliers.status; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products_suppliers.psl_pr_sku; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products_suppliers.status IS 'Whether we can currently buy this product from this supplier';
+COMMENT ON COLUMN products_suppliers.psl_pr_sku IS 'Foreign key to products';
 
 
 --
--- Name: COLUMN products_suppliers.wholesale_cost; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN products_suppliers.psl_su_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN products_suppliers.wholesale_cost IS 'The price in CENTS we would pay to buy this product from the supplier';
+COMMENT ON COLUMN products_suppliers.psl_su_id IS 'Foreign key to suppliers';
+
+
+--
+-- Name: COLUMN products_suppliers.psl_status; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products_suppliers.psl_status IS 'Whether we can currently buy this product from this supplier';
+
+
+--
+-- Name: COLUMN products_suppliers.psl_wholesale_cost; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN products_suppliers.psl_wholesale_cost IS 'The price in CENTS we would pay to buy this product from the supplier';
+
+
+--
+-- Name: products_suppliers_psl_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE products_suppliers_psl_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE products_suppliers_psl_id_seq OWNER TO postgres;
+
+--
+-- Name: products_suppliers_psl_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE products_suppliers_psl_id_seq OWNED BY products_suppliers.psl_id;
 
 
 --
@@ -1454,16 +1544,16 @@ COMMENT ON COLUMN products_suppliers.wholesale_cost IS 'The price in CENTS we wo
 --
 
 CREATE TABLE stores (
-    store_id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    active boolean DEFAULT true NOT NULL,
-    date_active timestamp with time zone,
-    address1 character varying(255),
-    address2 character varying(255),
-    city character varying(255),
-    state character(2),
-    zip_code character varying(12),
-    phone character varying(30)
+    so_id integer NOT NULL,
+    so_name character varying(255) NOT NULL,
+    so_active boolean DEFAULT true NOT NULL,
+    so_date_active timestamp with time zone,
+    so_address1 character varying(255),
+    so_address2 character varying(255),
+    so_city character varying(255),
+    so_state character(2),
+    so_zip_code character varying(12),
+    so_phone character varying(30)
 );
 
 
@@ -1477,31 +1567,31 @@ COMMENT ON TABLE stores IS 'Physical store locations. Active stores are selectab
 
 
 --
--- Name: COLUMN stores.name; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN stores.so_name; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN stores.name IS 'Display name for the store, a brief description of the location';
-
-
---
--- Name: COLUMN stores.active; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN stores.active IS 'Should the store be selectable and (can it take orders?)';
+COMMENT ON COLUMN stores.so_name IS 'Display name for the store, a brief description of the location';
 
 
 --
--- Name: COLUMN stores.date_active; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN stores.so_active; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN stores.date_active IS 'When the store was/will be activated';
+COMMENT ON COLUMN stores.so_active IS 'Should the store be selectable and (can it take orders?)';
 
 
 --
--- Name: stores_store_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: COLUMN stores.so_date_active; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE stores_store_id_seq
+COMMENT ON COLUMN stores.so_date_active IS 'When the store was/will be activated';
+
+
+--
+-- Name: stores_so_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE stores_so_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1509,13 +1599,13 @@ CREATE SEQUENCE stores_store_id_seq
     CACHE 1;
 
 
-ALTER TABLE stores_store_id_seq OWNER TO postgres;
+ALTER TABLE stores_so_id_seq OWNER TO postgres;
 
 --
--- Name: stores_store_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: stores_so_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE stores_store_id_seq OWNED BY stores.store_id;
+ALTER SEQUENCE stores_so_id_seq OWNED BY stores.so_id;
 
 
 --
@@ -1559,52 +1649,66 @@ ALTER SEQUENCE suppliers_supplier_id_seq OWNED BY suppliers.supplier_id;
 
 
 --
--- Name: attribute_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: atv_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY attributes ALTER COLUMN attribute_id SET DEFAULT nextval('attributes_attribute_id_seq'::regclass);
-
-
---
--- Name: brand_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY brands ALTER COLUMN brand_id SET DEFAULT nextval('brands_brand_id_seq'::regclass);
+ALTER TABLE ONLY attribute_values ALTER COLUMN atv_id SET DEFAULT nextval('attribute_values_atv_id_seq'::regclass);
 
 
 --
--- Name: category_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: at_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY categories ALTER COLUMN category_id SET DEFAULT nextval('categories_category_id_seq'::regclass);
-
-
---
--- Name: image_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY images ALTER COLUMN image_id SET DEFAULT nextval('images_image_id_seq'::regclass);
+ALTER TABLE ONLY attributes ALTER COLUMN at_id SET DEFAULT nextval('attributes_at_id_seq'::regclass);
 
 
 --
--- Name: manufacturer_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: bnd_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY manufacturers ALTER COLUMN manufacturer_id SET DEFAULT nextval('manufacturers_manufacturer_id_seq'::regclass);
-
-
---
--- Name: product_family_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY product_families ALTER COLUMN product_family_id SET DEFAULT nextval('product_families_product_family_id_seq'::regclass);
+ALTER TABLE ONLY brands ALTER COLUMN bnd_id SET DEFAULT nextval('brands_bnd_id_seq'::regclass);
 
 
 --
--- Name: store_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: cat_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY stores ALTER COLUMN store_id SET DEFAULT nextval('stores_store_id_seq'::regclass);
+ALTER TABLE ONLY categories ALTER COLUMN cat_id SET DEFAULT nextval('categories_cat_id_seq'::regclass);
+
+
+--
+-- Name: img_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY images ALTER COLUMN img_id SET DEFAULT nextval('images_img_id_seq'::regclass);
+
+
+--
+-- Name: ma_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY manufacturers ALTER COLUMN ma_id SET DEFAULT nextval('manufacturers_ma_id_seq'::regclass);
+
+
+--
+-- Name: ma_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY product_families ALTER COLUMN ma_id SET DEFAULT nextval('product_families_pfl_id_seq'::regclass);
+
+
+--
+-- Name: psl_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY products_suppliers ALTER COLUMN psl_id SET DEFAULT nextval('products_suppliers_psl_id_seq'::regclass);
+
+
+--
+-- Name: so_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY stores ALTER COLUMN so_id SET DEFAULT nextval('stores_so_id_seq'::regclass);
 
 
 --
@@ -1615,11 +1719,11 @@ ALTER TABLE ONLY suppliers ALTER COLUMN supplier_id SET DEFAULT nextval('supplie
 
 
 --
--- Name: attribute_values_pkey1; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: attribute_values_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY attribute_values
-    ADD CONSTRAINT attribute_values_pkey1 PRIMARY KEY (product_id, attribute_id);
+    ADD CONSTRAINT attribute_values_pkey PRIMARY KEY (atv_id);
 
 
 --
@@ -1627,7 +1731,7 @@ ALTER TABLE ONLY attribute_values
 --
 
 ALTER TABLE ONLY attributes
-    ADD CONSTRAINT attributes_pkey PRIMARY KEY (attribute_id);
+    ADD CONSTRAINT attributes_pkey PRIMARY KEY (at_id);
 
 
 --
@@ -1635,7 +1739,7 @@ ALTER TABLE ONLY attributes
 --
 
 ALTER TABLE ONLY brands
-    ADD CONSTRAINT brands_pkey PRIMARY KEY (brand_id);
+    ADD CONSTRAINT brands_pkey PRIMARY KEY (bnd_id);
 
 
 --
@@ -1643,7 +1747,7 @@ ALTER TABLE ONLY brands
 --
 
 ALTER TABLE ONLY categories
-    ADD CONSTRAINT categories_pkey PRIMARY KEY (category_id);
+    ADD CONSTRAINT categories_pkey PRIMARY KEY (cat_id);
 
 
 --
@@ -1651,7 +1755,7 @@ ALTER TABLE ONLY categories
 --
 
 ALTER TABLE ONLY images
-    ADD CONSTRAINT images_pkey1 PRIMARY KEY (image_id);
+    ADD CONSTRAINT images_pkey1 PRIMARY KEY (img_id);
 
 
 --
@@ -1659,7 +1763,7 @@ ALTER TABLE ONLY images
 --
 
 ALTER TABLE ONLY manufacturers
-    ADD CONSTRAINT manufacturers_pkey PRIMARY KEY (manufacturer_id);
+    ADD CONSTRAINT manufacturers_pkey PRIMARY KEY (ma_id);
 
 
 --
@@ -1667,7 +1771,7 @@ ALTER TABLE ONLY manufacturers
 --
 
 ALTER TABLE ONLY product_families
-    ADD CONSTRAINT product_families_pkey PRIMARY KEY (product_family_id);
+    ADD CONSTRAINT product_families_pkey PRIMARY KEY (ma_id);
 
 
 --
@@ -1675,7 +1779,7 @@ ALTER TABLE ONLY product_families
 --
 
 ALTER TABLE ONLY products
-    ADD CONSTRAINT products_pkey1 PRIMARY KEY (sku);
+    ADD CONSTRAINT products_pkey1 PRIMARY KEY (pr_sku);
 
 
 --
@@ -1687,11 +1791,11 @@ ALTER TABLE ONLY products_stores
 
 
 --
--- Name: products_suppliers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: products_suppliers_pkey1; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY products_suppliers
-    ADD CONSTRAINT products_suppliers_pkey PRIMARY KEY (sku, supplier_id);
+    ADD CONSTRAINT products_suppliers_pkey1 PRIMARY KEY (psl_id);
 
 
 --
@@ -1699,7 +1803,7 @@ ALTER TABLE ONLY products_suppliers
 --
 
 ALTER TABLE ONLY stores
-    ADD CONSTRAINT stores_pkey PRIMARY KEY (store_id);
+    ADD CONSTRAINT stores_pkey PRIMARY KEY (so_id);
 
 
 --
@@ -1715,7 +1819,35 @@ ALTER TABLE ONLY suppliers
 --
 
 ALTER TABLE ONLY images
-    ADD CONSTRAINT uniq_sku_image_ranks UNIQUE (sku, rank);
+    ADD CONSTRAINT uniq_sku_image_ranks UNIQUE (img_pr_sku, img_rank);
+
+
+--
+-- Name: attribute_values_atv_at_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX attribute_values_atv_at_id_idx ON attribute_values USING btree (atv_at_id);
+
+
+--
+-- Name: attribute_values_atv_pr_sku_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX attribute_values_atv_pr_sku_idx ON attribute_values USING btree (atv_pr_sku);
+
+
+--
+-- Name: products_suppliers_psl_pr_sku_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX products_suppliers_psl_pr_sku_idx ON products_suppliers USING btree (psl_pr_sku);
+
+
+--
+-- Name: products_suppliers_psl_su_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX products_suppliers_psl_su_id_idx ON products_suppliers USING btree (psl_su_id);
 
 
 --
@@ -1726,26 +1858,6 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
-
-
---
--- Name: attribute_values; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE attribute_values FROM PUBLIC;
-REVOKE ALL ON TABLE attribute_values FROM postgres;
-GRANT ALL ON TABLE attribute_values TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE attribute_values TO jp_readwrite;
-
-
---
--- Name: attributes; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE attributes FROM PUBLIC;
-REVOKE ALL ON TABLE attributes FROM postgres;
-GRANT ALL ON TABLE attributes TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE attributes TO jp_readwrite;
 
 
 --
@@ -1896,26 +2008,6 @@ REVOKE ALL ON TABLE products_stores FROM PUBLIC;
 REVOKE ALL ON TABLE products_stores FROM postgres;
 GRANT ALL ON TABLE products_stores TO postgres;
 GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE products_stores TO jp_readwrite;
-
-
---
--- Name: products_suppliers; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE products_suppliers FROM PUBLIC;
-REVOKE ALL ON TABLE products_suppliers FROM postgres;
-GRANT ALL ON TABLE products_suppliers TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE products_suppliers TO jp_readwrite;
-
-
---
--- Name: stores; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE stores FROM PUBLIC;
-REVOKE ALL ON TABLE stores FROM postgres;
-GRANT ALL ON TABLE stores TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE stores TO jp_readwrite;
 
 
 --

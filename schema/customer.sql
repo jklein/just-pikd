@@ -117,19 +117,19 @@ SET default_with_oids = false;
 --
 
 CREATE TABLE address_books (
-    address_id integer NOT NULL,
-    customer_id integer NOT NULL,
-    type address_type NOT NULL,
-    first_name character varying(255) NOT NULL,
-    middle_name character varying(255),
-    last_name character varying(255),
-    email character varying(255),
-    address1 character varying(255) NOT NULL,
-    address2 character varying(255),
-    city character varying(255) NOT NULL,
-    state character(2) NOT NULL,
-    zip_code character varying(12) NOT NULL,
-    phone character varying(30)
+    adr_id integer NOT NULL,
+    adr_cu_id integer NOT NULL,
+    adr_type address_type NOT NULL,
+    adr_first_name character varying(255) NOT NULL,
+    adr_middle_name character varying(255),
+    adr_last_name character varying(255),
+    adr_email character varying(255),
+    adr_address1 character varying(255) NOT NULL,
+    adr_address2 character varying(255),
+    adr_city character varying(255) NOT NULL,
+    adr_state character(2) NOT NULL,
+    adr_zip_code character varying(12) NOT NULL,
+    adr_phone character varying(30)
 );
 
 
@@ -143,17 +143,17 @@ COMMENT ON TABLE address_books IS 'Saved billing or shipping addresses tied to a
 
 
 --
--- Name: COLUMN address_books.state; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN address_books.adr_state; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN address_books.state IS 'Two letter state code such as "MA"';
+COMMENT ON COLUMN address_books.adr_state IS 'Two letter state code such as "MA"';
 
 
 --
--- Name: address_books_address_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: address_books_adr_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE address_books_address_id_seq
+CREATE SEQUENCE address_books_adr_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -161,13 +161,13 @@ CREATE SEQUENCE address_books_address_id_seq
     CACHE 1;
 
 
-ALTER TABLE address_books_address_id_seq OWNER TO postgres;
+ALTER TABLE address_books_adr_id_seq OWNER TO postgres;
 
 --
--- Name: address_books_address_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: address_books_adr_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE address_books_address_id_seq OWNED BY address_books.address_id;
+ALTER SEQUENCE address_books_adr_id_seq OWNED BY address_books.adr_id;
 
 
 --
@@ -175,18 +175,18 @@ ALTER SEQUENCE address_books_address_id_seq OWNED BY address_books.address_id;
 --
 
 CREATE TABLE customers (
-    customer_id integer NOT NULL,
-    email character varying(255) NOT NULL,
-    password character varying(255),
-    last_login timestamp with time zone,
-    persist_code character varying(255) DEFAULT NULL::character varying,
-    reset_password_code character varying(255) DEFAULT NULL::character varying,
-    first_name character varying(255) DEFAULT NULL::character varying,
-    stripe_id character varying(255) DEFAULT NULL::character varying,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    default_billing_address_id integer,
-    default_shipping_address_id integer
+    cu_id integer NOT NULL,
+    cu_email character varying(255) NOT NULL,
+    cu_password character varying(255),
+    cu_last_login timestamp with time zone,
+    cu_persist_code character varying(255) DEFAULT NULL::character varying,
+    cu_reset_password_code character varying(255) DEFAULT NULL::character varying,
+    cu_first_name character varying(255) DEFAULT NULL::character varying,
+    cu_stripe_id character varying(255) DEFAULT NULL::character varying,
+    cu_created_at timestamp with time zone DEFAULT now() NOT NULL,
+    cu_updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    cu_default_billing_address_id integer,
+    cu_default_shipping_address_id integer
 );
 
 
@@ -200,38 +200,38 @@ COMMENT ON TABLE customers IS 'Basic login information for a customer account';
 
 
 --
--- Name: COLUMN customers.password; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN customers.cu_password; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN customers.password IS 'Hashed password for this customer account';
-
-
---
--- Name: COLUMN customers.persist_code; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN customers.persist_code IS 'Session identifier';
+COMMENT ON COLUMN customers.cu_password IS 'Hashed password for this customer account';
 
 
 --
--- Name: COLUMN customers.reset_password_code; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN customers.cu_persist_code; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN customers.reset_password_code IS 'One time code to reset password, should be nulled out upon use';
-
-
---
--- Name: COLUMN customers.stripe_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN customers.stripe_id IS 'Customer ID from Stripe API for credit card authentication';
+COMMENT ON COLUMN customers.cu_persist_code IS 'Session identifier';
 
 
 --
--- Name: customers_customer_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: COLUMN customers.cu_reset_password_code; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE customers_customer_id_seq
+COMMENT ON COLUMN customers.cu_reset_password_code IS 'One time code to reset password, should be nulled out upon use';
+
+
+--
+-- Name: COLUMN customers.cu_stripe_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN customers.cu_stripe_id IS 'Customer ID from Stripe API for credit card authentication';
+
+
+--
+-- Name: customers_cu_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE customers_cu_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -239,13 +239,13 @@ CREATE SEQUENCE customers_customer_id_seq
     CACHE 1;
 
 
-ALTER TABLE customers_customer_id_seq OWNER TO postgres;
+ALTER TABLE customers_cu_id_seq OWNER TO postgres;
 
 --
--- Name: customers_customer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: customers_cu_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE customers_customer_id_seq OWNED BY customers.customer_id;
+ALTER SEQUENCE customers_cu_id_seq OWNED BY customers.cu_id;
 
 
 --
@@ -253,15 +253,15 @@ ALTER SEQUENCE customers_customer_id_seq OWNED BY customers.customer_id;
 --
 
 CREATE TABLE order_products (
-    item_id integer NOT NULL,
-    order_id integer NOT NULL,
-    sku ean13 NOT NULL,
-    quantity integer NOT NULL,
-    name character varying(255) NOT NULL,
-    manufacturer_name character varying(255),
-    list_cost integer,
-    date_added timestamp with time zone DEFAULT now() NOT NULL,
-    date_updated timestamp with time zone DEFAULT now() NOT NULL
+    op_id integer NOT NULL,
+    op_or_id integer NOT NULL,
+    op_pr_sku ean13 NOT NULL,
+    op_qty integer NOT NULL,
+    op_product_name character varying(255) NOT NULL,
+    op_manufacturer_name character varying(255),
+    op_list_cost integer,
+    op_date_added timestamp with time zone DEFAULT now() NOT NULL,
+    op_date_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -275,66 +275,66 @@ COMMENT ON TABLE order_products IS 'base_products in the order, including all po
 
 
 --
--- Name: COLUMN order_products.order_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN order_products.op_or_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN order_products.order_id IS 'Foreign key to orders table, the order this item is part of';
-
-
---
--- Name: COLUMN order_products.sku; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN order_products.sku IS 'Foreign key to the products table';
+COMMENT ON COLUMN order_products.op_or_id IS 'Foreign key to orders table, the order this item is part of';
 
 
 --
--- Name: COLUMN order_products.quantity; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN order_products.op_pr_sku; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN order_products.quantity IS 'The number of this sku being purchased';
-
-
---
--- Name: COLUMN order_products.name; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN order_products.name IS 'Display name at time of addition';
+COMMENT ON COLUMN order_products.op_pr_sku IS 'Foreign key to the products table';
 
 
 --
--- Name: COLUMN order_products.manufacturer_name; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN order_products.op_qty; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN order_products.manufacturer_name IS 'Manufacturer display name at time of addition';
-
-
---
--- Name: COLUMN order_products.list_cost; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN order_products.list_cost IS 'products list_cost in CENTS at time of addition to cart. For a shopping list, this should stay NULL until it becomes a cart';
+COMMENT ON COLUMN order_products.op_qty IS 'The number of this sku being purchased';
 
 
 --
--- Name: COLUMN order_products.date_added; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN order_products.op_product_name; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN order_products.date_added IS 'Date the item was added';
-
-
---
--- Name: COLUMN order_products.date_updated; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN order_products.date_updated IS 'Date the quantity or cost was last changed';
+COMMENT ON COLUMN order_products.op_product_name IS 'Display name at time of addition';
 
 
 --
--- Name: order_products_item_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: COLUMN order_products.op_manufacturer_name; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE order_products_item_id_seq
+COMMENT ON COLUMN order_products.op_manufacturer_name IS 'Manufacturer display name at time of addition';
+
+
+--
+-- Name: COLUMN order_products.op_list_cost; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN order_products.op_list_cost IS 'products list_cost in CENTS at time of addition to cart. For a shopping list, this should stay NULL until it becomes a cart';
+
+
+--
+-- Name: COLUMN order_products.op_date_added; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN order_products.op_date_added IS 'Date the item was added';
+
+
+--
+-- Name: COLUMN order_products.op_date_updated; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN order_products.op_date_updated IS 'Date the quantity or cost was last changed';
+
+
+--
+-- Name: order_products_op_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE order_products_op_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -342,13 +342,13 @@ CREATE SEQUENCE order_products_item_id_seq
     CACHE 1;
 
 
-ALTER TABLE order_products_item_id_seq OWNER TO postgres;
+ALTER TABLE order_products_op_id_seq OWNER TO postgres;
 
 --
--- Name: order_products_item_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: order_products_op_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE order_products_item_id_seq OWNED BY order_products.item_id;
+ALTER SEQUENCE order_products_op_id_seq OWNED BY order_products.op_id;
 
 
 --
@@ -356,24 +356,24 @@ ALTER SEQUENCE order_products_item_id_seq OWNED BY order_products.item_id;
 --
 
 CREATE TABLE orders (
-    order_id integer NOT NULL,
-    store_id integer NOT NULL,
-    customer_id integer NOT NULL,
-    status order_status NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    submitted_at timestamp with time zone,
-    total_cost integer,
-    first_name character varying(255),
-    middle_name character varying(255),
-    last_name character varying(255),
-    email character varying(255),
-    address1 character varying(255),
-    address2 character varying(255),
-    city character varying(255),
-    state character(2),
-    zip_code character varying(12),
-    phone character varying(30)
+    or_id integer NOT NULL,
+    or_so_id integer NOT NULL,
+    or_cu_id integer NOT NULL,
+    or_status order_status NOT NULL,
+    or_created_at timestamp with time zone DEFAULT now() NOT NULL,
+    or_updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    or_submitted_at timestamp with time zone,
+    or_total_cost integer,
+    or_first_name character varying(255),
+    or_middle_name character varying(255),
+    or_last_name character varying(255),
+    or_email character varying(255),
+    or_address1 character varying(255),
+    or_address2 character varying(255),
+    or_city character varying(255),
+    or_state character(2),
+    or_zip_code character varying(12),
+    or_phone character varying(30)
 );
 
 
@@ -387,45 +387,52 @@ COMMENT ON TABLE orders IS 'Order level information, including status and point 
 
 
 --
--- Name: COLUMN orders.store_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN orders.or_so_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN orders.store_id IS 'The store that fulfills the order';
-
-
---
--- Name: COLUMN orders.created_at; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN orders.created_at IS 'The time when the basket is initially created';
+COMMENT ON COLUMN orders.or_so_id IS 'The store that fulfills the order - fk to stores';
 
 
 --
--- Name: COLUMN orders.updated_at; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN orders.or_cu_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN orders.updated_at IS 'The last time any data on the order was changed';
-
-
---
--- Name: COLUMN orders.submitted_at; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN orders.submitted_at IS 'The time when the customer submitted the order upon completion of checkout';
+COMMENT ON COLUMN orders.or_cu_id IS 'The customer that placed the order - fk to customers';
 
 
 --
--- Name: COLUMN orders.total_cost; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN orders.or_created_at; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN orders.total_cost IS 'The total price in CENTS paid by the customer for all base_products on the order';
+COMMENT ON COLUMN orders.or_created_at IS 'The time when the basket is initially created';
 
 
 --
--- Name: orders_order_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: COLUMN orders.or_updated_at; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE orders_order_id_seq
+COMMENT ON COLUMN orders.or_updated_at IS 'The last time any data on the order was changed';
+
+
+--
+-- Name: COLUMN orders.or_submitted_at; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN orders.or_submitted_at IS 'The time when the customer submitted the order upon completion of checkout';
+
+
+--
+-- Name: COLUMN orders.or_total_cost; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN orders.or_total_cost IS 'The total price in CENTS paid by the customer for all base_products on the order';
+
+
+--
+-- Name: orders_or_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE orders_or_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -433,41 +440,41 @@ CREATE SEQUENCE orders_order_id_seq
     CACHE 1;
 
 
-ALTER TABLE orders_order_id_seq OWNER TO postgres;
+ALTER TABLE orders_or_id_seq OWNER TO postgres;
 
 --
--- Name: orders_order_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: orders_or_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE orders_order_id_seq OWNED BY orders.order_id;
-
-
---
--- Name: address_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY address_books ALTER COLUMN address_id SET DEFAULT nextval('address_books_address_id_seq'::regclass);
+ALTER SEQUENCE orders_or_id_seq OWNED BY orders.or_id;
 
 
 --
--- Name: customer_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: adr_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY customers ALTER COLUMN customer_id SET DEFAULT nextval('customers_customer_id_seq'::regclass);
-
-
---
--- Name: item_id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY order_products ALTER COLUMN item_id SET DEFAULT nextval('order_products_item_id_seq'::regclass);
+ALTER TABLE ONLY address_books ALTER COLUMN adr_id SET DEFAULT nextval('address_books_adr_id_seq'::regclass);
 
 
 --
--- Name: order_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: cu_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY orders ALTER COLUMN order_id SET DEFAULT nextval('orders_order_id_seq'::regclass);
+ALTER TABLE ONLY customers ALTER COLUMN cu_id SET DEFAULT nextval('customers_cu_id_seq'::regclass);
+
+
+--
+-- Name: op_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY order_products ALTER COLUMN op_id SET DEFAULT nextval('order_products_op_id_seq'::regclass);
+
+
+--
+-- Name: or_id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY orders ALTER COLUMN or_id SET DEFAULT nextval('orders_or_id_seq'::regclass);
 
 
 --
@@ -475,7 +482,7 @@ ALTER TABLE ONLY orders ALTER COLUMN order_id SET DEFAULT nextval('orders_order_
 --
 
 ALTER TABLE ONLY address_books
-    ADD CONSTRAINT address_books_pkey PRIMARY KEY (address_id);
+    ADD CONSTRAINT address_books_pkey PRIMARY KEY (adr_id);
 
 
 --
@@ -483,7 +490,7 @@ ALTER TABLE ONLY address_books
 --
 
 ALTER TABLE ONLY customers
-    ADD CONSTRAINT customers_pkey PRIMARY KEY (customer_id);
+    ADD CONSTRAINT customers_pkey PRIMARY KEY (cu_id);
 
 
 --
@@ -491,7 +498,7 @@ ALTER TABLE ONLY customers
 --
 
 ALTER TABLE ONLY order_products
-    ADD CONSTRAINT order_products_pkey PRIMARY KEY (item_id);
+    ADD CONSTRAINT order_products_pkey PRIMARY KEY (op_id);
 
 
 --
@@ -499,7 +506,42 @@ ALTER TABLE ONLY order_products
 --
 
 ALTER TABLE ONLY orders
-    ADD CONSTRAINT orders_pkey PRIMARY KEY (order_id);
+    ADD CONSTRAINT orders_pkey PRIMARY KEY (or_id);
+
+
+--
+-- Name: address_books_adr_cu_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX address_books_adr_cu_id_idx ON address_books USING btree (adr_cu_id);
+
+
+--
+-- Name: customers_cu_email_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX customers_cu_email_idx ON customers USING btree (cu_email);
+
+
+--
+-- Name: order_products_op_or_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX order_products_op_or_id_idx ON order_products USING btree (op_or_id);
+
+
+--
+-- Name: orders_or_cu_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX orders_or_cu_id_idx ON orders USING btree (or_cu_id);
+
+
+--
+-- Name: orders_or_so_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX orders_or_so_id_idx ON orders USING btree (or_so_id);
 
 
 --
@@ -510,46 +552,6 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
-
-
---
--- Name: address_books; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE address_books FROM PUBLIC;
-REVOKE ALL ON TABLE address_books FROM postgres;
-GRANT ALL ON TABLE address_books TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE address_books TO jp_readwrite;
-
-
---
--- Name: customers; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE customers FROM PUBLIC;
-REVOKE ALL ON TABLE customers FROM postgres;
-GRANT ALL ON TABLE customers TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE customers TO jp_readwrite;
-
-
---
--- Name: order_products; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE order_products FROM PUBLIC;
-REVOKE ALL ON TABLE order_products FROM postgres;
-GRANT ALL ON TABLE order_products TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE order_products TO jp_readwrite;
-
-
---
--- Name: orders; Type: ACL; Schema: public; Owner: postgres
---
-
-REVOKE ALL ON TABLE orders FROM PUBLIC;
-REVOKE ALL ON TABLE orders FROM postgres;
-GRANT ALL ON TABLE orders TO postgres;
-GRANT SELECT,INSERT,DELETE,TRUNCATE,UPDATE ON TABLE orders TO jp_readwrite;
 
 
 --
