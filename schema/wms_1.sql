@@ -1884,7 +1884,7 @@ CREATE TABLE static_inventory (
     si_stl_id ean13 NOT NULL,
     si_pr_sku ean13 NOT NULL,
     si_spop_id integer NOT NULL,
-    si_ma_id integer,
+    si_ma_id integer NOT NULL,
     si_expiration_class expiration_class,
     si_expiration_date timestamp with time zone,
     si_total_qty integer NOT NULL,
