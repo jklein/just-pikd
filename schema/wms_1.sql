@@ -260,7 +260,8 @@ CREATE TYPE receiving_location_type AS ENUM (
     'Pallet Receiving',
     'DSD Receiving Bay',
     'General Receiving Bay',
-    'Exception Handling'
+    'Exception Handling',
+    'Return to Vendor'
 );
 
 
@@ -274,7 +275,8 @@ COMMENT ON TYPE receiving_location_type IS 'Types of places where goods can be s
 Pallet Receiving for entire pallets in any temperature zone
 DSD Receiving Bay for direct store deliveries - no barcode, one per store
 General Receiving Bay for sub-pallet deliveries, returns or emergency products (with barcodes)
-Exception Handling - used for returns, uncollected orders and found products';
+Exception Handling - used for returns, uncollected orders and found products
+Return to Vendor - locations within each temperature zone for unknown/unordered products to be returned to the vendor';
 
 
 --
@@ -438,8 +440,8 @@ CREATE TABLE associate_stations (
     ast_id integer NOT NULL,
     ast_as_id integer NOT NULL,
     ast_station_type station_type NOT NULL,
-    ast_start_time timestamp without time zone NOT NULL,
-    ast_end_time timestamp without time zone
+    ast_start_time timestamp with time zone NOT NULL,
+    ast_end_time timestamp with time zone
 );
 
 
@@ -517,7 +519,7 @@ CREATE TABLE associates (
     as_first_name character varying(255) NOT NULL,
     as_last_name character varying(255) NOT NULL,
     as_login_pin character varying(6),
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -588,7 +590,7 @@ CREATE TABLE customer_order_products (
     cop_cor_id integer NOT NULL,
     cop_pr_sku ean13 NOT NULL,
     cop_quantity integer NOT NULL,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -642,9 +644,9 @@ CREATE TABLE customer_orders (
     cor_email character varying(255),
     cor_phone character varying(30),
     cor_notification_type notification_type,
-    cor_submitted_at timestamp without time zone,
-    cor_scheduled_pickup timestamp without time zone,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    cor_submitted_at timestamp with time zone,
+    cor_scheduled_pickup timestamp with time zone,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -741,8 +743,8 @@ CREATE TABLE inventory_errors (
     ier_stl_id integer,
     ier_qty_adjustment integer,
     ier_notes text,
-    ier_error_date timestamp without time zone,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    ier_error_date timestamp with time zone,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -855,7 +857,7 @@ CREATE TABLE inventory_holds (
     ihd_si_id integer NOT NULL,
     ihd_cop_id integer NOT NULL,
     ihd_qty integer NOT NULL,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -924,7 +926,7 @@ ALTER SEQUENCE inventory_holds_ihd_id_seq OWNED BY inventory_holds.ihd_id;
 CREATE TABLE kiosks (
     kio_id integer NOT NULL,
     kio_preferred_pickup_locations integer[],
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -980,7 +982,7 @@ CREATE TABLE pick_container_locations (
     pcl_id ean13 NOT NULL,
     pcl_type pick_container_location_type NOT NULL,
     pcl_temperature_zone temperature_zone,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1026,7 +1028,7 @@ CREATE TABLE pick_containers (
     pc_height double precision,
     pc_width double precision NOT NULL,
     pc_depth double precision NOT NULL,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1103,7 +1105,8 @@ CREATE TABLE pick_task_products (
     ptp_status task_status NOT NULL,
     ptp_allocated_qty integer NOT NULL,
     ptp_fulfilled_qty integer,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    last_updated timestamp with time zone DEFAULT now() NOT NULL,
+    ptp_ma_id integer NOT NULL
 );
 
 
@@ -1187,6 +1190,13 @@ COMMENT ON COLUMN pick_task_products.ptp_fulfilled_qty IS 'Quantity of this prod
 
 
 --
+-- Name: COLUMN pick_task_products.ptp_ma_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pick_task_products.ptp_ma_id IS 'Foreign key to manufacturers - used to display image';
+
+
+--
 -- Name: pick_task_products_ptp_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -1219,11 +1229,13 @@ CREATE TABLE pick_tasks (
     pt_type pick_task_type NOT NULL,
     pt_status task_status NOT NULL,
     pt_temperature_zone temperature_zone NOT NULL,
-    pt_order_promised_time timestamp without time zone NOT NULL,
+    pt_order_promised_time timestamp with time zone NOT NULL,
     pt_est_duration integer,
-    pt_start_time timestamp without time zone,
-    pt_end_time timestamp without time zone,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    pt_start_time timestamp with time zone,
+    pt_end_time timestamp with time zone,
+    pt_bin_qty_est integer NOT NULL,
+    pt_bin_size_est double precision,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1314,6 +1326,20 @@ COMMENT ON COLUMN pick_tasks.pt_end_time IS 'When the task was completed';
 
 
 --
+-- Name: COLUMN pick_tasks.pt_bin_qty_est; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pick_tasks.pt_bin_qty_est IS 'Estimated number of bins required on the pick cart based on product sizes';
+
+
+--
+-- Name: COLUMN pick_tasks.pt_bin_size_est; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pick_tasks.pt_bin_size_est IS 'Estimated bin size in cubic volume (relevant only if using just one bin, otherwise use largest bins)';
+
+
+--
 -- Name: pick_tasks_pt_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -1343,7 +1369,7 @@ CREATE TABLE pickup_locations (
     pul_type pickup_location_type NOT NULL,
     pul_display_name character varying(50) NOT NULL,
     pul_current_cars integer NOT NULL,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1416,7 +1442,7 @@ CREATE TABLE pickup_task_products (
     putp_pr_sku ean13 NOT NULL,
     putp_status task_status NOT NULL,
     putp_qty integer NOT NULL,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1495,10 +1521,10 @@ CREATE TABLE pickup_tasks (
     put_pul_id integer NOT NULL,
     put_as_id integer,
     put_status task_status NOT NULL,
-    put_customer_checkin_time timestamp without time zone NOT NULL,
-    put_start_time timestamp without time zone,
-    put_end_time timestamp without time zone,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    put_customer_checkin_time timestamp with time zone NOT NULL,
+    put_start_time timestamp with time zone,
+    put_end_time timestamp with time zone,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1808,7 +1834,7 @@ CREATE TABLE receiving_locations (
     rcl_type receiving_location_type NOT NULL,
     rcl_temperature_zone temperature_zone NOT NULL,
     rcl_shi_shipment_code integer,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1860,18 +1886,18 @@ CREATE TABLE static_inventory (
     si_spop_id integer NOT NULL,
     si_ma_id integer,
     si_expiration_class expiration_class,
-    si_expiration_date timestamp without time zone,
+    si_expiration_date timestamp with time zone,
     si_total_qty integer NOT NULL,
     si_available_qty integer NOT NULL,
     si_qty_on_hand integer NOT NULL,
-    si_arrival_date timestamp without time zone,
-    si_emptied_date timestamp without time zone,
+    si_arrival_date timestamp with time zone,
+    si_emptied_date timestamp with time zone,
     si_product_name character varying(255),
     si_product_length double precision,
     si_product_width double precision,
     si_product_height double precision,
     si_product_weight double precision,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -2035,15 +2061,15 @@ CREATE TABLE stocking_locations (
     stl_pick_segment integer NOT NULL,
     stl_aisle integer NOT NULL,
     stl_bay integer NOT NULL,
-    stl_shelf integer NOT NULL,
-    stl_shelf_slot integer NOT NULL,
+    stl_shelf integer DEFAULT 1 NOT NULL,
+    stl_shelf_slot integer DEFAULT 1 NOT NULL,
     stl_height double precision,
     stl_width double precision,
     stl_depth double precision,
     stl_assigned_sku ean13,
     stl_needs_qc boolean DEFAULT false NOT NULL,
-    stl_last_qc_date timestamp without time zone,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    stl_last_qc_date timestamp with time zone,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -2178,11 +2204,12 @@ CREATE TABLE stocking_purchase_order_products (
     spop_case_width double precision,
     spop_case_height double precision,
     spop_case_weight double precision,
-    spop_expected_arrival timestamp without time zone,
-    spop_actual_arrival timestamp without time zone,
+    spop_expected_arrival timestamp with time zone,
+    spop_actual_arrival timestamp with time zone,
     spop_wholesale_cost integer,
     spop_expiration_class expiration_class,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    spop_ma_id integer NOT NULL,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -2343,6 +2370,13 @@ COMMENT ON COLUMN stocking_purchase_order_products.spop_expiration_class IS 'Ind
 
 
 --
+-- Name: COLUMN stocking_purchase_order_products.spop_ma_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN stocking_purchase_order_products.spop_ma_id IS 'Foreign key to manufacturers, used to display image link';
+
+
+--
 -- Name: stocking_purchase_order_products_spop_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -2371,11 +2405,11 @@ CREATE TABLE stocking_purchase_orders (
     spo_id integer NOT NULL,
     spo_status stocking_purchase_order_status NOT NULL,
     spo_su_id integer NOT NULL,
-    spo_date_ordered timestamp without time zone NOT NULL,
-    spo_date_confirmed timestamp without time zone,
-    spo_date_shipped timestamp without time zone,
-    spo_date_arrived timestamp without time zone,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    spo_date_ordered timestamp with time zone NOT NULL,
+    spo_date_confirmed timestamp with time zone,
+    spo_date_shipped timestamp with time zone,
+    spo_date_arrived timestamp with time zone,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -2467,9 +2501,9 @@ CREATE TABLE supplier_shipments (
     shi_shipment_code character varying(255) NOT NULL,
     shi_spo_id integer NOT NULL,
     shi_su_id integer NOT NULL,
-    shi_promised_delivery timestamp without time zone,
-    shi_actual_delivery timestamp without time zone,
-    last_updated timestamp without time zone DEFAULT now() NOT NULL
+    shi_promised_delivery timestamp with time zone,
+    shi_actual_delivery timestamp with time zone,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
