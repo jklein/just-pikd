@@ -1223,7 +1223,7 @@ ALTER SEQUENCE pick_task_products_ptp_id_seq OWNED BY pick_task_products.ptp_id;
 
 CREATE TABLE pick_tasks (
     pt_id integer NOT NULL,
-    pt_pc_id ean13 NOT NULL,
+    pt_pc_id ean13,
     pt_cor_id integer,
     pt_as_id integer,
     pt_type pick_task_type NOT NULL,
@@ -1517,6 +1517,7 @@ ALTER SEQUENCE pickup_task_products_putp_id_seq OWNED BY pickup_task_products.pu
 
 CREATE TABLE pickup_tasks (
     put_id integer NOT NULL,
+    put_pc_id ean13 NOT NULL,
     put_cor_id integer NOT NULL,
     put_pul_id integer NOT NULL,
     put_as_id integer,
@@ -1529,6 +1530,69 @@ CREATE TABLE pickup_tasks (
 
 
 ALTER TABLE pickup_tasks OWNER TO postgres;
+
+--
+-- Name: TABLE pickup_tasks; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE pickup_tasks IS 'Group of products that one associate gathers as part (or all) of a customer order across multiple temperature zones';
+
+
+--
+-- Name: COLUMN pickup_tasks.put_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pickup_tasks.put_id IS 'Surrogate primary key';
+
+
+--
+-- Name: COLUMN pickup_tasks.put_cor_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pickup_tasks.put_cor_id IS 'Foreign key to customer_orders';
+
+
+--
+-- Name: COLUMN pickup_tasks.put_pul_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pickup_tasks.put_pul_id IS 'Location where the customer is waiting for pickup';
+
+
+--
+-- Name: COLUMN pickup_tasks.put_as_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pickup_tasks.put_as_id IS 'Associate assigned to the pickup task';
+
+
+--
+-- Name: COLUMN pickup_tasks.put_status; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pickup_tasks.put_status IS 'Current status of this pickup task, i.e. queued/in progress/complete';
+
+
+--
+-- Name: COLUMN pickup_tasks.put_customer_checkin_time; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pickup_tasks.put_customer_checkin_time IS 'Time when the customer checked in as awaiting pickup';
+
+
+--
+-- Name: COLUMN pickup_tasks.put_start_time; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pickup_tasks.put_start_time IS 'When the task was started';
+
+
+--
+-- Name: COLUMN pickup_tasks.put_end_time; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pickup_tasks.put_end_time IS 'When the task was completed';
+
 
 --
 -- Name: pickup_tasks_put_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
