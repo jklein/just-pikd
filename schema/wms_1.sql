@@ -310,7 +310,8 @@ COMMENT ON TYPE station_type IS 'Stations that associates can be staffed to';
 CREATE TYPE stocking_location_type AS ENUM (
     'Pallet Storage',
     'Shelf Storage',
-    'Produce Storage'
+    'Produce Storage',
+    'Stocking Cart'
 );
 
 
@@ -982,6 +983,10 @@ CREATE TABLE pick_container_locations (
     pcl_id ean13 NOT NULL,
     pcl_type pick_container_location_type NOT NULL,
     pcl_temperature_zone temperature_zone,
+    pcl_aisle integer NOT NULL,
+    pcl_bay integer NOT NULL,
+    pcl_shelf integer DEFAULT 1 NOT NULL,
+    pcl_shelf_slot integer DEFAULT 1 NOT NULL,
     last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -1014,6 +1019,34 @@ COMMENT ON COLUMN pick_container_locations.pcl_type IS 'The type of location - i
 --
 
 COMMENT ON COLUMN pick_container_locations.pcl_temperature_zone IS 'The temperature zone the location is to be used in';
+
+
+--
+-- Name: COLUMN pick_container_locations.pcl_aisle; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pick_container_locations.pcl_aisle IS 'Aisle number within a temperature zone (visible within store to associates)';
+
+
+--
+-- Name: COLUMN pick_container_locations.pcl_bay; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pick_container_locations.pcl_bay IS 'Shelving bay within an aisle';
+
+
+--
+-- Name: COLUMN pick_container_locations.pcl_shelf; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pick_container_locations.pcl_shelf IS 'Shelf number within a shelving bay (counting from bottom, starting at 1)';
+
+
+--
+-- Name: COLUMN pick_container_locations.pcl_shelf_slot; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pick_container_locations.pcl_shelf_slot IS 'Slot within a shelf (counting from left, starting at 1)';
 
 
 --
