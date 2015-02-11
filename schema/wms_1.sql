@@ -1138,8 +1138,9 @@ CREATE TABLE pick_task_products (
     ptp_status task_status NOT NULL,
     ptp_allocated_qty integer NOT NULL,
     ptp_fulfilled_qty integer,
-    last_updated timestamp with time zone DEFAULT now() NOT NULL,
-    ptp_ma_id integer NOT NULL
+    ptp_ma_id integer NOT NULL,
+    ptp_pick_order integer,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1149,7 +1150,7 @@ ALTER TABLE pick_task_products OWNER TO postgres;
 -- Name: TABLE pick_task_products; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON TABLE pick_task_products IS 'Products that make up a pickup task, each tied to a customer_order_product';
+COMMENT ON TABLE pick_task_products IS 'Tracks products to be picked as split into pick tasks';
 
 
 --
@@ -1230,6 +1231,13 @@ COMMENT ON COLUMN pick_task_products.ptp_ma_id IS 'Foreign key to manufacturers 
 
 
 --
+-- Name: COLUMN pick_task_products.ptp_pick_order; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pick_task_products.ptp_pick_order IS 'Calculated pick order relative to other products on the pick task';
+
+
+--
 -- Name: pick_task_products_ptp_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -1256,18 +1264,17 @@ ALTER SEQUENCE pick_task_products_ptp_id_seq OWNED BY pick_task_products.ptp_id;
 
 CREATE TABLE pick_tasks (
     pt_id integer NOT NULL,
-    pt_pc_id ean13,
-    pt_cor_id integer,
     pt_as_id integer,
     pt_type pick_task_type NOT NULL,
     pt_status task_status NOT NULL,
     pt_temperature_zone temperature_zone NOT NULL,
-    pt_order_promised_time timestamp with time zone NOT NULL,
+    pt_order_promised_time timestamp with time zone,
     pt_est_duration integer,
     pt_start_time timestamp with time zone,
     pt_end_time timestamp with time zone,
     pt_bin_qty_est integer NOT NULL,
     pt_bin_size_est double precision,
+    pt_multi_order boolean DEFAULT false NOT NULL,
     last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
@@ -1278,7 +1285,7 @@ ALTER TABLE pick_tasks OWNER TO postgres;
 -- Name: TABLE pick_tasks; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON TABLE pick_tasks IS 'Represents work assigned to one associate in one temperature zone for one order';
+COMMENT ON TABLE pick_tasks IS 'Represents work assigned to one associate in one temperature zone for one or more orders';
 
 
 --
@@ -1286,20 +1293,6 @@ COMMENT ON TABLE pick_tasks IS 'Represents work assigned to one associate in one
 --
 
 COMMENT ON COLUMN pick_tasks.pt_id IS 'Unique identifier to the pick task';
-
-
---
--- Name: COLUMN pick_tasks.pt_pc_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN pick_tasks.pt_pc_id IS 'Foreign key to pick_containers - the container being used to pick the products';
-
-
---
--- Name: COLUMN pick_tasks.pt_cor_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN pick_tasks.pt_cor_id IS 'Foreign key to customer_orders - null if not picking for an order';
 
 
 --
@@ -1334,7 +1327,7 @@ COMMENT ON COLUMN pick_tasks.pt_temperature_zone IS 'Temperature zone the pick t
 -- Name: COLUMN pick_tasks.pt_order_promised_time; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN pick_tasks.pt_order_promised_time IS 'Time by which the pick task must be completed';
+COMMENT ON COLUMN pick_tasks.pt_order_promised_time IS 'Time by which the pick task must be completed (earliest order promised time)';
 
 
 --
@@ -1370,6 +1363,13 @@ COMMENT ON COLUMN pick_tasks.pt_bin_qty_est IS 'Estimated number of bins require
 --
 
 COMMENT ON COLUMN pick_tasks.pt_bin_size_est IS 'Estimated bin size in cubic volume (relevant only if using just one bin, otherwise use largest bins)';
+
+
+--
+-- Name: COLUMN pick_tasks.pt_multi_order; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pick_tasks.pt_multi_order IS 'Does this task contain products from multiple orders?';
 
 
 --
@@ -1465,69 +1465,76 @@ ALTER SEQUENCE pickup_locations_pul_id_seq OWNED BY pickup_locations.pul_id;
 
 
 --
--- Name: pickup_task_products; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: pickup_sub_tasks; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
-CREATE TABLE pickup_task_products (
-    putp_id integer NOT NULL,
-    putp_put_id integer NOT NULL,
-    putp_cop_id integer NOT NULL,
-    putp_pr_sku ean13 NOT NULL,
-    putp_status task_status NOT NULL,
-    putp_qty integer NOT NULL,
+CREATE TABLE pickup_sub_tasks (
+    pst_id integer NOT NULL,
+    pst_temperature_zone temperature_zone NOT NULL,
+    pst_put_id integer NOT NULL,
+    pst_pcl_id ean13 NOT NULL,
+    pst_pt_id integer NOT NULL,
+    pst_status task_status NOT NULL,
     last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
-ALTER TABLE pickup_task_products OWNER TO postgres;
+ALTER TABLE pickup_sub_tasks OWNER TO postgres;
 
 --
--- Name: COLUMN pickup_task_products.putp_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: TABLE pickup_sub_tasks; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN pickup_task_products.putp_id IS 'Surrogate primary key';
-
-
---
--- Name: COLUMN pickup_task_products.putp_put_id; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN pickup_task_products.putp_put_id IS 'Foreign key to pickup_tasks';
+COMMENT ON TABLE pickup_sub_tasks IS 'Sub tasks that make up a pickup task - represents one finished goods location in one temperature zone as part of pickup';
 
 
 --
--- Name: COLUMN pickup_task_products.putp_cop_id; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN pickup_sub_tasks.pst_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN pickup_task_products.putp_cop_id IS 'Foreign key to customer_order_products';
-
-
---
--- Name: COLUMN pickup_task_products.putp_pr_sku; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN pickup_task_products.putp_pr_sku IS 'Foreign key to products';
+COMMENT ON COLUMN pickup_sub_tasks.pst_id IS 'Surrogate primary key';
 
 
 --
--- Name: COLUMN pickup_task_products.putp_status; Type: COMMENT; Schema: public; Owner: postgres
+-- Name: COLUMN pickup_sub_tasks.pst_temperature_zone; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN pickup_task_products.putp_status IS 'Current status of this product, i.e. queued/in progress/complete';
-
-
---
--- Name: COLUMN pickup_task_products.putp_qty; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN pickup_task_products.putp_qty IS 'Qty of this sku on this pick task (can be subset of customer_order_product qty if many are ordered)';
+COMMENT ON COLUMN pickup_sub_tasks.pst_temperature_zone IS 'Temperature zone where the subtask takes place';
 
 
 --
--- Name: pickup_task_products_putp_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: COLUMN pickup_sub_tasks.pst_put_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-CREATE SEQUENCE pickup_task_products_putp_id_seq
+COMMENT ON COLUMN pickup_sub_tasks.pst_put_id IS 'Foreign key to pickup_tasks - the pickup task this is part of';
+
+
+--
+-- Name: COLUMN pickup_sub_tasks.pst_pcl_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pickup_sub_tasks.pst_pcl_id IS 'Foreign key to pick_container_locations - the finished goods location containing products for this task';
+
+
+--
+-- Name: COLUMN pickup_sub_tasks.pst_pt_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pickup_sub_tasks.pst_pt_id IS 'Foreign key to pick_tasks - the pick task that preceded this';
+
+
+--
+-- Name: COLUMN pickup_sub_tasks.pst_status; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN pickup_sub_tasks.pst_status IS 'Current status of this subtask, i.e. queued/in progress/complete';
+
+
+--
+-- Name: pickup_sub_tasks_pst_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE pickup_sub_tasks_pst_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1535,13 +1542,13 @@ CREATE SEQUENCE pickup_task_products_putp_id_seq
     CACHE 1;
 
 
-ALTER TABLE pickup_task_products_putp_id_seq OWNER TO postgres;
+ALTER TABLE pickup_sub_tasks_pst_id_seq OWNER TO postgres;
 
 --
--- Name: pickup_task_products_putp_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: pickup_sub_tasks_pst_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
-ALTER SEQUENCE pickup_task_products_putp_id_seq OWNED BY pickup_task_products.putp_id;
+ALTER SEQUENCE pickup_sub_tasks_pst_id_seq OWNED BY pickup_sub_tasks.pst_id;
 
 
 --
@@ -1550,7 +1557,6 @@ ALTER SEQUENCE pickup_task_products_putp_id_seq OWNED BY pickup_task_products.pu
 
 CREATE TABLE pickup_tasks (
     put_id integer NOT NULL,
-    put_pc_id ean13 NOT NULL,
     put_cor_id integer NOT NULL,
     put_pul_id integer NOT NULL,
     put_as_id integer,
@@ -2733,10 +2739,10 @@ ALTER TABLE ONLY pickup_locations ALTER COLUMN pul_id SET DEFAULT nextval('picku
 
 
 --
--- Name: putp_id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: pst_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY pickup_task_products ALTER COLUMN putp_id SET DEFAULT nextval('pickup_task_products_putp_id_seq'::regclass);
+ALTER TABLE ONLY pickup_sub_tasks ALTER COLUMN pst_id SET DEFAULT nextval('pickup_sub_tasks_pst_id_seq'::regclass);
 
 
 --
@@ -2871,11 +2877,11 @@ ALTER TABLE ONLY pickup_locations
 
 
 --
--- Name: pickup_task_products_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: pickup_sub_tasks_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
-ALTER TABLE ONLY pickup_task_products
-    ADD CONSTRAINT pickup_task_products_pkey PRIMARY KEY (putp_id);
+ALTER TABLE ONLY pickup_sub_tasks
+    ADD CONSTRAINT pickup_sub_tasks_pkey PRIMARY KEY (pst_id);
 
 
 --
@@ -3079,20 +3085,6 @@ CREATE INDEX pick_task_products_ptp_stl_id_idx ON pick_task_products USING btree
 
 
 --
--- Name: pick_tasks_pt_cor_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE INDEX pick_tasks_pt_cor_id_idx ON pick_tasks USING btree (pt_cor_id);
-
-
---
--- Name: pick_tasks_pt_pc_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE INDEX pick_tasks_pt_pc_id_idx ON pick_tasks USING btree (pt_pc_id);
-
-
---
 -- Name: pick_tasks_pt_status_pt_order_promised_time_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -3100,17 +3092,10 @@ CREATE INDEX pick_tasks_pt_status_pt_order_promised_time_idx ON pick_tasks USING
 
 
 --
--- Name: pickup_task_products_putp_cop_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: pickup_sub_tasks_pst_put_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
-CREATE INDEX pickup_task_products_putp_cop_id_idx ON pickup_task_products USING btree (putp_cop_id);
-
-
---
--- Name: pickup_task_products_putp_put_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE INDEX pickup_task_products_putp_put_id_idx ON pickup_task_products USING btree (putp_put_id);
+CREATE INDEX pickup_sub_tasks_pst_put_id_idx ON pickup_sub_tasks USING btree (pst_put_id);
 
 
 --
