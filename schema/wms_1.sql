@@ -1055,7 +1055,7 @@ COMMENT ON COLUMN pick_container_locations.pcl_shelf_slot IS 'Slot within a shel
 
 CREATE TABLE pick_containers (
     pc_id ean13 NOT NULL,
-    pc_pcl_id integer,
+    pc_pcl_id ean13,
     pc_temperature_zone temperature_zone NOT NULL,
     pc_type pick_container_type NOT NULL,
     pc_height double precision,
