@@ -30,5 +30,13 @@ $app->get('/util/testall', function () use ($app) {
     $log->addError('This is a generic error');
     $log->addError('This is a generic error with some data', ['some' => 'data']);
 
+    $app->flashNow('info', 'An info message');
+    $app->flashNow('default', 'A default message');
+    $app->flashNow('dark', 'A dark message');
+    $app->flashNow('success', 'A success message');
+    $app->flashNow('danger', 'A danger message');
+    $app->flashNow('warning', explode(' ', 'array of warning messages'));
+
+    
     $app->render('util', $template_vars);
 });

@@ -11,17 +11,16 @@ class User {
         $this->connection = $db_conn;
         $this->email = $email;
 
-        $sql = 'SELECT customer_id,
-                    email,
-                    password,
-                    last_login,
-                    persist_code,
-                    reset_password_code,
-                    first_name,
-                    last_name,
-                    created_at,
-                    updated_at from customers
-                    where email = :email';
+        $sql = 'SELECT cu_id,
+                    cu_email,
+                    cu_password,
+                    cu_last_login,
+                    cu_persist_code,
+                    cu_reset_password_code,
+                    cu_first_name,
+                    cu_created_at,
+                    cu_updated_at from customers
+                    where cu_email = :email';
 
         $result = $this->connection->fetchOne($sql, ['email' => $email]);
         if ($result === false) {
@@ -33,11 +32,11 @@ class User {
     }
 
     public static function createUser($db_conn, $user_data) {
-        $sql = 'SELECT * from customers where email = :email';
+        $sql = 'SELECT * from customers where cu_email = :email';
         $result = $db_conn->fetchOne($sql, ['email' => $user_data['email']]);
 
         if ($result === false) {
-            $sql = 'INSERT INTO customers (email, password, created_at, updated_at, last_login) VALUES
+            $sql = 'INSERT INTO customers (cu_email, cu_password, cu_created_at, cu_updated_at, cu_last_login) VALUES
                     (:email, :password, :created_at, :updated_at, :last_login)';
             return $db_conn->perform($sql, $user_data);
         } else {
@@ -52,11 +51,11 @@ class User {
         }
 
         $sql = 'UPDATE customers set '  . implode(',', $fields_to_update)
-                . ' WHERE email = :email';
+                . ' WHERE cu_email = :email';
 
         $data = array_merge($data, [
-            'email'      => $this->email,
-            'updated_at' => \Pikd\Util::timestamp()
+            'cu_email'      => $this->email,
+            'cu_updated_at' => \Pikd\Util::timestamp()
         ]);
 
         $result = $this->connection->perform($sql, $data);

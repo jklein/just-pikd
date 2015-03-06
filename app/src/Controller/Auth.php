@@ -81,7 +81,7 @@ class Auth {
             } else {
                 $user_data = $user->getUserData();
                 var_dump($user_data);
-                if (password_verify($password, $user_data['password'])) {
+                if (password_verify($password, $user_data['cu_password'])) {
                     $valid = true;
                     $_SESSION = array_merge($_SESSION, $user_data);
                     $messages[] = 'You have been logged in successfully!';

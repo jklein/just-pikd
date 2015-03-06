@@ -12,8 +12,8 @@ $app = new \Slim\Slim([
 $app->connections = \Pikd\DB::getConnections();
 $app->config = \Pikd\Config::getConfiguration();
 
-if (!empty($_SESSION['email'])) {
-    $app->user = new \Pikd\Model\User($app->connections->getWrite('customer'), $_SESSION['email']);
+if (!empty($_SESSION['cu_email'])) {
+    $app->user = new \Pikd\Model\User($app->connections->getWrite('customer'), $_SESSION['cu_email']);
 } else {
     $app->user = null;
 }
@@ -33,14 +33,7 @@ $view->appendData([
 ]);
 
 $app->get('/', function () use ($app) {
-    $controller = new \Pikd\Controller\Base();
-
-    $app->flashNow('info', 'An info message');
-    $app->flashNow('default', 'A default message');
-    $app->flashNow('dark', 'A dark message');
-    $app->flashNow('success', 'A success message');
-    $app->flashNow('danger', 'A danger message');
-    $app->flashNow('warning', explode(' ', 'array of warning messages'));
+    $controller = new \Pikd\Controller\Base($app->user);
 
     $app->render('index', $controller->template_vars);
 });

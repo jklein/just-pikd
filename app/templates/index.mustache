@@ -5,6 +5,11 @@
 
 {{$ content}}
     <p>Hello {{ name }}! This will be Just Pikd</p>
+
+    <h3>Here are some products: </h3>
+    {{# products }}
+        {{> product_card }}
+    {{/ products }}
 {{/ content}}
 
 {{/ base }}
