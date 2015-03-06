@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f1832322250fe0429794533db03049ea",
+    "hash": "16a8588cf1d3772320af1c769f7e4cb1",
     "packages": [
         {
             "name": "aura/input",
@@ -175,6 +175,53 @@
                 "sqlsrv"
             ],
             "time": "2015-03-03 20:32:41"
+        },
+        {
+            "name": "dearon/slim-mustache",
+            "version": "0.1.1",
+            "target-dir": "Slim/Mustache",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Dearon/Slim-Mustache.git",
+                "reference": "9bf15760ab893b0f5c299d847139888f9e6b5e6f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Dearon/Slim-Mustache/zipball/9bf15760ab893b0f5c299d847139888f9e6b5e6f",
+                "reference": "9bf15760ab893b0f5c299d847139888f9e6b5e6f",
+                "shasum": ""
+            },
+            "require": {
+                "mustache/mustache": ">=2.5.1",
+                "php": ">=5.3.0",
+                "slim/slim": ">=2.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Slim\\Mustache": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Remco Meeuwissen",
+                    "email": "dearon@gmail.com",
+                    "homepage": "http://www.dearon.com/"
+                }
+            ],
+            "description": "Mustache View Parser package for the Slim Framework",
+            "homepage": "http://github.com/dearon/Slim-Mustache",
+            "keywords": [
+                "extensions",
+                "mustache",
+                "slimphp",
+                "templating"
+            ],
+            "time": "2014-06-06 20:12:29"
         },
         {
             "name": "guzzlehttp/guzzle",

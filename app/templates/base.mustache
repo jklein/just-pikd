@@ -1,0 +1,36 @@
+{{% BLOCKS }}
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Just Pikd - {{$ title }}Online Grocery Done Right{{/ title }}</title>
+        <meta name="description" content="{{$ description }}Order online, pick up in person{{/ description }}">
+        <meta name="viewport" content="width=device-width">
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <link rel="stylesheet" href="/build/css/bootstrap.css">
+        <link rel="stylesheet" href="/build/css/main.css">
+    </head>
+    <body>
+        {{> modules/ie_nag }}
+        {{> modules/header }}
+
+        <div class="container">
+            {{> modules/flash_messages }}
+            {{$ content }}{{/ content}}
+        </div>
+
+        {{> modules/modal_register }}
+        {{> modules/modal_login }}
+
+        {{$ footer }}{{/ footer}}
+
+        {{> modules/footer }}
+        <script src="/build/js/jquery-2.1.0.min.js"></script>
+        <script src="/build/js/bootstrap-3.1.1.min.js"></script>
+        <script src="/build/js/bundle.js"></script>
+    </body>
+</html>

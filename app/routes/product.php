@@ -21,7 +21,7 @@ $app->get('/products', function() use ($app) {
                 join products p on bp.product_id = p.product_id
                 limit 10');
 
-    Util::debug($products);
+    d($products);
 
     foreach ($products as $product) {
         $template_vars['products'][] = [
@@ -48,7 +48,7 @@ $app->get('/products/:id(/:product_name)', function($id, $name = '') use ($app) 
     if ($product->isActive()) {
         $template_vars = $product->getTemplateVars();
         $template_vars['category_name'] = Controller\Categories::getName($conn, $product->category_id);
-        Util::debug($template_vars);
+        d($template_vars);
 
         $app->render('product.twig', $template_vars);
     } else {

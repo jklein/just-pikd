@@ -12,12 +12,14 @@
         "aura/sql":                  "2.*",
         "respect/validation":        "0.8.*",
         "videlalvaro/php-amqplib":   "2.*",
+        "dearon/slim-mustache":      "0.1.*",
         "stripe/stripe-php":         "2.*"
     },
     "autoload": {
         "psr-4": {
             "Pikd\\": "src/"
-        }
+        },
+        "files": ["src/functions.php"]
     },
     "require-dev": {
         "symfony/var-dumper": "~2.6"

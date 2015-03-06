@@ -9,13 +9,14 @@
       <div class="col-xs-12  col-sm-6">
         <div class="top__menu">
           <ul class="nav nav-pills">
-            {% if logged_in %}
+            {{# logged_in }}
               <li><a href="/logout" role="button" data-toggle="modal">Logout</a></li>
               <li class="dropdown"><a href="/account">My account</a></li>
-            {% else %}
+            {{/ logged_in }}
+            {{^ logged_in }}
               <li><a href="#registerModal" role="button" data-toggle="modal">Register</a></li>
               <li class="dropdown"><a href="#loginModal" role="button" data-toggle="modal">Login</a></li>
-            {% endif %}
+            {{/ logged_in }}
           </ul>
         </div>
       </div>

@@ -5,7 +5,7 @@ session_cache_limiter(false);
 session_start();
 
 $app = new \Slim\Slim([
-    'view' => new \Slim\Views\Twig(),
+    'view' => new \Slim\Mustache\Mustache()
 ]);
 
 // Set globally available data on the app object
@@ -21,23 +21,32 @@ if (!empty($_SESSION['email'])) {
 $view = $app->view();
 $view->setTemplatesDirectory(__DIR__ . '/../app/templates');
 $view->parserOptions = array(
-    'debug' => true,
+    'pragmas' => [Mustache_Engine::PRAGMA_BLOCKS],
 );
 
-$view->parserExtensions = array(
-    new \Slim\Views\TwigExtension(),
-    new Twig_Extension_Debug(),
-);
 
 // Set globally available data on the view
 $view->appendData([
-    'logged_in' => !empty($_SESSION['email']),
-    'config'    => $app->config,
+    'logged_in'      => !empty($_SESSION['email']),
+    'config'         => $app->config,
+    'year'           => date("Y"),
 ]);
 
 $app->get('/', function () use ($app) {
     $controller = new \Pikd\Controller\Base();
-    $app->render('index.twig', $controller->template_vars);
+
+    $app->flashNow('info', 'An info message');
+    $app->flashNow('default', 'A default message');
+    $app->flashNow('dark', 'A dark message');
+    $app->flashNow('success', 'A success message');
+    $app->flashNow('danger', 'A danger message');
+    $app->flashNow('warning', explode(' ', 'array of warning messages'));
+
+    $app->render('index', $controller->template_vars);
+});
+
+$app->get('/mustache_test', function () use ($app) {
+    $app->render('test_article.mustache', ['name' => 'Jonathan']);
 });
 
 require '../app/routes/auth.php';
