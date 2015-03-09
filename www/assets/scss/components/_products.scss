@@ -183,6 +183,8 @@ html.no-touch {
 .products__title {
   margin: 3px 0 5px;
   font-size: $font-size;
+  height:40px;
+  overflow:hidden;
 
   a {
     @extend %color-secondary-color;
