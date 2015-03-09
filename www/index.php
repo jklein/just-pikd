@@ -8,9 +8,23 @@ $app = new \Slim\Slim([
     'view' => new \Slim\Mustache\Mustache()
 ]);
 
+
 // Set globally available data on the app object
 $app->connections = \Pikd\DB::getConnections();
 $app->config = \Pikd\Config::getConfiguration();
+
+
+/****** DEBUG BAR ******/
+// TODO - remove in prod
+use DebugBar\StandardDebugBar;
+$debugbar = new StandardDebugBar();
+
+// Collectors
+$debugbar->addCollector(new DebugBar\Bridge\SlimCollector($app));
+$debugbar->addCollector(new DebugBar\DataCollector\ConfigCollector($app->config));
+
+$debugbarRenderer = $debugbar->getJavascriptRenderer();
+/****** DEBUG BAR ******/
 
 if (!empty($_SESSION['cu_email'])) {
     $app->user = new \Pikd\Model\User($app->connections->getWrite('customer'), $_SESSION['cu_email']);
@@ -24,19 +38,13 @@ $view->parserOptions = array(
     'pragmas' => [Mustache_Engine::PRAGMA_BLOCKS],
 );
 
-// TODO - remove in prod
-use DebugBar\StandardDebugBar;
-$debugbar = new StandardDebugBar();
-$debugbarRenderer = $debugbar->getJavascriptRenderer();
-$debugbar["messages"]->addMessage("hello world!");
-
 // Set globally available data on the view
 $view->appendData([
     'logged_in'      => !empty($_SESSION['email']),
     'config'         => $app->config,
     'year'           => date("Y"),
     'debug_head'     => $debugbarRenderer->renderHead(),
-    'debug_foot'     => $debugbarRenderer->render(),
+
 ]);
 
 $app->get('/', function () use ($app) {
@@ -69,3 +77,9 @@ require '../app/routes/product.php';
 require '../app/routes/cart.php';
 
 $app->run();
+
+
+$profiles = $app->connections->getRead('product')->getProfiler()->getProfiles();
+$debugbar->addCollector(new \Pikd\DataCollector\SQLQueries($profiles));
+
+echo $debugbarRenderer->render();

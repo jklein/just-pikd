@@ -10,6 +10,7 @@
 namespace Pikd;
 
 use Aura\Sql\ExtendedPdo;
+use Aura\Sql\Profiler;
 use Aura\Sql\ConnectionLocator;
 
 class DB {
@@ -19,44 +20,64 @@ class DB {
         $connections = new ConnectionLocator;
 
         $connections->setDefault(function () {
-            return new ExtendedPdo(
+            $pdo = new ExtendedPdo(
                 'pgsql:host=localhost;dbname=product',
                 'postgres',
                 'justpikd'
             );
+            $pdo->setProfiler(new Profiler);
+            $pdo->getProfiler()->setActive(true);
+
+            return $pdo;
         });
 
         $connections->setRead('product', function () {
-            return new ExtendedPdo(
+            $pdo = new ExtendedPdo(
                 'pgsql:host=localhost;dbname=product',
                 'postgres',
                 'justpikd'
             );
+            $pdo->setProfiler(new Profiler);
+            $pdo->getProfiler()->setActive(true);
+
+            return $pdo;
         });
 
         $connections->setWrite('product', function () {
-            return new ExtendedPdo(
+            $pdo = new ExtendedPdo(
                 'pgsql:host=localhost;dbname=product',
                 'postgres',
                 'justpikd'
             );
+            $pdo->setProfiler(new Profiler);
+            $pdo->getProfiler()->setActive(true);
+
+            return $pdo;
         });
 
 
         $connections->setRead('customer', function () {
-            return new ExtendedPdo(
+            $pdo = new ExtendedPdo(
                 'pgsql:host=localhost;dbname=customer',
                 'postgres',
                 'justpikd'
             );
+            $pdo->setProfiler(new Profiler);
+            $pdo->getProfiler()->setActive(true);
+
+            return $pdo;
         });
 
         $connections->setWrite('customer', function () {
-            return new ExtendedPdo(
+            $pdo = new ExtendedPdo(
                 'pgsql:host=localhost;dbname=customer',
                 'postgres',
                 'justpikd'
             );
+            $pdo->setProfiler(new Profiler);
+            $pdo->getProfiler()->setActive(true);
+
+            return $pdo;
         });
 
         return $connections;
