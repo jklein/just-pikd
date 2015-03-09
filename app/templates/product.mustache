@@ -23,12 +23,9 @@
                     <hr class="bold__divider">
                     <p class="single-product__text">{{ pr_description }}</p>
                     <hr class="bold__divider">
-                    <!-- Single button -->
-                    <select class="btn  btn-shop">
-                        <option>350g</option>
-                        <option>700g</option>
-                        <option>1200g</option>
-                    </select>
+                    
+                    {{> modules/product/options }}
+
                     <!-- Quantity buttons -->
                     <div class="quantity  js--quantity">
                         <input type="button" value="-" class="quantity__button  js--minus-one  js--clickable">

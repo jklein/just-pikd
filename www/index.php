@@ -24,19 +24,26 @@ $view->parserOptions = array(
     'pragmas' => [Mustache_Engine::PRAGMA_BLOCKS],
 );
 
+// TODO - remove in prod
+use DebugBar\StandardDebugBar;
+$debugbar = new StandardDebugBar();
+$debugbarRenderer = $debugbar->getJavascriptRenderer();
+$debugbar["messages"]->addMessage("hello world!");
 
 // Set globally available data on the view
 $view->appendData([
     'logged_in'      => !empty($_SESSION['email']),
     'config'         => $app->config,
     'year'           => date("Y"),
+    'debug_head'     => $debugbarRenderer->renderHead(),
+    'debug_foot'     => $debugbarRenderer->render(),
 ]);
 
 $app->get('/', function () use ($app) {
     $controller = new \Pikd\Controller\Base($app->user);
 
     $conn = $app->connections->getRead('product');
-    $products = \Pikd\Model\Product::getRandomProducts($conn, 5);
+    $products = \Pikd\Model\Product::getRandomProducts($conn, 8);
 
     $product_info_for_display = [];
     foreach ($products as $p) {

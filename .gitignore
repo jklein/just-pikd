@@ -4,5 +4,6 @@ composer.phar
 app/vendor
 node_modules
 www/build
+www/vendor
 .sass-cache
 .DS_Store
