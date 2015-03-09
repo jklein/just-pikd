@@ -1,25 +1,24 @@
-<div class="col-xs-6 col-sm-3 product_card" data-price="{{ product.list_cost }}">
+<div class="col-xs-6 col-sm-3 product_card" data-price="{{ pr_list_cost }}">
     <div class="products__single">
         <figure class="products__image">
-            <a href="/images/{{ product.id }}">
-                <!--<img alt="{{ product.name }}" class="product__image" height="334" src="{{ product.image_src }}">-->
-                Click here to view all images
+            <a href="{{ link }}">
+                <img alt="{{ pr_name }}" class="product__image" width="200" height="200" src="{{ image_url }}">
             </a>
         </figure>
         <div class="row">
             <div class="col-xs-9">
                 <h5 class="products__title">
-                    <a class="products__link js--isotope-title" href="{{ product.link }}">{{ product.name }}</a>
+                    <a class="products__link js--isotope-title" href="{{ link }}">{{ pr_name }}</a>
                 </h5>
             </div>
             <div class="col-xs-3">
                 <div class="products__price">
-                    {{ product.list_cost }}
+                    {{ list_cost }}
                 </div>
             </div>
         </div>
         <div class="products__category">
-            {{ product.category }}
+            {{ cat_name }}
         </div>
     </div>
 </div>

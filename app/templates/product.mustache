@@ -1,27 +1,27 @@
-{% extends "base.twig" %}
+{{% BLOCKS }}
+{{< base }}
 
-{% block title %}{{ name }}{% endblock %}
+{{$ title }}{{ pr_name }}{{/ title }}
 
-{% block content %}
-
-<div class="container">
+{{$ content}}
+    <div class="container">
     <div class="push-down-30">
         <div class="row">
-            {{ include('modules/product/images.twig') }}
+            {{> modules/product/images }}
 
             <div class="col-xs-12 col-sm-8">
                 <div class="products__content">
                     <div class="push-down-30"></div>
 
-                    <span class="products__category">{{ category_name }}</span>
-                    <h1 class="single-product__title">{{ name }}</h1>
+                    <span class="products__category">{{ ca_name }}</span>
+                    <h1 class="single-product__title">{{ pr_name }}</h1>
                     <span class="single-product__price">{{ list_cost }}</span>
 
                     <div class="in-stock--single-product">
                         <span class="in-stock">&bull;</span> <span class="in-stock--text">In stock</span>
                     </div>
                     <hr class="bold__divider">
-                    <p class="single-product__text">{{ description }}</p>
+                    <p class="single-product__text">{{ pr_description }}</p>
                     <hr class="bold__divider">
                     <!-- Single button -->
                     <select class="btn  btn-shop">
@@ -47,12 +47,7 @@
             </div>
         </div>
     </div>
-
-    {{ include('modules/product/tabs.twig') }}
-
-    {% if related_products %}
-        {{ include('modules/related_products.twig', { products: related_products }) }}
-    {% endif %}
 </div>
+{{/ content}}
 
-{% endblock %}
+{{/ base }}

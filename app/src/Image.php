@@ -10,11 +10,11 @@ namespace Pikd;
 
 class Image {
 
-    const FULL_SIZE = 1;
+    const THUMB_SIZE = "200x200";
+    const FULL_SIZE = "600x600";
 
-    public static function product($manu_id, $image_id, $size = self::FULL_SIZE) {
-
-        return "https://s3.amazonaws.com/g2gcdn/$manu_id/$image_id.jpg";
+    public static function product($domain, $ma_id, $gtin, $size = self::THUMB_SIZE) {
+        return $domain . '/g2gcdn/' . $ma_id . '/' . $gtin . '_' . $size . '.jpg';
     }
 
 }

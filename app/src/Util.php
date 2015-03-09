@@ -15,4 +15,13 @@ class Util {
         }
         return date('Y-m-d h:i:s', $date);
     }
+
+    public static function formatPrice($cents) {
+        setlocale(LC_MONETARY, 'en_US');
+        return '$' . money_format('%.2n', $cents/100);
+    }
+
+    public static function isValidSku($sku) {
+        return true;
+    }
 }

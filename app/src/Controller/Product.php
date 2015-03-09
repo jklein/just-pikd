@@ -5,37 +5,33 @@ namespace Pikd\Controller;
 class Product {
 
     private $is_active = false;
-    private $id;
+    private $sku;
     private $dbconn;
     private $template_vars;
 
-    public function __construct($conn, $id) {
+    const STATUS_ACTIVE = "Active";
+
+    public function __construct($conn, $config, $sku) {
         $this->dbconn = $conn;
-        $this->id = $id;
+        $this->sku = $sku;
+        $this->cfg = $config;
 
         $this->assignTemplateVars();
     }
 
     private function assignTemplateVars() {
-        $sql = 'SELECT * from base_products bp
-                join products p on bp.product_id = p.product_id
-                join images i on i.sku = p.sku
-                where bp.product_id = :id
-                and rank = 1 and show_on_site = true
-                order by image_id
-                limit 1';
+        $product = new \Pikd\Model\Product($this->dbconn, $this->sku);
+        $data = $product->getData();
 
-        $bind = ['id' => $this->id];
-        $product = $this->dbconn->fetchOne($sql, $bind);
-
-        if (!empty($product)) {
-            foreach ($product as $key => $value) {
+        if (!empty($data)) {
+            foreach ($data as $key => $value) {
                 $this->$key = $value;
             }
-            $this->template_vars = $product;
+            $this->template_vars = $data;
 
-            $this->template_vars['image_src'] = \Pikd\Image::product($this->manufacturer_id, $this->image_id);
-            $this->is_active = true;
+            $this->template_vars['image_src'] = \Pikd\Image::product($this->cfg['image_domain'], $this->pr_ma_id, $this->pr_gtin, \Pikd\Image::FULL_SIZE);
+            $this->template_vars['list_cost'] = \Pikd\Util::formatPrice($this->list_cost);
+            $this->is_active = $this->pr_status === self::STATUS_ACTIVE;
         }
     }
 
@@ -48,7 +44,9 @@ class Product {
     }
 
     // Stub
-    public static function getLink($product_id, $product_name) {
-        return '/products/' . $product_id . '/' . urlencode($product_name);
+    public static function getLink($sku, $name) {
+        return '/products/' . $sku . '/' . urlencode($name);
     }
+
+     
 }
