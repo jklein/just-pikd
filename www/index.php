@@ -78,8 +78,11 @@ require '../app/routes/cart.php';
 
 $app->run();
 
+$view_data = $app->view->getData();
+unset($view_data['flash']);
 
 $profiles = $app->connections->getRead('product')->getProfiler()->getProfiles();
 $debugbar->addCollector(new \Pikd\DataCollector\SQLQueries($profiles));
+$debugbar->addCollector(new \Pikd\DataCollector\ViewData($view_data));
 
 echo $debugbarRenderer->render();

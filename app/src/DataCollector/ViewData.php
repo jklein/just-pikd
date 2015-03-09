@@ -12,7 +12,7 @@ namespace Pikd\DataCollector;
 /**
  * Collects array data
  */
-class SQLQueries extends \DebugBar\DataCollector\DataCollector implements \DebugBar\DataCollector\Renderable
+class ViewData extends \DebugBar\DataCollector\DataCollector implements \DebugBar\DataCollector\Renderable
 {
     protected $name;
     protected $data;
@@ -21,7 +21,7 @@ class SQLQueries extends \DebugBar\DataCollector\DataCollector implements \Debug
      * @param array  $data
      * @param string $name
      */
-    public function __construct(array $data, $name = 'SQLQueries')
+    public function __construct(array $data, $name = 'ViewData')
     {
         $this->name = $name;
         $this->data = $data;
@@ -30,10 +30,11 @@ class SQLQueries extends \DebugBar\DataCollector\DataCollector implements \Debug
     public function collect()
     {
         $data = [];
-        foreach ($this->data as $entry) {
-            $data[] = "Function: " . ucfirst($entry['function']) . 
-                        ', Duration: ' . round($entry['duration'], 4) . ' seconds' . 
-                        ', Bind Values: ' . json_encode($entry['bind_values']);
+        foreach ($this->data as $k => $v) {
+            if (!is_string($v)) {
+                $v = $this->getDataFormatter()->formatVar($v);
+            }
+            $data[$k] = $v;
         }
         return $data;
     }
@@ -49,7 +50,7 @@ class SQLQueries extends \DebugBar\DataCollector\DataCollector implements \Debug
         return array(
             "$name" => array(
                 "icon" => "gear",
-                "widget" => "PhpDebugBar.Widgets.ListWidget",
+                "widget" => "PhpDebugBar.Widgets.VariableListWidget",
                 "map" => "$name",
                 "default" => "{}"
             )
