@@ -31,9 +31,12 @@ class SQLQueries extends \DebugBar\DataCollector\DataCollector implements \Debug
     {
         $data = [];
         foreach ($this->data as $entry) {
-            $data[] = "Function: " . ucfirst($entry['function']) . 
-                        ', Duration: ' . round($entry['duration'], 4) . ' seconds' . 
-                        ', Bind Values: ' . json_encode($entry['bind_values']);
+            if ($entry['function'] === 'perform') {
+                $data[] = $entry['statement'] . 
+                        ' completed in ' . round($entry['duration'], 4) . ' seconds' . 
+                        ' with bind values: ' . json_encode($entry['bind_values']);
+            }
+            
         }
         return $data;
     }
