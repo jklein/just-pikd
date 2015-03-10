@@ -30,7 +30,7 @@ class Product {
             }
             $this->template_vars = $data;
 
-            $this->template_vars['image_src'] = \Pikd\Image::product($this->cfg['image_domain'], $this->pr_ma_id, $this->pr_gtin, \Pikd\Image::FULL_SIZE);
+            $this->template_vars['image_src'] = \Pikd\Image::product($this->pr_ma_id, $this->pr_gtin, \Pikd\Image::FULL_SIZE);
             $this->template_vars['list_cost'] = \Pikd\Util::formatPrice($this->list_cost);
             $this->template_vars['list_cost_cents'] = $this->list_cost;
             $this->is_active = $this->pr_status === self::STATUS_ACTIVE;

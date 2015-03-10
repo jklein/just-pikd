@@ -17,15 +17,16 @@ class Cart {
         $this->order = new \Pikd\Model\Order($this->db, $this->cu_id, $this->so_id, \Pikd\Model\Order::STATUS_BASKET);
         $this->order_product = new \Pikd\Model\OrderProduct($this->db, $this->order->or_id);
 
-        return $this->order_product->getAllProducts();
+        $this->products = $this->order_product->getAllProducts();
+        return $this->products;
     }
 
     public function getTotalPriceInCents(){
         $total = 0;
-        foreach ($this->products as $product) {
-            $total += $product['price'] * $product['qty'];
+        foreach ($this->products as $p) {
+            $total += $p['op_list_cost'] * $p['op_qty'];
         }
 
-        return $total * 100;
+        return $total;
     }
 }

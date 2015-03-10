@@ -68,7 +68,7 @@ $app->get('/cart', function() use ($app) {
 
     $page_data['cart_products'] = new \ArrayIterator($product_info_for_display);
     $page_data['cart_totals'] = [
-        'display_price' => '$' . $total_price,
+        'display_price' => \Pikd\Util::formatPrice($total_price),
         'numeric_price' => $total_price,
         'num_products'       => count($cart_products),
     ];
