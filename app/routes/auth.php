@@ -83,5 +83,5 @@ $app->map('/account', function() use ($app) {
 
     $page_data['user'] = $app->user->getUserData();
 
-    $app->render('account.twig', $page_data);
+    $app->render('account', $page_data);
 })->via('GET', 'POST');

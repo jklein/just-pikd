@@ -11,6 +11,7 @@ class Order {
     const STATUS_CANCELLED = 'Cancelled';
 
     const TABLE = 'orders';
+    const SEQ = 'orders_or_id_seq';
 
     public function __construct($dbconn, $cu_id, $so_id, $status) {
         $this->dbconn = $dbconn;
@@ -42,7 +43,7 @@ class Order {
     }
 
     private function createOrder($data) {
-        return \Pikd\DB::insert($this->dbconn, self::TABLE, $data);
+        return \Pikd\DB::insert($this->dbconn, self::TABLE, $data, self::SEQ);
     }
 
     private function fetchOrder($data) {

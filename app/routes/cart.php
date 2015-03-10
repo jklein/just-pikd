@@ -78,20 +78,19 @@ $app->get('/cart', function() use ($app) {
 
 // Checking out
 $app->post('/checkout', function() use ($app) {
-    \Stripe::setApiKey($app->config['stripe']['secret_api_key']);
+    \Stripe\Stripe::setApiKey($app->config['stripe']['secret_api_key']);
 
     // Get the credit card details submitted by the form
     $token = $app->request()->post('stripeToken');
 
     // Create the charge on Stripe's servers - this will charge the user's card
-    try {
-        $charge = \Stripe_Charge::create(array(
-          "amount" => $app->request()->post('amount'), // amount in cents, again
-          "currency" => "usd",
-          "card" => $token,
-          "description" => $app->request()->post('stripeEmail'))
-        );
-    } catch(\Stripe_CardError $e) {
-      // The card has been declined
-    }
+    $charge = \Stripe\Charge::create(array(
+      "amount" => $app->request()->post('amount'), // amount in cents, again
+      "currency" => "usd",
+      "card" => $token,
+      "description" => $app->request()->post('stripeEmail'))
+    );
+
+    $app->flash('success', 'Order Placed!');
+    $app->redirect('/'); 
 });

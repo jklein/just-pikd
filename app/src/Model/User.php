@@ -9,8 +9,8 @@ class User {
 
     const TABLE_NAME = 'customers';
 
-    public function __construct($db_conn, $email) {
-        $this->connection = $db_conn;
+    public function __construct($db, $email) {
+        $this->connection = $db;
         $this->email = $email;
 
         $sql = 'SELECT cu_id,
@@ -33,12 +33,12 @@ class User {
         }
     }
 
-    public static function createUser($db_conn, $user_data) {
-        $sql = 'SELECT * from ' . self::TABLE_NAME . ' where cu_email = :email';
-        $result = $db_conn->fetchOne($sql, ['email' => $user_data['email']]);
+    public static function createUser($db, $user_data) {
+        $sql = 'SELECT * from ' . self::TABLE_NAME . ' where cu_email = :cu_email';
+        $result = $db->fetchOne($sql, ['cu_email' => $user_data['cu_email']]);
 
         if ($result === false) {
-            return \Pikd\DB::insert($dbconn, self::TABLE_NAME, $user_data);
+            return \Pikd\DB::insert($db, self::TABLE_NAME, $user_data);
         } else {
             return false;
         }

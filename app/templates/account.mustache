@@ -1,8 +1,9 @@
-{% extends "base.twig" %}
+{{% BLOCKS }}
+{{< base }}
 
-{% block title %}Account{% endblock %}
+{{$ title }}Account{{/ title }}
 
-{% block content %}
+{{$ content}}
     <div class="container  push-down-30">
         <div class="row">
             <div class="col-xs-12">
@@ -68,4 +69,6 @@
             </div>
         </div>
     </div>
-{% endblock %}
+{{/ content}}
+
+{{/ base }}
