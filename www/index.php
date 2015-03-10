@@ -32,6 +32,9 @@ if (!empty($_SESSION['cu_email'])) {
     $app->user = null;
 }
 
+// TODO - This should be a real Store ID
+$app->so_id = 1;
+
 $view = $app->view();
 $view->setTemplatesDirectory(__DIR__ . '/../app/templates');
 $view->parserOptions = array(
@@ -51,7 +54,7 @@ $app->get('/', function () use ($app) {
     $controller = new \Pikd\Controller\Base($app->user);
 
     $conn = $app->connections->getRead('product');
-    $products = \Pikd\Model\Product::getRandomProducts($conn, 8);
+    $products = \Pikd\Model\Product::getRandomProducts($conn, $app->so_id, 8);
 
     $product_info_for_display = [];
     foreach ($products as $p) {
@@ -83,6 +86,8 @@ unset($view_data['flash']);
 
 $profiles = $app->connections->getRead('product')->getProfiler()->getProfiles();
 $debugbar->addCollector(new \Pikd\DataCollector\SQLQueries($profiles));
+
+ksort($view_data);
 $debugbar->addCollector(new \Pikd\DataCollector\ViewData($view_data));
 
 echo $debugbarRenderer->render();

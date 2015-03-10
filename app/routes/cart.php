@@ -4,11 +4,26 @@ namespace Pikd;
 
 // Adding a product to cart
 $app->post('/cart', function() use ($app) {
-    $product_id = (int)$app->request()->post('product_id');
+    if ($app->user === null) {
+        $app->flash('danger', 'You must be logged in to view this page');
+        $app->redirect('/');
+    }
 
-    var_dump($product_id);
+    $pr_sku     = $app->request()->post('pr_sku');
+    $pr_name    = $app->request()->post('pr_name');
+    $list_cost  = $app->request()->post('list_cost');
+    $ma_name    = $app->request()->post('ma_name');
+    $qty        = $app->request()->post('qty');
 
-    $app->redirect('/cart');
+    // Customer info
+    $cu_id = $app->user->getUserData()['cu_id'];
+
+    $db = $app->connections->getWrite('customer');
+    $order = new Model\Order($db, $cu_id, $app->so_id, Model\Order::STATUS_BASKET);
+
+    $order->upsertProduct($pr_sku, $pr_name, $list_cost, $ma_name, $qty);
+
+    //$app->redirect('/cart');
 });
 
 $app->get('/cart', function() use ($app) {

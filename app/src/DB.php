@@ -82,4 +82,26 @@ class DB {
 
         return $connections;
     }
+
+    public static function insert($db, $table, $data) {
+        $sql = 'INSERT INTO ' . $table . '(' . implode(',', array_keys($data)) . ')
+                VALUES (:' . implode(',:', array_keys($data)) . ')';
+
+        return $db->perform($sql, $data);
+    }
+
+    public static function fetchAll($db, $table, $where) {
+        $sql = 'SELECT * FROM ' . $table . ' WHERE ' . self::buildWhereClause($where);
+
+        return $db->perform($sql, $where);
+    }
+
+    private static function buildWhereClause($where_array) {
+        $w = [];
+        foreach ($where_array as $key => $value) {
+            $w[] = $key . ' = ' . ':' . $key;
+        }
+
+        return implode(' AND ', $w);
+    }
 }

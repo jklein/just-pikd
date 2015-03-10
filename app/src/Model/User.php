@@ -7,6 +7,8 @@ class User {
     private $data = [];
     private $email;
 
+    const TABLE_NAME = 'customers';
+
     public function __construct($db_conn, $email) {
         $this->connection = $db_conn;
         $this->email = $email;
@@ -19,7 +21,7 @@ class User {
                     cu_reset_password_code,
                     cu_first_name,
                     cu_created_at,
-                    cu_updated_at from customers
+                    cu_updated_at from ' . self::TABLE_NAME . '
                     where cu_email = :email';
 
         $result = $this->connection->fetchOne($sql, ['email' => $email]);
@@ -32,13 +34,11 @@ class User {
     }
 
     public static function createUser($db_conn, $user_data) {
-        $sql = 'SELECT * from customers where cu_email = :email';
+        $sql = 'SELECT * from ' . self::TABLE_NAME . ' where cu_email = :email';
         $result = $db_conn->fetchOne($sql, ['email' => $user_data['email']]);
 
         if ($result === false) {
-            $sql = 'INSERT INTO customers (cu_email, cu_password, cu_created_at, cu_updated_at, cu_last_login) VALUES
-                    (:email, :password, :created_at, :updated_at, :last_login)';
-            return $db_conn->perform($sql, $user_data);
+            return \Pikd\DB::insert($dbconn, self::TABLE_NAME, $user_data);
         } else {
             return false;
         }
@@ -50,7 +50,7 @@ class User {
             $fields_to_update[] = $key . ' = ' . ':' . $key;
         }
 
-        $sql = 'UPDATE customers set '  . implode(',', $fields_to_update)
+        $sql = 'UPDATE ' . self::TABLE_NAME . ' set '  . implode(',', $fields_to_update)
                 . ' WHERE cu_email = :email';
 
         $data = array_merge($data, [

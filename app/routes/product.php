@@ -8,7 +8,7 @@ $app->get('/products/:sku(/:product_name)', function($sku, $name = '') use ($app
     }
 
     $conn = $app->connections->getRead('product');
-    $product = new Controller\Product($conn, $app->config, $sku);
+    $product = new Controller\Product($conn, $app->so_id, $app->config, $sku);
 
     if ($product->isActive()) {
         $template_vars = $product->getTemplateVars();

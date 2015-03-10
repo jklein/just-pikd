@@ -20,11 +20,11 @@ class Auth {
 
         if (empty($messages)) {
             $user_data = array(
-                'email'      => $params['email'],
-                'password'   => password_hash($params['password'], PASSWORD_BCRYPT),
-                'created_at' => \Pikd\Util::timestamp(),
-                'updated_at' => \Pikd\Util::timestamp(),
-                'last_login' => \Pikd\Util::timestamp(),
+                'cu_email'      => $params['email'],
+                'cu_password'   => password_hash($params['password'], PASSWORD_BCRYPT),
+                'cu_created_at' => \Pikd\Util::timestamp(),
+                'cu_updated_at' => \Pikd\Util::timestamp(),
+                'cu_last_login' => \Pikd\Util::timestamp(),
             );
 
             $result = \Pikd\Model\User::createUser($this->connection, $user_data);
