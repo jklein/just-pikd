@@ -1,9 +1,9 @@
-{% extends "base.twig" %}
+{{% BLOCKS }}
+{{< base }}
 
-{% block title %}{{ title }}{% endblock %}
+{{$ title }}{{ title }}{{/ title }}
 
-{% block content %}
-
+{{$ content}}
 <div class="woocommerce  push-down-30">
   <div class="container">
     <div class="row">
@@ -22,9 +22,9 @@
             </tr>
           </thead>
           <tbody>
-              {% for product in cart_products %}
-                  {% include 'modules/cart_product_row.twig' %}
-              {% endfor %}
+              {{# cart_products }}
+                  {{> modules/cart_product_row }}
+              {{/ cart_products }}
           </tbody>
         </table>
       </div>
@@ -48,9 +48,9 @@
             <script
               src="https://checkout.stripe.com/checkout.js" class="stripe-button"
               data-key="{{ config.stripe.public_api_key }}"
-              data-amount="{{ cart_totals.numeric_price }}"
+              data-amount="{{ cart_numeric_price }}"
               data-name="{{ config.stripe.site_name }}"
-              data-description="{{ cart_totals.products }} products ({{ cart_totals.display_price }})"
+              data-description="{{ cart_totals.num_products }} products ({{ cart_totals.display_price }})"
               data-image="{{ config.stripe.logo }}">
             </script>
         </form>
@@ -60,5 +60,6 @@
   </div>
 </div>
 
+{{/ content}}
 
-{% endblock %}
+{{/ base }}

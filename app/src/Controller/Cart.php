@@ -5,38 +5,19 @@ namespace Pikd\Controller;
 class Cart {
 
     private $products = [];
-    private $user_id = null;
+    private $cu_id = null;
 
-    public function __construct($user_id) {
-        $this->user_id = $user_id;
+    public function __construct($db, $cu_id, $so_id) {
+        $this->db = $db;
+        $this->cu_id = $cu_id;
+        $this->so_id = $so_id;
     }
 
     public function getProducts() {
-        $product_id = '1543';
-        $product_name = 'Some Awesome Product';
+        $this->order = new \Pikd\Model\Order($this->db, $this->cu_id, $this->so_id, \Pikd\Model\Order::STATUS_BASKET);
+        $this->order_product = new \Pikd\Model\OrderProduct($this->db, $this->order->or_id);
 
-        $this->products = [
-            [
-                'id' => $product_id,
-                'name' => $product_name,
-                'image_src' => '/assets/images/dummy/product-cart.jpg',
-                'url' => Product::getLink($product_id, $product_name),
-                'price' => 25,
-                'qty' => 1,
-                'sub_total' => '$25',
-            ],
-            [
-                'id' => $product_id,
-                'name' => $product_name,
-                'image_src' => '/assets/images/dummy/product-cart.jpg',
-                'url' => Product::getLink($product_id, $product_name),
-                'price' => 25,
-                'qty' => 1,
-                'sub_total' => '$25',
-            ],
-        ];
-
-        return $this->products;
+        return $this->order_product->getAllProducts();
     }
 
     public function getTotalPriceInCents(){

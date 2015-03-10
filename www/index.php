@@ -59,7 +59,7 @@ $app->get('/', function () use ($app) {
     $product_info_for_display = [];
     foreach ($products as $p) {
         $product_info_for_display[] = array_merge($p, [
-            "image_url" => \Pikd\Image::product($app->config['image_domain'], $p['pr_ma_id'], $p['pr_gtin']),
+            "image_url" => \Pikd\Image::product($p['pr_ma_id'], $p['pr_gtin']),
             "list_cost" => \Pikd\Util::formatPrice($p['list_cost']),
             "link"      => \Pikd\Controller\Product::getLink($p['pr_sku'], $p['pr_name']),
         ]);

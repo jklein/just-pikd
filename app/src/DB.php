@@ -90,10 +90,30 @@ class DB {
         return $db->perform($sql, $data);
     }
 
+    public static function update($db, $table, $data, $where) {
+        $sql = 'UPDATE ' . $table . ' SET ';
+
+        $values = [];
+        foreach ($data as $key => $value) {
+            $values[] = $key . ' = :' . $key;
+        }
+
+        $sql .= implode(',', $values) . ' WHERE ' . self::buildWhereClause($where); 
+        return $db->fetchAffected($sql, $data);
+    }
+
+    public static function upsert($db, $table, $data, $where) {
+        $affected_rows = self::update($db, $table, $data, $where);
+
+        if ($affected_rows === 0) {
+            return self::insert($db, $table, $data);
+        }
+    }
+
     public static function fetchAll($db, $table, $where) {
         $sql = 'SELECT * FROM ' . $table . ' WHERE ' . self::buildWhereClause($where);
 
-        return $db->perform($sql, $where);
+        return $db->fetchAll($sql, $where);
     }
 
     private static function buildWhereClause($where_array) {

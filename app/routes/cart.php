@@ -21,9 +21,24 @@ $app->post('/cart', function() use ($app) {
     $db = $app->connections->getWrite('customer');
     $order = new Model\Order($db, $cu_id, $app->so_id, Model\Order::STATUS_BASKET);
 
-    $order->upsertProduct($pr_sku, $pr_name, $list_cost, $ma_name, $qty);
+    $product_data = [
+        'op_or_id'             => $order->or_id,
+        'op_pr_sku'            => $pr_sku,
+        'op_product_name'      => $pr_name,
+        'op_list_cost'         => $list_cost,
+        'op_manufacturer_name' => $ma_name,
+        'op_qty'               => $qty,
+    ];
+    $where = [
+        'op_or_id'  => $order->or_id, 
+        'op_pr_sku' => $pr_sku
+    ];
 
-    //$app->redirect('/cart');
+    // TODO - should sum quanities if we add the same product again
+    $order_product = new Model\OrderProduct($db, $order->or_id);
+    $order_product->upsertProduct($product_data, $where);
+
+    $app->redirect('/cart');
 });
 
 $app->get('/cart', function() use ($app) {
@@ -34,19 +49,31 @@ $app->get('/cart', function() use ($app) {
         $app->redirect('/');
     }
 
-    $cart = new Controller\Cart($app->user->getUserData()['customer_id']);
+    $db = $app->connections->getWrite('customer');
+    $product_db = $app->connections->getRead('product');
+    $cart = new Controller\Cart($db, $app->user->getUserData()['cu_id'], $app->so_id);
     $cart_products = $cart->getProducts();
+
+    $product_info_for_display = [];
+    foreach ($cart_products as $p) {
+        $product_info_for_display[] = array_merge($p, [
+            "image_url" => \Pikd\Image::productFromSKU($product_db, $p['op_pr_sku']),
+            "list_cost" => \Pikd\Util::formatPrice($p['op_list_cost']),
+            "link"      => \Pikd\Controller\Product::getLink($p['op_pr_sku'], $p['op_product_name']),
+            "sub_total" => \Pikd\Util::formatPrice($p['op_list_cost'] * $p['op_qty']),
+        ]);
+    }
 
     $total_price = $cart->getTotalPriceInCents();
 
-    $page_data['cart_products'] = $cart_products;
+    $page_data['cart_products'] = new \ArrayIterator($product_info_for_display);
     $page_data['cart_totals'] = [
         'display_price' => '$' . $total_price,
         'numeric_price' => $total_price,
-        'products' => count($cart_products),
+        'num_products'       => count($cart_products),
     ];
 
-    $app->render('cart.twig', $page_data);
+    $app->render('cart', $page_data);
 });
 
 // Checking out

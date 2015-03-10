@@ -10,7 +10,7 @@ class Order {
     const STATUS_COMPLETE = 'Complete';
     const STATUS_CANCELLED = 'Cancelled';
 
-    const TABLE_NAME = 'orders';
+    const TABLE = 'orders';
 
     public function __construct($dbconn, $cu_id, $so_id, $status) {
         $this->dbconn = $dbconn;
@@ -42,14 +42,14 @@ class Order {
     }
 
     private function createOrder($data) {
-        return \Pikd\DB::insert($this->dbconn, self::TABLE_NAME, $data);
+        return \Pikd\DB::insert($this->dbconn, self::TABLE, $data);
     }
 
     private function fetchOrder($data) {
-        return \Pikd\DB::fetchAll($this->dbconn, self::TABLE_NAME, $data);
+        return \Pikd\DB::fetchAll($this->dbconn, self::TABLE, $data);
     }
 
-    public function upsertProduct($sku, $name, $cost, $ma_name, $qty) {
-        d(func_get_args());
+    public function getBasketForCustomer() {
+
     }
 }

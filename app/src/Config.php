@@ -9,7 +9,6 @@ class Config {
 
     private static $shared = [
         'company_name' => 'Just Pikd',
-        'image_domain' => 'https://s3.amazonaws.com',
     ];
 
     private static $development = [
