@@ -7,7 +7,6 @@ class OrderProduct {
     private $or_id;
 
     const TABLE = 'order_products';
-    const SEQ = 'order_products_op_id_seq';
 
     public function __construct($db, $or_id) {
         $this->db = $db;
@@ -27,7 +26,8 @@ class OrderProduct {
         $result = $this->db->fetchOne($sql, $bind);
 
         if ($result === false) {
-            return \Pikd\DB::insert($this->db, self::TABLE, $data, self::SEQ);
+            $data['id_column'] = '';
+            return \Pikd\DB::insert($this->db, self::TABLE, $data);
         } else {
             $data['op_qty'] += $result['op_qty'];
             return \Pikd\DB::update($this->db, self::TABLE, $data, $where);

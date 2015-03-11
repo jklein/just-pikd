@@ -83,13 +83,15 @@ class DB {
         return $connections;
     }
 
-    public static function insert($db, $table, $data, $seq = null) {
+    public static function insert($db, $table, $data) {
         $sql = 'INSERT INTO ' . $table . '(' . implode(',', array_keys($data)) . ')
                 VALUES (:' . implode(',:', array_keys($data)) . ')';
 
-        $db->perform($sql, $data);
-
-        return $db->lastInsertId($seq);
+        if (array_key_exists('id_column', $data)) {
+            $sql .= ' RETURNING :id_column';
+        }
+        
+        return $db->perform($sql, $data);
     }
 
     public static function update($db, $table, $data, $where) {

@@ -43,10 +43,10 @@ $view->parserOptions = array(
 
 // Set globally available data on the view
 $view->appendData([
-    'logged_in'      => !empty($_SESSION['email']),
-    'config'         => $app->config,
-    'year'           => date("Y"),
-    'debug_head'     => $debugbarRenderer->renderHead(),
+    'logged_in'  => !empty($_SESSION['email']),
+    'config'     => $app->config,
+    'year'       => date("Y"),
+    'debug_head' => $debugbarRenderer->renderHead(),
 
 ]);
 
