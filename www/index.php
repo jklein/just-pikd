@@ -36,7 +36,7 @@ if (!empty($_SESSION['cu_email'])) {
 $app->so_id = 1;
 
 $view = $app->view();
-$view->setTemplatesDirectory(__DIR__ . '/../app/templates');
+$view->setTemplatesDirectory(__DIR__ . '/../app/src/Views');
 $view->parserOptions = array(
     'pragmas' => [Mustache_Engine::PRAGMA_BLOCKS],
 );
