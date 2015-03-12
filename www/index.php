@@ -74,10 +74,7 @@ $app->get('/mustache_test', function () use ($app) {
     $app->render('test_article.mustache', ['name' => 'Jonathan']);
 });
 
-require '../app/routes/auth.php';
-require '../app/routes/util.php';
-require '../app/routes/product.php';
-require '../app/routes/cart.php';
+require '../app/routes.php';
 
 $app->run();
 
