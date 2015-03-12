@@ -13,7 +13,7 @@
  ********************************** 80 Columns *********************************
  */
 
-namespace Pikd\Enum;
+namespace Pikd\Enums;
 
 class ORDER_STATUS {
 

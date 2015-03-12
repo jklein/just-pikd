@@ -1,6 +1,6 @@
 <?php
 
-namespace Pikd\Controller;
+namespace Pikd\Controllers;
 
 class Base {
     public $template_vars;

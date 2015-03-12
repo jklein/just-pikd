@@ -76,7 +76,7 @@ function generateModel($db, $table_name) {
 
     $model = '<?php
 
-namespace Pikd\Model;
+namespace Pikd\Models;
 
 class ' . $model_name . ' {
 

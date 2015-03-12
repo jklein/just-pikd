@@ -26,7 +26,7 @@ class OrderProduct {
         $result = $this->db->fetchOne($sql, $bind);
 
         if ($result === false) {
-            $data['id_column'] = '';
+            $data['id_column'] = 'op_id';
             return \Pikd\DB::insert($this->db, self::TABLE, $data);
         } else {
             $data['op_qty'] += $result['op_qty'];

@@ -84,12 +84,16 @@ class DB {
     }
 
     public static function insert($db, $table, $data) {
-        $sql = 'INSERT INTO ' . $table . '(' . implode(',', array_keys($data)) . ')
-                VALUES (:' . implode(',:', array_keys($data)) . ')';
-
+        // If we want to return the identity of the inserted row
+        $returning = '';
         if (array_key_exists('id_column', $data)) {
-            $sql .= ' RETURNING :id_column';
+            $returning = ' RETURNING ' . $data['id_column'];
+            unset($data['id_column']);
         }
+
+        $sql = 'INSERT INTO ' . $table . '(' . implode(',', array_keys($data)) . ')
+                VALUES (:' . implode(',:', array_keys($data)) . ')' . 
+                $returning;
         
         return $db->perform($sql, $data);
     }

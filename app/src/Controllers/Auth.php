@@ -1,6 +1,6 @@
 <?php
 
-namespace Pikd\Controller;
+namespace Pikd\Controllers;
 
 use Respect\Validation\Validator as v;
 

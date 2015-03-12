@@ -1,11 +1,12 @@
 <?php
 
-namespace Pikd;
-
+use Pikd\Controllers as C;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use PhpAmqpLib\Connection\AMQPConnection;
 use PhpAmqpLib\Message\AMQPMessage;
+
+$app->get('/', function() use ($app) { C\Index::handleGet($app); });
 
 $app->post('/register', function() use ($app) {
     $form_data = array(
@@ -28,7 +29,7 @@ $app->post('/register', function() use ($app) {
 
 $app->post('/login', function() use ($app) {
     $db_conn = $app->connections->getWrite('customer');
-    $auth = new \Pikd\Controller\Auth($db_conn);
+    $auth = new \Pikd\Controllers\Auth($db_conn);
 
     $params = array(
         'email'     => filter_var($app->request()->post('email'), FILTER_VALIDATE_EMAIL),
@@ -62,7 +63,7 @@ $app->map('/account', function() use ($app) {
 
     if ($app->request()->isPost()) {
         $db_conn = $app->connections->getWrite('customer');
-        $auth = new \Pikd\Controller\Auth($db_conn, $app->user);
+        $auth = new \Pikd\Controllers\Auth($db_conn, $app->user);
 
         // They could be updating information about themself, or they could be
         // changing their password
@@ -112,7 +113,7 @@ $app->post('/cart', function() use ($app) {
     $cu_id = $app->user->getUserData()['cu_id'];
 
     $db = $app->connections->getWrite('customer');
-    $order = new Model\Order($db, $cu_id, $app->so_id, Model\Order::STATUS_BASKET);
+    $order = new \Pikd\Model\Order($db, $cu_id, $app->so_id, \Pikd\Enums\ORDER_STATUS::BASKET);
 
     $product_data = [
         'op_or_id'             => $order->or_id,
@@ -128,7 +129,7 @@ $app->post('/cart', function() use ($app) {
     ];
 
     // TODO - should sum quanities if we add the same product again
-    $order_product = new Model\OrderProduct($db, $order->or_id);
+    $order_product = new \Pikd\Model\OrderProduct($db, $order->or_id);
     $order_product->upsertProduct($product_data, $where);
 
     $app->redirect('/cart');
@@ -144,7 +145,7 @@ $app->get('/cart', function() use ($app) {
 
     $db = $app->connections->getWrite('customer');
     $product_db = $app->connections->getRead('product');
-    $cart = new Controller\Cart($db, $app->user->getUserData()['cu_id'], $app->so_id);
+    $cart = new \Pikd\Controllers\Cart($db, $app->user->getUserData()['cu_id'], $app->so_id);
     $cart_products = $cart->getProducts();
 
     $product_info_for_display = [];
@@ -152,7 +153,7 @@ $app->get('/cart', function() use ($app) {
         $product_info_for_display[] = array_merge($p, [
             "image_url" => \Pikd\Image::productFromSKU($product_db, $p['op_pr_sku']),
             "list_cost" => \Pikd\Util::formatPrice($p['op_list_cost']),
-            "link"      => \Pikd\Controller\Product::getLink($p['op_pr_sku'], $p['op_product_name']),
+            "link"      => \Pikd\Controllers\Product::getLink($p['op_pr_sku'], $p['op_product_name']),
             "sub_total" => \Pikd\Util::formatPrice($p['op_list_cost'] * $p['op_qty']),
         ]);
     }
@@ -194,7 +195,7 @@ $app->get('/products/:sku(/:product_name)', function($sku, $name = '') use ($app
     }
 
     $conn = $app->connections->getRead('product');
-    $product = new Controller\Product($conn, $app->so_id, $app->config, $sku);
+    $product = new \Pikd\Controllers\Product($conn, $app->so_id, $app->config, $sku);
 
     if ($product->isActive()) {
         $template_vars = $product->getTemplateVars();

@@ -50,30 +50,6 @@ $view->appendData([
 
 ]);
 
-$app->get('/', function () use ($app) {
-    $controller = new \Pikd\Controller\Base($app->user);
-
-    $conn = $app->connections->getRead('product');
-    $products = \Pikd\Model\Product::getRandomProducts($conn, $app->so_id, 8);
-
-    $product_info_for_display = [];
-    foreach ($products as $p) {
-        $product_info_for_display[] = array_merge($p, [
-            "image_url" => \Pikd\Image::product($p['pr_ma_id'], $p['pr_gtin']),
-            "list_cost" => \Pikd\Util::formatPrice($p['list_cost']),
-            "link"      => \Pikd\Controller\Product::getLink($p['pr_sku'], $p['pr_name']),
-        ]);
-    }
-
-    $controller->template_vars['products'] = new ArrayIterator($product_info_for_display);
-    
-    $app->render('index', $controller->template_vars);
-});
-
-$app->get('/mustache_test', function () use ($app) {
-    $app->render('test_article.mustache', ['name' => 'Jonathan']);
-});
-
 require '../app/routes.php';
 
 $app->run();
