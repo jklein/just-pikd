@@ -2,35 +2,9 @@
 
 require '../app/vendor/autoload.php';
 
-use Aura\Sql\ExtendedPdo;
-use Aura\Sql\Profiler;
-use Aura\Sql\ConnectionLocator;
+$test_mode = isset($argv[1]) && $argv[1] = 'test';
 
-$connections = new ConnectionLocator;
-
-$connections->setRead('product', function () {
-    $pdo = new ExtendedPdo(
-        'pgsql:host=localhost;dbname=product',
-        'postgres',
-        'justpikd'
-    );
-    $pdo->setProfiler(new Profiler);
-    $pdo->getProfiler()->setActive(true);
-
-    return $pdo;
-});
-$connections->setRead('customer', function () {
-    $pdo = new ExtendedPdo(
-        'pgsql:host=localhost;dbname=customer',
-        'postgres',
-        'justpikd'
-    );
-    $pdo->setProfiler(new Profiler);
-    $pdo->getProfiler()->setActive(true);
-
-    return $pdo;
-});
-
+$connections = \Pikd\DB::getConnections();
 
 $product_db = $connections->getRead('product');
 $customer_db = $connections->getRead('customer');
@@ -49,12 +23,12 @@ $manual_map = [
 
 $product_enums = getEnums($product_db);
 foreach ($product_enums as $enum) {
-    getEnumClass($product_db, $enum, $manual_map);
+    getEnumClass($product_db, $enum, $manual_map, $test_mode);
 }
 
 $customer_enums = getEnums($customer_db);
 foreach ($customer_enums as $enum) {
-    getEnumClass($customer_db, $enum, $manual_map);
+    getEnumClass($customer_db, $enum, $manual_map, $test_mode);
 }
 
 
@@ -74,7 +48,7 @@ function getEnums($db) {
     return $enums;
 }
 
-function getEnumClass($db, $enum, $manual_map) {
+function getEnumClass($db, $enum, $manual_map, $test_mode) {
     $sql = 'SELECT enum_range(NULL::' . $enum .');';
 
     $results = $db->fetchAll($sql);
@@ -118,7 +92,11 @@ class ' . $enum_name . ' {' . PHP_EOL . PHP_EOL;
 
     $out .= PHP_EOL . '}';
 
-    file_put_contents('../app/src/Enums/' . $enum_name . '.php', $out);
+    if ($test_mode) {
+        echo $out;
+    } else {
+        file_put_contents('../app/src/Enums/' . $enum_name . '.php', $out);
+    }
 }
 
 

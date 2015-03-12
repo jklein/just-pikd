@@ -2,35 +2,9 @@
 
 require '../app/vendor/autoload.php';
 
-use Aura\Sql\ExtendedPdo;
-use Aura\Sql\Profiler;
-use Aura\Sql\ConnectionLocator;
+$test_mode = isset($argv[1]) && $argv[1] = 'test';
 
-$connections = new ConnectionLocator;
-
-$connections->setRead('product', function () {
-    $pdo = new ExtendedPdo(
-        'pgsql:host=localhost;dbname=product',
-        'postgres',
-        'justpikd'
-    );
-    $pdo->setProfiler(new Profiler);
-    $pdo->getProfiler()->setActive(true);
-
-    return $pdo;
-});
-$connections->setRead('customer', function () {
-    $pdo = new ExtendedPdo(
-        'pgsql:host=localhost;dbname=customer',
-        'postgres',
-        'justpikd'
-    );
-    $pdo->setProfiler(new Profiler);
-    $pdo->getProfiler()->setActive(true);
-
-    return $pdo;
-});
-
+$connections = \Pikd\DB::getConnections();
 
 $product_db = $connections->getRead('product');
 $customer_db = $connections->getRead('customer');
@@ -59,15 +33,15 @@ $customer_tables = [
 
 foreach ($product_tables as $table_name) {
     echo 'Making model for table ' . $table_name . PHP_EOL;
-    generateModel($product_db, $table_name);
+    generateModel($product_db, $table_name, $test_mode);
 }
 
 foreach ($customer_tables as $table_name) {
     echo 'Making model for table ' . $table_name . PHP_EOL;
-    generateModel($customer_db, $table_name);
+    generateModel($customer_db, $table_name, $test_mode);
 }
 
-function generateModel($db, $table_name) {
+function generateModel($db, $table_name, $test_mode) {
     $sql = 'select column_name from information_schema.columns where table_name = :table_name';
  
     $columns = $db->fetchAll($sql, ['table_name' => $table_name]);
@@ -90,7 +64,11 @@ class ' . $model_name . ' {
 
     $model .= '}';
 
-    file_put_contents('models/' . $model_name . '.php', $model);
+    if ($test_mode) {
+        echo $model;
+    } else {
+        file_put_contents('models/' . $model_name . '.php', $model);
+    }
 }
 
 
