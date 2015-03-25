@@ -58,6 +58,20 @@ CREATE EXTENSION IF NOT EXISTS isn WITH SCHEMA public;
 COMMENT ON EXTENSION isn IS 'data types for international product numbering standards';
 
 
+--
+-- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
+
+
 SET search_path = public, pg_catalog;
 
 --
@@ -442,7 +456,9 @@ CREATE TABLE associate_stations (
     ast_as_id integer NOT NULL,
     ast_station_type station_type NOT NULL,
     ast_start_time timestamp with time zone NOT NULL,
-    ast_end_time timestamp with time zone
+    ast_end_time timestamp with time zone,
+    ast_api_token uuid DEFAULT uuid_generate_v4() NOT NULL,
+    last_updated timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -488,6 +504,13 @@ COMMENT ON COLUMN associate_stations.ast_start_time IS 'When this employee start
 --
 
 COMMENT ON COLUMN associate_stations.ast_end_time IS 'When this employee finished working at this station';
+
+
+--
+-- Name: COLUMN associate_stations.ast_api_token; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN associate_stations.ast_api_token IS 'API auth token associated with this session';
 
 
 --
@@ -2980,6 +3003,13 @@ CREATE INDEX associate_stations_ast_as_id_idx ON associate_stations USING btree 
 
 
 --
+-- Name: associate_stations_ast_as_id_idx1; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE UNIQUE INDEX associate_stations_ast_as_id_idx1 ON associate_stations USING btree (ast_as_id) WHERE (ast_end_time IS NULL);
+
+
+--
 -- Name: associate_stations_ast_end_time_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -3236,6 +3266,13 @@ CREATE INDEX stocking_purchase_orders_spo_date_shipped_idx ON stocking_purchase_
 --
 
 CREATE INDEX supplier_shipments_shi_shipment_code_idx ON supplier_shipments USING btree (shi_shipment_code);
+
+
+--
+-- Name: uix_as_login_pin; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE UNIQUE INDEX uix_as_login_pin ON associates USING btree (as_login_pin);
 
 
 --
