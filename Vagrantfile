@@ -41,7 +41,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   #create shared folder for code
   config.vm.synced_folder ".", "/usr/share/nginx/html"
-  config.vm.synced_folder "~/development/just-pikd-wms", "/opt/go/src/just-pikd-wms"
+  config.vm.synced_folder "../just-pikd-wms", "/opt/go/src/just-pikd-wms"
   #shared folder for database dumps (assumes you have Box set up)
   config.vm.synced_folder "~/Box\ Sync/Company\ Shared\ Folder/database/", "/mnt/database"
 end
